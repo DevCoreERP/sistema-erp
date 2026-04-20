@@ -1,0 +1,11 @@
+application:
+  security:
+    jwt:
+      secret-key: 9a8b7c6d5e4f3g2h1i0j9k8l7m6n5o4p3q2r1s0t
+      expiration: 15 # minutes
+    cookie:
+      name: auth-token
+      http-only: true
+      secure: true
+      max-age: 60 * 12 # 12 min
+      same-site: Strict
