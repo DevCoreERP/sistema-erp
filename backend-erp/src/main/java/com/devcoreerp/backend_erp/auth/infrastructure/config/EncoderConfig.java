@@ -1,5 +1,27 @@
 package com.devcoreerp.backend_erp.auth.infrastructure.config;
 
+// Spring
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
+
+// Security - Password
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+// JWT (Spring Security OAuth2)
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+
+// Nimbus
+import com.nimbusds.jose.jwk.source.ImmutableSecret;
+
+// Java Crypto
+import javax.crypto.spec.SecretKeySpec;
+
 @Configuration
 public class EncoderConfig {
     @Value("${application.security.jwt.secret-key}")

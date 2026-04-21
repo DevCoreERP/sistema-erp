@@ -1,7 +1,5 @@
 package com.devcoreerp.backend_erp.auth.infrastructure.config;
 
-import java.io.IOException;
-
 import jakarta.servlet.Filter;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,7 +11,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 
@@ -25,12 +22,16 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
-
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import com.devcoreerp.backend_erp.auth.application.AuthCookieConstants.AuthConstants;
+import com.devcoreerp.backend_erp.auth.domain.services.AuthService;
+import com.devcoreerp.backend_erp.auth.infrastructure.filters.JwtAuthenticationFilter;
 
 import org.springframework.security.config.http.SessionCreationPolicy;
 
@@ -48,7 +49,8 @@ public class WebSecurityConfig {
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
 
-    public WebSecurityConfig(AuthService authService, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+    public WebSecurityConfig(AuthService authService, UserDetailsService userDetailsService,
+            PasswordEncoder passwordEncoder) {
         this.authService = authService;
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
@@ -62,47 +64,42 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         final Filter jwtFilter = jwtAuthenticationFilter();
         http
-            .formLogin(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests((requests) -> requests
-                .requestMatchers(HttpMethod.POST, LOGIN_URL_MATCHER).permitAll()
-                .requestMatchers(BASE_URL_MATCHER).authenticated()
-                .anyRequest().denyAll()
-            )
-            .logout(logout -> {
-                logout
-                    .logoutRequestMatcher(new AntPathRequestMatcher(LOG_OUT_URL_MATCHER, HttpMethod.POST.name()))
-                    .logoutSuccessHandler((request, response, authentication) -> {
-                        response.setStatus(HttpStatus.NO_CONTENT.value());
-                        final Cookie cookie = new Cookie(AuthCookieConstants.TOKEN_COOKIE_NAME, null);
-                        cookie.setMaxAge(0);
-                        response.addCookie(cookie);
-                    })
-                ;
-            })
-            .addFilterBefore(jwtFilter, LogoutFilter.class)
-            .csrf((csrf) -> {
+                .formLogin(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests((requests) -> requests
+                        .requestMatchers(HttpMethod.POST, LOGIN_URL_MATCHER).permitAll()
+                        .requestMatchers(BASE_URL_MATCHER).authenticated()
+                        .anyRequest().denyAll())
+                .logout(logout -> {
+                    logout
+                            .logoutRequestMatcher(
+                                    new AntPathRequestMatcher(LOG_OUT_URL_MATCHER, HttpMethod.POST.name()))
+                            .logoutSuccessHandler((request, response, authentication) -> {
+                                response.setStatus(HttpStatus.NO_CONTENT.value());
+                                final Cookie cookie = new Cookie(AuthConstants.TOKEN_COOKIE_NAME, null);
+                                cookie.setMaxAge(0);
+                                response.addCookie(cookie);
+                            });
+                })
+                .addFilterBefore(jwtFilter, LogoutFilter.class)
+                .csrf((csrf) -> {
                     try {
                         csrf.disable()
-                            .sessionManagement((sessionManagement) -> sessionManagement
-                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                            ).oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
+                                .sessionManagement((sessionManagement) -> sessionManagement
+                                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
                     } catch (Exception e) {
-                        throw new AuthenticationException("Spring Security Config Issue",e) {
+                        throw new AuthenticationException("Spring Security Config Issue", e) {
                         };
                     }
-                }
-            )
-            .authenticationManager(authenticationManager())
-            .exceptionHandling(handler -> handler
-                .authenticationEntryPoint((request, response, authException) -> {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 })
-            )
-        ;
+                .authenticationManager(authenticationManager())
+                .exceptionHandling(handler -> handler
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        }));
 
         return http.build();
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager() {
@@ -123,15 +120,18 @@ public class WebSecurityConfig {
         return expressionHandler;
     }
 
+    // Define la jerarquia de roles
     @Bean
     public RoleHierarchy roleHierarchy() {
-        return RoleHierarchyImpl.withDefaultRolePrefix()
-            .role(Role.BACK_OFFICE_ADMIN.name())
-            .implies(Role.SALES_MANAGER.name())
-            .implies(Role.END_USER.name())
-            .build();
-    }
+        RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
 
+        roleHierarchy.setHierarchy("""
+                    ROLE_BACK_OFFICE_ADMIN > ROLE_SALES_MANAGER
+                    ROLE_SALES_MANAGER > ROLE_END_USER
+                """);
+
+        return roleHierarchy;
+    }
 
     private JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(authService, userDetailsService);
