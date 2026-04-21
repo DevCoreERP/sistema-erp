@@ -1,0 +1,57 @@
+<section class="h-auto lg:h-[calc(100vh-4rem)] bg-linear-to-br from-sky-50 via-white to-gray-50">
+  <div class="max-w-7xl mx-auto px-5 lg:px-6 flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-12 items-center py-10 lg:py-0 lg:h-full">
+
+    <!-- Columna Izquierda: Contenido y CTA -->
+    <div class="text-center lg:text-left flex flex-col items-center lg:items-start gap-6">
+      <!-- Etiqueta Superior -->
+      <span class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-cyan-100 text-sm font-bold text-cyan-700">
+        Solución
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+        Recursos Humanos
+      </span>
+
+      <!-- Título Principal -->
+      <h1 class="text-3xl lg:text-6xl font-bold text-gray-800 leading-tight">
+        Transforme la gestión de su talento conectando nóminas, asistencia y personas
+      </h1>
+
+      <!-- Subtítulo -->
+      <p class="text-base lg:text-lg text-gray-500 leading-relaxed max-w-lg">
+        Los líderes de RRHH y gerentes de talento son fundamentales para escalar una empresa. Centralice sus procesos operativos y tome decisiones estratégicas con nuestra plataforma.
+      </p>
+
+      <!-- Botón CTA -->
+      <a routerLink="/prueba-gratuita" class="w-full lg:w-auto inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-cyan-500 text-white text-base font-bold no-underline transition-all duration-200 hover:bg-cyan-400 hover:shadow-lg hover:shadow-cyan-500/30 hover:-translate-y-0.5 cursor-pointer">
+        Comenzar Ahora
+      </a>
+    </div>
+
+    <!-- Columna Derecha: Visual y Prueba Social (solo desktop) -->
+    <div class="hidden lg:block relative">
+      <!-- Imagen Principal -->
+      <div class="rounded-3xl overflow-hidden shadow-2xl shadow-gray-300/50">
+        <img
+          src="https://cdn.prod.website-files.com/686baa483924baedf4446bcf/6936de45877721c709ac7355_hero_financial_planning_analysis_enterprise.avif"
+          alt="Profesionales colaborando en oficina moderna"
+          class="w-full h-[500px] object-cover"
+        />
+      </div>
+
+      <!-- Tarjeta Flotante de Métrica (Glassmorphism) -->
+      <div class="absolute -bottom-6 left-6 bg-white/70 backdrop-blur-xl border border-white/50 rounded-2xl shadow-lg p-5 flex items-center gap-4">
+        <!-- Icono -->
+        <div class="w-12 h-12 rounded-xl bg-cyan-500 flex items-center justify-center shrink-0">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
+          </svg>
+        </div>
+        <!-- Métrica y Descripción -->
+        <div>
+          <p class="text-3xl font-extrabold text-gray-900 leading-none">90%</p>
+          <p class="text-sm text-gray-500 mt-1">Menos tiempo en el cálculo de nóminas</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
