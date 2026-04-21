@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 // Spring
 import org.springframework.stereotype.Service;
 
-import com.devcoreerp.backend_erp.auth.domain.User;
+import com.devcoreerp.backend_erp.auth.domain.Usuario;
 import com.devcoreerp.backend_erp.auth.domain.services.TokenService;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -55,7 +55,7 @@ public class TokenServiceImpl implements TokenService {
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(" "));
 
-        User currentUser = (User) authentication.getPrincipal();
+        Usuario currentUser = (Usuario) authentication.getPrincipal();
         JwtClaimsSet claims = JwtClaimsSet.builder()
             .subject(currentUser.getEmail())
             .issuedAt(now)
