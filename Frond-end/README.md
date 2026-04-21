@@ -1,1 +1,0 @@
-Bienvenidos equipo frond-end
