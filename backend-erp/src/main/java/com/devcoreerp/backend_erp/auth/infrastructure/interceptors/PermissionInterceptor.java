@@ -36,31 +36,62 @@ public class PermissionInterceptor implements HandlerInterceptor {
         }
         
         HandlerMethod handlerMethod = (HandlerMethod) handler;
+        String className = handlerMethod.getBean().getClass().getSimpleName();
+        String methodName = handlerMethod.getMethod().getName();
+        String fullPath = className + "." + methodName;
         
-        // Verificar anotación @RequirePermission
-        RequirePermission requirePermission = handlerMethod.getMethodAnnotation(RequirePermission.class);
-        if (requirePermission != null) {
-            if (!permissionEvaluator.evaluateRequirePermission(requirePermission)) {
-                logger.warn("[SECURITY] Usuario no tiene permiso: {}", requirePermission.value());
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.getWriter().write("{\"error\": \"Access denied. Required permission: " + 
-                    requirePermission.value() + "\"}");
-                return false;
+        try {
+            // Verificar anotación @RequirePermission
+            RequirePermission requirePermission = handlerMethod.getMethodAnnotation(RequirePermission.class);
+            if (requirePermission != null) {
+                String permission = requirePermission.value();
+                logger.info("[SECURITY] Validando permiso '{}' en: {}", permission, fullPath);
+                
+                boolean hasPermission = permissionEvaluator.evaluateRequirePermission(requirePermission);
+                logger.info("[SECURITY] Resultado: {} - Permiso '{}' en: {}", 
+                    hasPermission ? "✅ PERMITIDO" : "❌ DENEGADO", permission, fullPath);
+                
+                if (!hasPermission) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\": \"Access denied\", \"message\": \"Required permission: " + 
+                        permission + "\", \"endpoint\": \"" + fullPath + "\"}");
+                    return false;
+                }
+                return true;
             }
-        }
-        
-        // Verificar anotación @RequirePermissions
-        RequirePermissions requirePermissions = handlerMethod.getMethodAnnotation(RequirePermissions.class);
-        if (requirePermissions != null) {
-            if (!permissionEvaluator.evaluateRequirePermissions(requirePermissions)) {
-                logger.warn("[SECURITY] Usuario no tiene los permisos requeridos");
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.getWriter().write("{\"error\": \"Access denied. Required permissions: " + 
-                    String.join(", ", requirePermissions.value()) + "\"}");
-                return false;
+            
+            // Verificar anotación @RequirePermissions
+            RequirePermissions requirePermissions = handlerMethod.getMethodAnnotation(RequirePermissions.class);
+            if (requirePermissions != null) {
+                String[] permissions = requirePermissions.value();
+                String logicType = requirePermissions.requireAll() ? "AND" : "OR";
+                logger.info("[SECURITY] Validando {} permisos ({}) en: {}", 
+                    permissions.length, logicType, fullPath);
+                
+                boolean hasPermissions = permissionEvaluator.evaluateRequirePermissions(requirePermissions);
+                logger.info("[SECURITY] Resultado: {} - Permisos ({}) en: {}", 
+                    hasPermissions ? "✅ PERMITIDO" : "❌ DENEGADO", logicType, fullPath);
+                
+                if (!hasPermissions) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\": \"Access denied\", \"message\": \"Required permissions (" + 
+                        logicType + "): " + String.join(", ", permissions) + "\", \"endpoint\": \"" + fullPath + "\"}");
+                    return false;
+                }
+                return true;
             }
+            
+            logger.debug("[SECURITY] Endpoint sin permisos requeridos (público): {}", fullPath);
+            return true;
+            
+        } catch (Exception e) {
+            logger.error("[SECURITY] Error validando permisos en: {}", fullPath, e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Internal Server Error\", \"message\": \"Permission validation failed\"}");
+            return false;
         }
-        
-        return true;
     }
 }
