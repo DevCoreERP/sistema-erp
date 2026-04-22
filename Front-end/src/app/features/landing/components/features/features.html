@@ -1,0 +1,51 @@
+<section class="bg-blue-50/60 py-20">
+  <div class="max-w-7xl mx-auto px-6">
+
+    <!-- Barra de Pestañas -->
+    <div class="flex justify-center gap-0 mb-12">
+      @for (tab of tabs; track tab.id) {
+        <button
+          (click)="selectTab(tab.id)"
+          class="flex-1 max-w-[220px] pb-4 text-center transition-all duration-200 cursor-pointer bg-transparent border-x-0 border-t-0 text-base"
+          [class]="activeTab() === tab.id
+            ? 'text-gray-900 font-bold border-b-4 border-cyan-500'
+            : 'text-gray-500 font-normal border-b border-gray-200'">
+          {{ tab.label }}
+        </button>
+      }
+    </div>
+
+    <!-- Contenido Dinámico -->
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-10 items-center">
+
+      <!-- Columna Izquierda: Imagen -->
+      <div class="lg:col-span-2">
+        <img
+          [src]="currentTab.image"
+          [alt]="currentTab.title"
+          class="w-full h-[380px] object-cover rounded-4xl"
+        />
+      </div>
+
+      <!-- Columna Derecha: Información -->
+      <div class="lg:col-span-3 lg:pl-10 text-left">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">{{ currentTab.title }}</h2>
+        <p class="text-gray-600 leading-relaxed mb-6">{{ currentTab.description }}</p>
+
+        <!-- Lista de Beneficios -->
+        <ul class="flex flex-col gap-4">
+          @for (benefit of currentTab.benefits; track benefit) {
+            <li class="flex items-start gap-3">
+              <span class="mt-0.5 shrink-0 w-6 h-6 rounded-full border-2 border-cyan-500 flex items-center justify-center">
+                <svg class="w-3.5 h-3.5 text-cyan-500" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              </span>
+              <span class="text-gray-600">{{ benefit }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+</section>
