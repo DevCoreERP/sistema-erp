@@ -1,1 +1,119 @@
-<p>empleados-home works!</p>
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-main">
+    <app-topbar></app-topbar>
+
+    <div class="dashboard-content">
+      <div class="empleados-page">
+        <div class="empleados-header">
+          <div>
+            <h1>Empleados</h1>
+            <p>Gestione el personal registrado en el sistema</p>
+          </div>
+
+          <a routerLink="/empleados/nuevo" class="btn-nuevo">
+            + Nuevo empleado
+          </a>
+        </div>
+
+        <section class="empleados-cards">
+          <article class="empleado-card-resumen">
+            <h3>{{ empleados.length }}</h3>
+            <p>Total empleados</p>
+          </article>
+
+          <article class="empleado-card-resumen">
+            <h3>{{ totalActivos }}</h3>
+            <p>Activos</p>
+          </article>
+
+          <article class="empleado-card-resumen">
+            <h3>{{ totalInactivos }}</h3>
+            <p>Inactivos</p>
+          </article>
+
+          <article class="empleado-card-resumen">
+            <h3>{{ empleadosFiltrados.length }}</h3>
+            <p>Resultados visibles</p>
+          </article>
+        </section>
+
+        <section class="empleados-panel">
+          <div class="empleados-toolbar">
+            <input
+              type="text"
+              placeholder="Buscar empleado por nombre, cargo o correo"
+              class="empleados-search"
+              [(ngModel)]="terminoBusqueda"
+            />
+          </div>
+
+          <div class="empleados-tabla-wrapper">
+            <table class="empleados-tabla">
+              <thead>
+                <tr>
+                  <th>Nombre completo</th>
+                  <th>Correo</th>
+                  <th>Puesto</th>
+                  <th>Dirección</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr *ngFor="let empleado of empleadosFiltrados">
+                  <td>{{ empleado.nombre }}</td>
+                  <td>{{ empleado.correo }}</td>
+                  <td>{{ empleado.puesto }}</td>
+                  <td>{{ empleado.direccion }}</td>
+                  <td>
+                    <span
+                      class="estado"
+                      [ngClass]="{
+                        activo: empleado.estado === 'Activo',
+                        inactivo: empleado.estado === 'Inactivo'
+                      }"
+                    >
+                      {{ empleado.estado }}
+                    </span>
+                  </td>
+                  <td class="acciones-celda">
+                    <a
+                      [routerLink]="['/empleados/ver', empleado.id]"
+                      class="btn-tabla link-btn"
+                    >
+                      Ver
+                    </a>
+
+                    <a
+                      [routerLink]="['/empleados/editar', empleado.id]"
+                      class="btn-tabla editar link-btn"
+                    >
+                      Editar
+                    </a>
+
+                    <button
+                      type="button"
+                      class="btn-tabla cambiar-estado"
+                      (click)="toggleEstado(empleado)"
+                    >
+                      {{ empleado.estado === 'Activo' ? 'Desactivar' : 'Activar' }}
+                    </button>
+                  </td>
+                </tr>
+
+                <tr *ngIf="empleadosFiltrados.length === 0">
+                  <td colspan="6" class="sin-resultados">
+                    No se encontraron empleados con ese criterio de búsqueda.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
