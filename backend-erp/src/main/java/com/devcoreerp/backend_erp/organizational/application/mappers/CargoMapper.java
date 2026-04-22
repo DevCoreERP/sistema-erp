@@ -10,23 +10,25 @@ public class CargoMapper {
     public static ResponseCargoDTO toDTO(Cargo cargo) {
         if (cargo == null) return null;
 
+        Departamento departamento = cargo.getDepartamento();
+
         return new ResponseCargoDTO(
             cargo.getId(),
             cargo.getNombre(),
             cargo.getActive(),
             cargo.getCreatedAt(),
-            cargo.getDepartamento()
+            DepartamentoMapper.toDTO(departamento)
         );
     }
 
     public static Cargo toEntity(ResponseCargoDTO dto) {
         if (dto == null) return null;
 
-        Cargo cargo = new Cargo(dto.nombre(), dto.departamento());
+        Cargo cargo = new Cargo(dto.nombre(), DepartamentoMapper.toEntity(dto.departamento()));
         cargo.setId(dto.id());
         cargo.setActive(dto.active());
         cargo.setCreatedAt(dto.createdAt());
-        cargo.setDepartamento(dto.departamento());
+        cargo.setDepartamento(DepartamentoMapper.toEntity(dto.departamento()));
         return cargo;
     }
 
