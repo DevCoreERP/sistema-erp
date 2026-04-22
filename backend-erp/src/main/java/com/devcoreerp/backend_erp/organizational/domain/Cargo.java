@@ -11,7 +11,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -47,7 +46,6 @@ public class Cargo {
     // Relación M:1 con Departamento
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "departamento_id", nullable = false)
-    @JsonIgnore
     private Departamento departamento;
 
     public Cargo(String nombre, Departamento departamento) {
