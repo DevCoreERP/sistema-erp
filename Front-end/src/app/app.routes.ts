@@ -37,12 +37,12 @@ export const routes: Routes = [
       import('./features/landing/page/landing').then((m) => m.Landing),
   },
   {
-    path: 'panel',
-    loadComponent: () =>
-      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
-        (m) => m.DashboardHome
-      ),
-  },
+  path: 'panel',
+  loadComponent: () =>
+    import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
+      (m) => m.DashboardHome
+    ),
+},
   {
     path: 'empleados',
     loadComponent: () =>
