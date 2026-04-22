@@ -39,25 +39,25 @@ public class Persona {
     private Long id;
     
     @Column(nullable = false, length = 100)
-    private String firstName;
+    private String firstName;   //nombres
     
     @Column(nullable = false, length = 100)
-    private String surnames;
+    private String surnames;    //apellidos
     
     @Column(unique = true, nullable = false, length = 50)
     private String documentType; // ej: CI, PASSPORT
     
     @Column(unique = true, nullable = false, length = 50)
-    private String documentNumber;
+    private String documentNumber;  //numero de documento CI
     
     @Column(unique = true, nullable = false, length = 150)
-    private String email;
+    private String email;   //correo
     
     @Column(length = 20)
-    private String phoneNumber;
+    private String phoneNumber; //numero de telelefono
     
     @Column(length = 255)
-    private String address;
+    private String address; //direccion
     
     @Temporal(TemporalType.DATE)
     private Date birthDate;
