@@ -39,12 +39,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebSecurity(debug = false)
 @EnableMethodSecurity
 public class WebSecurityConfig implements WebMvcConfigurer {
-    
+
     private final com.devcoreerp.backend_erp.auth.domain.services.AuthService authService;
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final PermissionInterceptor permissionInterceptor;
-    
+
     public WebSecurityConfig(
             com.devcoreerp.backend_erp.auth.domain.services.AuthService authService,
             UserDetailsService userDetailsService,
@@ -55,12 +55,12 @@ public class WebSecurityConfig implements WebMvcConfigurer {
         this.passwordEncoder = passwordEncoder;
         this.permissionInterceptor = permissionInterceptor;
     }
-    
+
     // Definición de URLs
     public static final String LOGIN_URL_MATCHER = ApiConfig.API_BASE_PATH + "/auth/login";
     public static final String LOG_OUT_URL_MATCHER = ApiConfig.API_BASE_PATH + "/auth/logout";
     public static final String BASE_URL_MATCHER = ApiConfig.API_BASE_PATH + "/**";
-    
+
     /**
      * Registra el interceptor de permisos
      */
@@ -70,76 +70,71 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                 .addPathPatterns(BASE_URL_MATCHER)
                 .excludePathPatterns(LOGIN_URL_MATCHER);
     }
-    
+
     /**
      * Configura el SecurityFilterChain
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         final Filter jwtFilter = jwtAuthenticationFilter();
-        
+
         http
-            // Desabilitar form login
-            .formLogin(AbstractHttpConfigurer::disable)
-            
-            // Configurar autorización
-            .authorizeHttpRequests((requests) -> requests
-                .requestMatchers(HttpMethod.POST, LOGIN_URL_MATCHER).permitAll()
-                .requestMatchers(BASE_URL_MATCHER).authenticated()
-                .anyRequest().denyAll()
-            )
-            
-            // Configurar logout
-            .logout(logout -> logout
-                .logoutRequestMatcher(
-                    new AntPathRequestMatcher(LOG_OUT_URL_MATCHER, HttpMethod.POST.name())
-                )
-                .logoutSuccessHandler((request, response, authentication) -> {
-                    response.setStatus(HttpStatus.NO_CONTENT.value());
-                    final var cookie = new jakarta.servlet.http.Cookie(
-                        com.devcoreerp.backend_erp.auth.application.AuthCookieConstants.AuthConstants.TOKEN_COOKIE_NAME,
-                        null
-                    );
-                    cookie.setMaxAge(0);
-                    response.addCookie(cookie);
+                // Desabilitar form login
+                .formLogin(AbstractHttpConfigurer::disable)
+
+                // Configurar autorización
+                .authorizeHttpRequests((requests) -> requests
+                        .requestMatchers(HttpMethod.POST, LOGIN_URL_MATCHER).permitAll()
+                        .requestMatchers(BASE_URL_MATCHER).authenticated()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                        .anyRequest().denyAll())
+
+                // Configurar logout
+                .logout(logout -> logout
+                        .logoutRequestMatcher(
+                                new AntPathRequestMatcher(LOG_OUT_URL_MATCHER, HttpMethod.POST.name()))
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setStatus(HttpStatus.NO_CONTENT.value());
+                            final var cookie = new jakarta.servlet.http.Cookie(
+                                    com.devcoreerp.backend_erp.auth.application.AuthCookieConstants.AuthConstants.TOKEN_COOKIE_NAME,
+                                    null);
+                            cookie.setMaxAge(0);
+                            response.addCookie(cookie);
+                        }))
+
+                // Agregar JWT filter
+                .addFilterBefore(jwtFilter, LogoutFilter.class)
+
+                // Configurar CSRF y sesiones
+                .csrf((csrf) -> {
+                    try {
+                        csrf.disable()
+                                .sessionManagement((sessionManagement) -> sessionManagement
+                                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
+                    } catch (Exception e) {
+                        throw new AuthenticationException("Spring Security Config Issue", e) {
+                        };
+                    }
                 })
-            )
-            
-            // Agregar JWT filter
-            .addFilterBefore(jwtFilter, LogoutFilter.class)
-            
-            // Configurar CSRF y sesiones
-            .csrf((csrf) -> {
-                try {
-                    csrf.disable()
-                        .sessionManagement((sessionManagement) -> sessionManagement
-                            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                        )
-                        .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
-                } catch (Exception e) {
-                    throw new AuthenticationException("Spring Security Config Issue", e) {
-                    };
-                }
-            })
-            
-            // Configurar AuthenticationManager
-            .authenticationManager(authenticationManager())
-            
-            // Manejo de excepciones
-            .exceptionHandling(handler -> handler
-                .authenticationEntryPoint((request, response, authException) -> {
-                    response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                    response.getWriter().write("{\"error\": \"Unauthorized\"}");
-                })
-                .accessDeniedHandler((request, response, accessDeniedException) -> {
-                    response.setStatus(HttpStatus.FORBIDDEN.value());
-                    response.getWriter().write("{\"error\": \"Access Denied\"}");
-                })
-            );
-        
+
+                // Configurar AuthenticationManager
+                .authenticationManager(authenticationManager())
+
+                // Manejo de excepciones
+                .exceptionHandling(handler -> handler
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                            response.getWriter().write("{\"error\": \"Unauthorized\"}");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpStatus.FORBIDDEN.value());
+                            response.getWriter().write("{\"error\": \"Access Denied\"}");
+                        }));
+
         return http.build();
     }
-    
+
     /**
      * Bean para AuthenticationManager
      */
@@ -148,13 +143,13 @@ public class WebSecurityConfig implements WebMvcConfigurer {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
-        
+
         ProviderManager providerManager = new ProviderManager(authenticationProvider);
         providerManager.setEraseCredentialsAfterAuthentication(true);
-        
+
         return providerManager;
     }
-    
+
     /**
      * Bean para JwtAuthenticationFilter
      */
