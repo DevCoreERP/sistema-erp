@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
+  standalone: true, // 👈 ESTO FALTABA
   imports: [RouterLink],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',

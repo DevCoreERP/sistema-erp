@@ -1,0 +1,151 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-main">
+    <app-topbar></app-topbar>
+
+    <div class="dashboard-content">
+      <section class="cards-grid">
+        <article class="stat-card">
+          <div class="stat-top">
+            <div>
+              <h3>250</h3>
+              <p>Total de empleados</p>
+            </div>
+            <span class="stat-icon blue">👥</span>
+          </div>
+          <small class="stat-note positive">▲ 12 más que el mes pasado</small>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-top">
+            <div>
+              <h3>218</h3>
+              <p>Asistencias de hoy</p>
+            </div>
+            <span class="stat-icon green">🕒</span>
+          </div>
+          <small class="stat-note positive">▲ 8 asistencias más hoy</small>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-top">
+            <div>
+              <h3>15</h3>
+              <p>Permisos pendientes</p>
+            </div>
+            <span class="stat-icon orange">📝</span>
+          </div>
+          <small class="stat-note warning">● Requieren revisión</small>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-top">
+            <div>
+              <h3>8</h3>
+              <p>Vacaciones activas</p>
+            </div>
+            <span class="stat-icon purple">🌴</span>
+          </div>
+          <small class="stat-note neutral">● 2 regresan esta semana</small>
+        </article>
+      </section>
+
+      <section class="dashboard-lower">
+        <div class="activity-card">
+          <div class="section-header">
+            <h2>Actividad reciente</h2>
+            <p>Últimos movimientos del sistema</p>
+          </div>
+
+          <table class="activity-table">
+            <thead>
+              <tr>
+                <th>Empleado</th>
+                <th>Acción</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Juan Pérez</td>
+                <td>Solicitud de permiso</td>
+                <td>12/04/2026</td>
+                <td><span class="status pending">Pendiente</span></td>
+              </tr>
+              <tr>
+                <td>Ana López</td>
+                <td>Registro de asistencia</td>
+                <td>12/04/2026</td>
+                <td><span class="status approved">Completado</span></td>
+              </tr>
+              <tr>
+                <td>Carlos Roca</td>
+                <td>Vacación aprobada</td>
+                <td>11/04/2026</td>
+                <td><span class="status approved">Aprobado</span></td>
+              </tr>
+              <tr>
+                <td>María Suárez</td>
+                <td>Actualización de nómina</td>
+                <td>10/04/2026</td>
+                <td><span class="status review">En revisión</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="side-panel">
+          <div class="summary-card">
+            <div class="section-header">
+              <h2>Resumen rápido</h2>
+              <p>Estado general de RRHH</p>
+            </div>
+
+            <div class="summary-list">
+              <div class="summary-item">
+                <span>Empleados activos</span>
+                <strong>242</strong>
+              </div>
+              <div class="summary-item">
+                <span>Ausencias hoy</span>
+                <strong>12</strong>
+              </div>
+              <div class="summary-item">
+                <span>Permisos pendientes</span>
+                <strong>15</strong>
+              </div>
+              <div class="summary-item">
+                <span>Vacaciones activas</span>
+                <strong>8</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="alerts-card">
+            <div class="section-header">
+              <h2>Alertas</h2>
+              <p>Acciones que requieren atención</p>
+            </div>
+
+            <div class="alert-item warning-alert">
+              <strong>5 permisos</strong>
+              <span>pendientes de aprobación</span>
+            </div>
+
+            <div class="alert-item info-alert">
+              <strong>3 contratos</strong>
+              <span>vencen este mes</span>
+            </div>
+
+            <div class="alert-item danger-alert">
+              <strong>12 empleados</strong>
+              <span>sin asistencia registrada hoy</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

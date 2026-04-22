@@ -36,4 +36,60 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/landing/page/landing').then((m) => m.Landing),
   },
+  {
+    path: 'panel',
+    loadComponent: () =>
+      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
+        (m) => m.DashboardHome
+      ),
+  },
+  {
+    path: 'empleados',
+    loadComponent: () =>
+      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
+        (m) => m.DashboardHome
+      ),
+  },
+  {
+    path: 'asistencia',
+    loadComponent: () =>
+      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
+        (m) => m.DashboardHome
+      ),
+  },
+  {
+    path: 'nomina',
+    loadComponent: () =>
+      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
+        (m) => m.DashboardHome
+      ),
+  },
+  {
+    path: 'permisos',
+    loadComponent: () =>
+      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
+        (m) => m.DashboardHome
+      ),
+  },
+  {
+    path: 'vacaciones',
+    loadComponent: () =>
+      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
+        (m) => m.DashboardHome
+      ),
+  },
+  {
+    path: 'reportes',
+    loadComponent: () =>
+      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
+        (m) => m.DashboardHome
+      ),
+  },
+  {
+    path: 'configuracion',
+    loadComponent: () =>
+      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
+        (m) => m.DashboardHome
+      ),
+  },
 ];
