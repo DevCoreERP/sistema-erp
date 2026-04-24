@@ -1,0 +1,202 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-main">
+    <app-topbar></app-topbar>
+
+    <div class="dashboard-content">
+      <div class="areas-page">
+        <div class="areas-header">
+          <div>
+            <span class="areas-kicker">Gestión organizacional</span>
+            <h1>Áreas de la empresa</h1>
+            <p>
+              Administre la estructura general de la organización, sus responsables
+              y el estado operativo de cada área.
+            </p>
+          </div>
+
+          <div class="areas-header-actions">
+            <button type="button" class="btn-principal" (click)="irNuevaArea()">
+                + Nueva área
+            </button>
+          </div>
+        </div>
+
+        <section class="areas-summary">
+          <article class="summary-card">
+            <span class="summary-label">Total de áreas</span>
+            <h3>{{ areas.length }}</h3>
+            <p>Estructura general registrada</p>
+          </article>
+
+          <article class="summary-card">
+            <span class="summary-label">Áreas activas</span>
+            <h3>{{ totalActivas }}</h3>
+            <p>Disponibles para operación</p>
+          </article>
+
+          <article class="summary-card">
+            <span class="summary-label">Áreas inactivas</span>
+            <h3>{{ totalInactivas }}</h3>
+            <p>Fuera de operación temporal</p>
+          </article>
+
+          <article class="summary-card">
+            <span class="summary-label">Resultados visibles</span>
+            <h3>{{ areasFiltradas.length }}</h3>
+            <p>Según el filtro aplicado</p>
+          </article>
+        </section>
+
+        <section class="areas-layout">
+          <div class="areas-main-panel">
+            <div class="panel-head">
+              <div>
+                <h2>Directorio de áreas</h2>
+                <p>Consulte, edite y controle el estado de cada unidad organizacional.</p>
+              </div>
+
+              <div class="panel-tools">
+                <input
+                  type="text"
+                  class="areas-search"
+                  placeholder="Buscar por nombre o descripción"
+                  [(ngModel)]="terminoBusqueda"
+                />
+              </div>
+            </div>
+
+            <div class="areas-table-wrapper">
+              <table class="areas-table">
+                <thead>
+                  <tr>
+                    <th>Código</th>
+                    <th>Nombre del área</th>
+                    <th>Descripción</th>
+                    <th>Responsable</th>
+                    <th>Estado</th>
+                    <th>Última actualización</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr *ngFor="let area of areasFiltradas; let i = index">
+                    <td>
+                      <span class="area-code">AR-{{ area.id | number:'2.0' }}</span>
+                    </td>
+
+                    <td>
+                      <div class="area-name-block">
+                        <strong>{{ area.nombre }}</strong>
+                        <small>Estructura organizacional</small>
+                      </div>
+                    </td>
+
+                    <td>{{ area.descripcion || 'Sin descripción registrada' }}</td>
+
+                    <td>{{ obtenerResponsable(area.id) }}</td>
+
+                    <td>
+                      <span
+                        class="estado-badge"
+                        [ngClass]="{
+                          activa: area.estado === 'Activa',
+                          inactiva: area.estado === 'Inactiva'
+                        }"
+                      >
+                        {{ area.estado }}
+                      </span>
+                    </td>
+
+                    <td>{{ obtenerFechaReferencia(area.id) }}</td>
+
+                    <td class="acciones-cell">
+                      <button
+                        type="button"
+                        class="btn-tabla btn-ver"
+                        (click)="verArea(area.id)"
+                        >
+                         Ver
+                        </button>
+
+                      <button
+                        type="button"
+                        class="btn-tabla btn-editar"
+                        (click)="editarArea(area.id)"
+                        >
+                            Editar
+                        </button>
+
+                      <button
+                        type="button"
+                        class="btn-tabla btn-estado"
+                        (click)="toggleEstado(area)"
+                      >
+                        {{ area.estado === 'Activa' ? 'Desactivar' : 'Activar' }}
+                      </button>
+                    </td>
+                  </tr>
+
+                  <tr *ngIf="areasFiltradas.length === 0">
+                    <td colspan="7" class="sin-resultados">
+                      No se encontraron áreas con ese criterio de búsqueda.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <aside class="areas-side-panel">
+            <div class="side-card">
+              <h3>Resumen organizacional</h3>
+              <p>
+                Este módulo define la base estructural sobre la que luego se
+                relacionan departamentos, cargos y empleados.
+              </p>
+
+              <ul class="side-list">
+                <li>
+                  <span>Áreas activas</span>
+                  <strong>{{ totalActivas }}</strong>
+                </li>
+                <li>
+                  <span>Áreas inactivas</span>
+                  <strong>{{ totalInactivas }}</strong>
+                </li>
+                <li>
+                  <span>Estructuras visibles</span>
+                  <strong>{{ areasFiltradas.length }}</strong>
+                </li>
+              </ul>
+            </div>
+
+            <div class="side-card">
+              <h3>Próximos módulos</h3>
+              <p>
+                Luego de definir áreas, se recomienda registrar departamentos y cargos
+                para completar la jerarquía organizacional del ERP.
+              </p>
+
+              <div class="roadmap">
+                <span class="roadmap-item done">Áreas</span>
+                <span class="roadmap-item">Departamentos</span>
+                <span class="roadmap-item">Cargos</span>
+              </div>
+            </div>
+
+            <div class="side-card">
+              <h3>Estado del sistema</h3>
+              <p>
+                Las áreas inactivas no deberían usarse para nuevas asignaciones hasta
+                ser reactivadas por un administrador.
+              </p>
+            </div>
+          </aside>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>

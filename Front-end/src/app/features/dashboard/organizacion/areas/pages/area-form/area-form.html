@@ -1,0 +1,102 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-main">
+    <app-topbar></app-topbar>
+
+    <div class="dashboard-content">
+      <div class="area-form-page">
+        <div class="area-form-header">
+          <div>
+            <span class="form-kicker">Gestión organizacional</span>
+            <h1>{{ modoEdicion ? 'Editar área' : 'Nueva área' }}</h1>
+            <p>
+              {{ modoEdicion ? 'Actualice la información estructural del área.' : 'Registre una nueva área dentro de la empresa.' }}
+            </p>
+          </div>
+
+          <a routerLink="/areas" class="btn-volver">← Volver</a>
+        </div>
+
+        <form class="area-form-layout" (ngSubmit)="guardarArea()">
+          <section class="form-card principal">
+            <h2>Datos generales</h2>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Nombre del área *</label>
+                <input type="text" [(ngModel)]="area.nombre" name="nombre" />
+                <small *ngIf="enviado && !area.nombre" class="error">Campo obligatorio</small>
+              </div>
+
+              <div class="form-group">
+                <label>Responsable *</label>
+                <input type="text" [(ngModel)]="area.responsable" name="responsable" />
+                <small *ngIf="enviado && !area.responsable" class="error">Campo obligatorio</small>
+              </div>
+
+              <div class="form-group">
+                <label>Estado *</label>
+                <select [(ngModel)]="area.estado" name="estado">
+                  <option value="Activa">Activa</option>
+                  <option value="Inactiva">Inactiva</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Código</label>
+                <input type="text" value="Generado automáticamente" disabled />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Descripción *</label>
+              <textarea [(ngModel)]="area.descripcion" name="descripcion"></textarea>
+              <small *ngIf="enviado && !area.descripcion" class="error">Campo obligatorio</small>
+            </div>
+
+            <div class="form-group">
+              <label>Objetivo del área</label>
+              <textarea [(ngModel)]="area.objetivo" name="objetivo"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Observaciones</label>
+              <textarea [(ngModel)]="area.observaciones" name="observaciones"></textarea>
+            </div>
+
+            <div class="form-actions">
+              <a routerLink="/areas" class="btn-cancelar">Cancelar</a>
+              <button type="submit" class="btn-guardar">
+                {{ modoEdicion ? 'Guardar cambios y salir' : 'Registrar área' }}
+              </button>
+            </div>
+          </section>
+
+          <aside class="form-side">
+            <div class="side-card">
+              <h3>Jerarquía organizacional</h3>
+              <div class="mini-org">
+                <div class="org-level top">Empresa</div>
+                <div class="org-line"></div>
+                <div class="org-level current">Área</div>
+                <div class="org-line"></div>
+                <div class="org-level">Departamento</div>
+                <div class="org-line"></div>
+                <div class="org-level">Cargo</div>
+              </div>
+            </div>
+
+            <div class="side-card">
+              <h3>Importancia del área</h3>
+              <p>
+                Las áreas definen la estructura base del ERP. A partir de ellas se
+                organizan departamentos, cargos y empleados.
+              </p>
+            </div>
+          </aside>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
