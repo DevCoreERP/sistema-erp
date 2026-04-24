@@ -1,0 +1,146 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-main">
+    <app-topbar></app-topbar>
+
+    <div class="dashboard-content">
+      <div class="empleado-form-page">
+        <div class="empleado-form-header">
+          <div>
+            <h1>{{ modoEdicion ? 'Editar empleado' : 'Nuevo empleado' }}</h1>
+            <p>
+              {{
+                modoEdicion
+                  ? 'Actualice los datos del empleado'
+                  : 'Complete los datos para registrar un empleado'
+              }}
+            </p>
+          </div>
+
+          <a routerLink="/empleados" class="btn-volver">
+            ← Volver
+          </a>
+        </div>
+
+        <section class="empleado-form-card">
+          <form (ngSubmit)="guardarEmpleado()">
+            <div class="empleado-form-top">
+              <div class="imagen-box">
+                <div class="imagen-preview">
+                  <img
+                    *ngIf="imagenPreview; else placeholder"
+                    [src]="imagenPreview"
+                    alt="Vista previa del empleado"
+                  />
+
+                  <ng-template #placeholder>
+                    <span>Sin imagen</span>
+                  </ng-template>
+                </div>
+
+                <label for="imagenEmpleado" class="btn-imagen">
+                  Seleccionar imagen
+                </label>
+
+                <input
+                  id="imagenEmpleado"
+                  type="file"
+                  accept="image/*"
+                  (change)="onImageSelected($event)"
+                  hidden
+                />
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Nombre completo *</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="empleado.nombreCompleto"
+                    name="nombreCompleto"
+                  />
+                  <small *ngIf="enviado && !empleado.nombreCompleto" class="error">
+                    Campo obligatorio
+                  </small>
+                </div>
+
+                <div class="form-group">
+                  <label>Correo *</label>
+                  <input
+                    type="email"
+                    [(ngModel)]="empleado.correo"
+                    name="correo"
+                  />
+                  <small *ngIf="enviado && !empleado.correo" class="error">
+                    Campo obligatorio
+                  </small>
+                </div>
+
+                <div class="form-group">
+                  <label>Puesto *</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="empleado.puesto"
+                    name="puesto"
+                  />
+                  <small *ngIf="enviado && !empleado.puesto" class="error">
+                    Campo obligatorio
+                  </small>
+                </div>
+
+                <div class="form-group">
+                  <label>Dirección *</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="empleado.direccion"
+                    name="direccion"
+                  />
+                  <small *ngIf="enviado && !empleado.direccion" class="error">
+                    Campo obligatorio
+                  </small>
+                </div>
+
+                <div class="form-group">
+                  <label>Teléfono</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="empleado.telefono"
+                    name="telefono"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Departamento</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="empleado.departamento"
+                    name="departamento"
+                  />
+                </div>
+
+                <div class="form-group form-group-full">
+                  <label>Estado *</label>
+                  <select [(ngModel)]="empleado.estado" name="estado">
+                    <option value="Activo">Activo</option>
+                    <option value="Inactivo">Inactivo</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <a routerLink="/empleados" class="btn-cancelar">
+                Cancelar
+              </a>
+
+              <button type="submit" class="btn-guardar">
+                {{ modoEdicion ? 'Guardar cambios y salir' : 'Guardar y salir' }}
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
