@@ -10,7 +10,19 @@
   <nav class="menu">
     <a routerLink="/panel" routerLinkActive="active">INICIO</a>
     <a routerLink="/empleados" routerLinkActive="active">Empleados</a>
-    <a routerLink="/areas" routerLinkActive="active">Áreas</a>
+
+    <div class="menu-group">
+      <button class="menu-parent" (click)="toggleOrg()" [class.expanded]="orgExpanded">
+        Gestión organizacional
+        <span class="chevron">&#9662;</span>
+      </button>
+      <div class="menu-children" [class.open]="orgExpanded">
+        <a routerLink="/areas" routerLinkActive="active">Áreas</a>
+        <a routerLink="/departamentos" routerLinkActive="active">Departamentos</a>
+        <a routerLink="/cargos" routerLinkActive="active">Cargos</a>
+      </div>
+    </div>
+
     <a routerLink="/asistencia" routerLinkActive="active">Asistencia</a>
     <a routerLink="/nomina" routerLinkActive="active">Nómina</a>
     <a routerLink="/permisos" routerLinkActive="active">Permisos</a>

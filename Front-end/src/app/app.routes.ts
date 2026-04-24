@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -38,6 +39,7 @@ export const routes: Routes = [
   },
   {
     path: 'panel',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
         (m) => m.DashboardHome
@@ -45,6 +47,7 @@ export const routes: Routes = [
   },
   {
     path: 'empleados',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/dashboard/empleados/pages/empleados-home/empleados-home').then(
         (m) => m.EmpleadosHome
@@ -52,6 +55,7 @@ export const routes: Routes = [
   },
   {
     path: 'empleados/nuevo',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/dashboard/empleados/pages/empleado-form/empleado-form').then(
         (m) => m.EmpleadoForm
@@ -59,6 +63,7 @@ export const routes: Routes = [
   },
   {
     path: 'empleados/ver/:id',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/dashboard/empleados/pages/empleado-detalle/empleado-detalle').then(
         (m) => m.EmpleadoDetalle
@@ -66,6 +71,7 @@ export const routes: Routes = [
   },
   {
     path: 'empleados/editar/:id',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/dashboard/empleados/pages/empleado-form/empleado-form').then(
         (m) => m.EmpleadoForm
@@ -73,6 +79,7 @@ export const routes: Routes = [
   },
   {
     path: 'asistencia',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
         (m) => m.DashboardHome
@@ -80,6 +87,7 @@ export const routes: Routes = [
   },
   {
     path: 'nomina',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
         (m) => m.DashboardHome
@@ -87,6 +95,7 @@ export const routes: Routes = [
   },
   {
     path: 'permisos',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
         (m) => m.DashboardHome
@@ -94,6 +103,7 @@ export const routes: Routes = [
   },
   {
     path: 'vacaciones',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
         (m) => m.DashboardHome
@@ -101,6 +111,7 @@ export const routes: Routes = [
   },
   {
     path: 'reportes',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
         (m) => m.DashboardHome
@@ -108,6 +119,7 @@ export const routes: Routes = [
   },
   {
     path: 'perfil',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/dashboard/perfil/page/perfil').then(
         (m) => m.PerfilPage
@@ -115,6 +127,7 @@ export const routes: Routes = [
   },
   {
     path: 'configuracion',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
         (m) => m.DashboardHome
@@ -122,6 +135,7 @@ export const routes: Routes = [
   },
   {
   path: 'areas',
+  canActivate: [authGuard],
   loadComponent: () =>
     import('./features/dashboard/organizacion/areas/pages/areas-home/areas-home').then(
       (m) => m.AreasHome
@@ -129,6 +143,7 @@ export const routes: Routes = [
 },
 {
   path: 'areas/nueva',
+  canActivate: [authGuard],
   loadComponent: () =>
     import('./features/dashboard/organizacion/areas/pages/area-form/area-form').then(
       (m) => m.AreaForm
@@ -136,9 +151,58 @@ export const routes: Routes = [
 },
 {
   path: 'areas/editar/:id',
+  canActivate: [authGuard],
   loadComponent: () =>
     import('./features/dashboard/organizacion/areas/pages/area-form/area-form').then(
       (m) => m.AreaForm
+    ),
+},
+{
+  path: 'departamentos',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/dashboard/organizacion/departamentos/pages/departamentos-home/departamentos-home').then(
+      (m) => m.DepartamentosHome
+    ),
+},
+{
+  path: 'departamentos/nuevo',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/dashboard/organizacion/departamentos/pages/departamento-form/departamento-form').then(
+      (m) => m.DepartamentoForm
+    ),
+},
+{
+  path: 'departamentos/editar/:id',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/dashboard/organizacion/departamentos/pages/departamento-form/departamento-form').then(
+      (m) => m.DepartamentoForm
+    ),
+},
+{
+  path: 'cargos',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/dashboard/organizacion/cargos/pages/cargos-home/cargos-home').then(
+      (m) => m.CargosHome
+    ),
+},
+{
+  path: 'cargos/nuevo',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/dashboard/organizacion/cargos/pages/cargo-form/cargo-form').then(
+      (m) => m.CargoForm
+    ),
+},
+{
+  path: 'cargos/editar/:id',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/dashboard/organizacion/cargos/pages/cargo-form/cargo-form').then(
+      (m) => m.CargoForm
     ),
 },
 ];

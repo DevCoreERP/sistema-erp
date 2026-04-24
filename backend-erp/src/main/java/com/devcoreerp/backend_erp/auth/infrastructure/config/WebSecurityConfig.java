@@ -79,6 +79,9 @@ public class WebSecurityConfig implements WebMvcConfigurer {
         final Filter jwtFilter = jwtAuthenticationFilter();
 
         http
+
+                // 🔴 1. ¡AGREGA ESTA LÍNEA AQUÍ PARA ACTIVAR EL CORS EN SPRING SECURITY!
+                .cors(Customizer.withDefaults())
                 // Desabilitar form login
                 .formLogin(AbstractHttpConfigurer::disable)
 

@@ -114,6 +114,14 @@
   grid-template-columns: minmax(0, 2fr) 340px;
   gap: 22px;
   align-items: start;
+  margin-bottom: 32px;
+}
+
+.btn-add {
+  border: none;
+  cursor: pointer;
+  margin-left: 12px;
+  white-space: nowrap;
 }
 
 .areas-main-panel,
@@ -339,6 +347,92 @@
 .side-list strong {
   color: #111827;
   font-size: 15px;
+}
+
+.side-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.side-card .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.side-card .form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.side-card .form-group input[type="text"] {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1.5px solid #d1d5db;
+  font-size: 14px;
+  outline: none;
+  background: #f9fafb;
+  color: #111827;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.side-card .form-group input[type="text"]:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  background: #fff;
+}
+
+.side-card .form-group input[type="text"]::placeholder {
+  color: #9ca3af;
+}
+
+.side-card .form-group select {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1.5px solid #d1d5db;
+  font-size: 14px;
+  outline: none;
+  background: #f9fafb;
+  color: #111827;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+.side-card .form-group select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  background: #fff;
+}
+
+.side-card .error {
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.side-card .btn-crear {
+  width: 100%;
+  margin-top: 4px;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-side {
+  margin-top: 16px;
+  width: 100%;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
 }
 
 .roadmap {

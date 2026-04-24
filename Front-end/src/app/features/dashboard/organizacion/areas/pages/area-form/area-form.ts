@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -17,20 +17,17 @@ export class AreaForm {
   modoEdicion = false;
   areaId!: number;
   enviado = false;
+  cargando = false;
 
   area = {
     nombre: '',
-    descripcion: '',
-    responsable: '',
-    objetivo: '',
-    observaciones: '',
-    estado: 'Activa' as 'Activa' | 'Inactiva',
   };
 
   constructor(
     private areasService: AreasService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {
     this.route.paramMap.subscribe((params) => {
       const idParam = params.get('id');
@@ -39,18 +36,18 @@ export class AreaForm {
         this.modoEdicion = true;
         this.areaId = Number(idParam);
 
-        const areaExistente = this.areasService.obtenerAreaPorId(this.areaId);
-
-        if (areaExistente) {
-          this.area = {
-            nombre: areaExistente.nombre,
-            descripcion: areaExistente.descripcion || '',
-            responsable: '',
-            objetivo: '',
-            observaciones: '',
-            estado: areaExistente.estado,
-          };
-        }
+        this.areasService.obtenerAreaPorId(this.areaId).subscribe({
+          next: (areaExistente) => {
+            this.area = {
+              nombre: areaExistente.nombre,
+            };
+            this.cdr.detectChanges();
+          },
+          error: () => {
+            alert('No se pudo cargar el área');
+            this.router.navigate(['/areas']);
+          },
+        });
       }
     });
   }
@@ -58,28 +55,38 @@ export class AreaForm {
   guardarArea(): void {
     this.enviado = true;
 
-    if (!this.area.nombre || !this.area.descripcion || !this.area.responsable) {
+    if (!this.area.nombre) {
       return;
     }
+
+    this.cargando = true;
 
     if (this.modoEdicion) {
       this.areasService.actualizarArea(this.areaId, {
         nombre: this.area.nombre,
-        descripcion: this.area.descripcion,
-        estado: this.area.estado,
+      }).subscribe({
+        next: () => {
+          alert('Área actualizada correctamente');
+          this.router.navigate(['/areas']);
+        },
+        error: () => {
+          alert('Error al actualizar el área');
+          this.cargando = false;
+        },
       });
-
-      alert('Área actualizada correctamente');
     } else {
       this.areasService.agregarArea({
         nombre: this.area.nombre,
-        descripcion: this.area.descripcion,
-        estado: this.area.estado,
+      }).subscribe({
+        next: () => {
+          alert('Área registrada correctamente');
+          this.router.navigate(['/areas']);
+        },
+        error: () => {
+          alert('Error al registrar el área');
+          this.cargando = false;
+        },
       });
-
-      alert('Área registrada correctamente');
     }
-
-    this.router.navigate(['/areas']);
   }
 }

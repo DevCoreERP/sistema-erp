@@ -22,7 +22,20 @@ export class AreaDetalle {
   ) {
     this.route.paramMap.subscribe((params) => {
       const id = Number(params.get('id'));
-      this.area = this.areasService.obtenerAreaPorId(id);
+      this.areasService.obtenerAreaPorId(id).subscribe({
+        next: (data) => {
+          this.area = data;
+        },
+        error: () => {
+          alert('No se pudo cargar el área');
+        },
+      });
     });
+  }
+
+  formatearFecha(fecha: string): string {
+    if (!fecha) return '—';
+    const date = new Date(fecha);
+    return date.toLocaleDateString('es-ES');
   }
 }

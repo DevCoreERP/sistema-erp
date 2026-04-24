@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { Sidebar } from '../../../../components/sidebar/sidebar';
 import { Topbar } from '../../../../components/topbar/topbar';
 import { AreasService } from '../../service/areas.service';
@@ -10,23 +10,37 @@ import { Area } from '../../interface/area.interface';
 @Component({
   selector: 'app-areas-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, Sidebar, Topbar],
+  imports: [CommonModule, FormsModule, Sidebar, Topbar],
   templateUrl: './areas-home.html',
   styleUrl: './areas-home.css',
 })
-export class AreasHome {
+export class AreasHome implements OnInit {
   terminoBusqueda = '';
   areas: Area[] = [];
 
+  nuevaArea = { nombre: '' };
+  creadoArea = false;
+
   constructor(
     private areasService: AreasService,
-    private router: Router
-  ) {
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
     this.cargarAreas();
   }
 
   cargarAreas(): void {
-    this.areas = this.areasService.obtenerAreas();
+    this.areasService.obtenerAreas().subscribe({
+      next: (data) => {
+        this.areas = data;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        alert('Error al cargar las áreas');
+      },
+    });
   }
 
   get areasFiltradas(): Area[] {
@@ -37,57 +51,54 @@ export class AreasHome {
     }
 
     return this.areas.filter((area) =>
-      area.nombre.toLowerCase().includes(termino) ||
-      (area.descripcion || '').toLowerCase().includes(termino)
+      area.nombre.toLowerCase().includes(termino)
     );
   }
 
   get totalActivas(): number {
-    return this.areas.filter((area) => area.estado === 'Activa').length;
+    return this.areas.filter((area) => area.active).length;
   }
 
   get totalInactivas(): number {
-    return this.areas.filter((area) => area.estado === 'Inactiva').length;
-  }
-
-  irNuevaArea(): void {
-    this.router.navigate(['/areas/nueva']);
-  }
-
-  verArea(id: number): void {
-    this.router.navigate(['/areas/ver', id]);
+    return this.areas.filter((area) => !area.active).length;
   }
 
   editarArea(id: number): void {
     this.router.navigate(['/areas/editar', id]);
   }
 
-  toggleEstado(area: Area): void {
-    this.areasService.cambiarEstado(area.id);
-    this.cargarAreas();
+  eliminarArea(id: number): void {
+    if (confirm('¿Está seguro de eliminar esta área?')) {
+      this.areasService.eliminarArea(id).subscribe({
+        next: () => {
+          this.cargarAreas();
+        },
+        error: () => {
+          alert('Error al eliminar el área');
+        },
+      });
+    }
   }
 
-  obtenerResponsable(id: number): string {
-    const responsables = [
-      'Jefatura administrativa',
-      'Gerencia financiera',
-      'Coordinación TI',
-      'Dirección general',
-      'Unidad operativa',
-    ];
+  crearAreaInline(): void {
+    this.creadoArea = true;
+    if (!this.nuevaArea.nombre) return;
 
-    return responsables[(id - 1) % responsables.length];
+    this.areasService.agregarArea({ nombre: this.nuevaArea.nombre }).subscribe({
+      next: () => {
+        this.nuevaArea.nombre = '';
+        this.creadoArea = false;
+        this.cargarAreas();
+      },
+      error: () => {
+        alert('Error al registrar el área');
+      },
+    });
   }
 
-  obtenerFechaReferencia(id: number): string {
-    const fechas = [
-      '22/04/2026',
-      '20/04/2026',
-      '18/04/2026',
-      '15/04/2026',
-      '12/04/2026',
-    ];
-
-    return fechas[(id - 1) % fechas.length];
+  formatearFecha(fecha: string): string {
+    if (!fecha) return '—';
+    const date = new Date(fecha);
+    return date.toLocaleDateString('es-ES');
   }
 }

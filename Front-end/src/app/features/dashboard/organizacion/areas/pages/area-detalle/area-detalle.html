@@ -10,7 +10,7 @@
           <div>
             <span class="detalle-kicker">Ficha organizacional</span>
             <h1>{{ area.nombre }}</h1>
-            <p>{{ area.descripcion || 'Área registrada en la estructura organizacional.' }}</p>
+            <p>Área registrada en la estructura organizacional.</p>
           </div>
 
           <div class="detalle-actions">
@@ -32,23 +32,18 @@
               </div>
 
               <div>
-                <span>Responsable</span>
-                <strong>{{ area.id === 3 ? 'Coordinación TI' : area.id === 2 ? 'Gerencia financiera' : 'Jefatura administrativa' }}</strong>
-              </div>
-
-              <div>
                 <span>Estado</span>
                 <strong
                   class="estado-badge"
-                  [ngClass]="area.estado === 'Activa' ? 'activa' : 'inactiva'"
+                  [ngClass]="area.active ? 'activa' : 'inactiva'"
                 >
-                  {{ area.estado }}
+                  {{ area.active ? 'Activa' : 'Inactiva' }}
                 </strong>
               </div>
 
               <div>
-                <span>Última actualización</span>
-                <strong>{{ area.id === 3 ? '18/04/2026' : area.id === 2 ? '20/04/2026' : '22/04/2026' }}</strong>
+                <span>Fecha de creación</span>
+                <strong>{{ formatearFecha(area.createdAt) }}</strong>
               </div>
             </div>
           </article>

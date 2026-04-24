@@ -28,7 +28,7 @@
           </div>
           <div>
             <strong>{{ nombreCompleto }}</strong>
-            <p>{{ usuario.email || 'usuario@empresa.com' }}</p>
+            <p>{{ email }}</p>
           </div>
         </div>
 
@@ -40,7 +40,7 @@
         <a routerLink="/configuracion" class="dropdown-item" (click)="cerrarMenu()">
           Configuración
         </a>
-        <a routerLink="/iniciar-sesion" class="dropdown-item logout" (click)="cerrarMenu()">
+        <a class="dropdown-item logout" (click)="logout()">
           Cerrar sesión
         </a>
       </div>
