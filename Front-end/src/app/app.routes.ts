@@ -114,10 +114,24 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'perfil',
-    loadComponent: () =>
-      import('./features/dashboard/perfil/page/perfil').then(
-        (m) => m.PerfilPage 
-      ),
-  },
+  path: 'areas',
+  loadComponent: () =>
+    import('./features/dashboard/organizacion/areas/pages/areas-home/areas-home').then(
+      (m) => m.AreasHome
+    ),
+},
+{
+  path: 'areas/nueva',
+  loadComponent: () =>
+    import('./features/dashboard/organizacion/areas/pages/area-form/area-form').then(
+      (m) => m.AreaForm
+    ),
+},
+{
+  path: 'areas/editar/:id',
+  loadComponent: () =>
+    import('./features/dashboard/organizacion/areas/pages/area-form/area-form').then(
+      (m) => m.AreaForm
+    ),
+},
 ];

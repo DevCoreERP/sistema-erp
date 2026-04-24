@@ -1,0 +1,120 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-main">
+    <app-topbar></app-topbar>
+
+    <div class="dashboard-content">
+      <div class="detalle-page" *ngIf="area; else noEncontrada">
+        <div class="detalle-header">
+          <div>
+            <span class="detalle-kicker">Ficha organizacional</span>
+            <h1>{{ area.nombre }}</h1>
+            <p>{{ area.descripcion || 'Área registrada en la estructura organizacional.' }}</p>
+          </div>
+
+          <div class="detalle-actions">
+            <a routerLink="/areas" class="btn-secundario">← Volver</a>
+            <a [routerLink]="['/areas/editar', area.id]" class="btn-principal">Editar área</a>
+          </div>
+        </div>
+
+        <section class="detalle-grid">
+          <article class="detalle-card principal">
+            <div class="area-code">AR-{{ area.id | number:'2.0' }}</div>
+
+            <h2>Información general</h2>
+
+            <div class="info-list">
+              <div>
+                <span>Nombre del área</span>
+                <strong>{{ area.nombre }}</strong>
+              </div>
+
+              <div>
+                <span>Responsable</span>
+                <strong>{{ area.id === 3 ? 'Coordinación TI' : area.id === 2 ? 'Gerencia financiera' : 'Jefatura administrativa' }}</strong>
+              </div>
+
+              <div>
+                <span>Estado</span>
+                <strong
+                  class="estado-badge"
+                  [ngClass]="area.estado === 'Activa' ? 'activa' : 'inactiva'"
+                >
+                  {{ area.estado }}
+                </strong>
+              </div>
+
+              <div>
+                <span>Última actualización</span>
+                <strong>{{ area.id === 3 ? '18/04/2026' : area.id === 2 ? '20/04/2026' : '22/04/2026' }}</strong>
+              </div>
+            </div>
+          </article>
+
+          <article class="detalle-card">
+            <h2>Objetivo del área</h2>
+            <p>
+              Esta área forma parte de la estructura organizacional del ERP y permite
+              agrupar departamentos, cargos y responsabilidades dentro de la empresa.
+            </p>
+          </article>
+
+          <article class="detalle-card ancho">
+            <h2>Estructura interna sugerida</h2>
+            <p class="muted">
+              Estas unidades se muestran como referencia inicial. Más adelante se
+              conectarán con el módulo de Departamentos y Cargos.
+            </p>
+
+            <div class="unidad-grid">
+              <div class="unidad-card" *ngFor="let unidad of area.id === 3
+                ? ['Desarrollo Web', 'Base de Datos', 'Aplicaciones', 'Soporte Técnico']
+                : area.id === 2
+                ? ['Contabilidad General', 'Tesorería', 'Presupuestos', 'Auditoría Interna']
+                : ['Reclutamiento', 'Contratación', 'Capacitación', 'Bienestar Laboral']">
+                <h3>{{ unidad }}</h3>
+                <p>Unidad vinculada al área {{ area.nombre }}.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="detalle-card ancho">
+            <h2>Personal y responsabilidades</h2>
+
+            <div class="responsables-grid">
+              <div class="responsable-card">
+                <span>Encargado principal</span>
+                <strong>
+                  {{ area.id === 3 ? 'Responsable de Sistemas' : area.id === 2 ? 'Responsable Financiero' : 'Responsable de RRHH' }}
+                </strong>
+                <p>Supervisa la gestión operativa del área.</p>
+              </div>
+
+              <div class="responsable-card">
+                <span>Equipo asociado</span>
+                <strong>{{ area.id === 3 ? '4 unidades técnicas' : '4 unidades administrativas' }}</strong>
+                <p>Distribución inicial de funciones internas.</p>
+              </div>
+
+              <div class="responsable-card">
+                <span>Relación organizacional</span>
+                <strong>Área → Departamento → Cargo</strong>
+                <p>Jerarquía base para completar el ERP.</p>
+              </div>
+            </div>
+          </article>
+        </section>
+      </div>
+
+      <ng-template #noEncontrada>
+        <div class="detalle-card">
+          <h2>Área no encontrada</h2>
+          <p>No existe información para esta área.</p>
+          <a routerLink="/areas" class="btn-secundario">Volver a áreas</a>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>
