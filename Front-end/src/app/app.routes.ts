@@ -113,4 +113,11 @@ export const routes: Routes = [
         (m) => m.DashboardHome
       ),
   },
+  {
+    path: 'perfil',
+    loadComponent: () =>
+      import('./features/dashboard/perfil/page/perfil').then(
+        (m) => m.PerfilPage 
+      ),
+  },
 ];
