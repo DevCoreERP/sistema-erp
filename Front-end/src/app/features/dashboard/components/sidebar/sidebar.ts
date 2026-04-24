@@ -6,6 +6,12 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './sidebar.html',
-  styleUrl: './sidebar.css',
+  styleUrls: ['./sidebar.css'],
 })
-export class Sidebar {}
+export class Sidebar {
+  orgExpanded = false;
+
+  toggleOrg(): void {
+    this.orgExpanded = !this.orgExpanded;
+  }
+}

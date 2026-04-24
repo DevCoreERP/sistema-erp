@@ -1,0 +1,174 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-main">
+    <app-topbar></app-topbar>
+
+    <div class="dashboard-content">
+      <div class="areas-page">
+        <div class="areas-header">
+          <div>
+            <span class="areas-kicker">Gestión organizacional</span>
+            <h1>Departamentos</h1>
+            <p>
+              Administre los departamentos vinculados a cada área de la empresa.
+            </p>
+          </div>
+
+        </div>
+
+        <section class="areas-summary">
+          <article class="summary-card">
+            <span class="summary-label">Total de departamentos</span>
+            <h3>{{ departamentos.length }}</h3>
+            <p>Departamentos registrados</p>
+          </article>
+
+          <article class="summary-card">
+            <span class="summary-label">Activos</span>
+            <h3>{{ totalActivos }}</h3>
+            <p>Disponibles para operación</p>
+          </article>
+
+          <article class="summary-card">
+            <span class="summary-label">Inactivos</span>
+            <h3>{{ totalInactivos }}</h3>
+            <p>Fuera de operación temporal</p>
+          </article>
+
+          <article class="summary-card">
+            <span class="summary-label">Resultados visibles</span>
+            <h3>{{ departamentosFiltrados.length }}</h3>
+            <p>Según el filtro aplicado</p>
+          </article>
+        </section>
+
+        <section class="areas-layout">
+          <div class="areas-main-panel">
+            <div class="panel-head">
+              <div>
+                <h2>Directorio de departamentos</h2>
+                <p>Consulte, edite y controle el estado de cada departamento.</p>
+              </div>
+
+              <div class="panel-tools">
+                <input
+                  type="text"
+                  class="areas-search"
+                  placeholder="Buscar por nombre"
+                  [(ngModel)]="terminoBusqueda"
+                />
+              </div>
+            </div>
+
+            <div class="areas-table-wrapper">
+              <table class="areas-table">
+                <thead>
+                  <tr>
+                    <th>Código</th>
+                    <th>Nombre del departamento</th>
+                    <th>Área</th>
+                    <th>Estado</th>
+                    <th>Fecha de creación</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr *ngFor="let dept of departamentosFiltrados">
+                    <td>
+                      <span class="area-code">DP-{{ dept.id | number:'2.0' }}</span>
+                    </td>
+
+                    <td>
+                      <div class="area-name-block">
+                        <strong>{{ dept.nombre }}</strong>
+                        <small>Departamento organizacional</small>
+                      </div>
+                    </td>
+
+                    <td>{{ dept.area.nombre || '—' }}</td>
+
+                    <td>
+                      <span
+                        class="estado-badge"
+                        [ngClass]="{ activa: dept.active, inactiva: !dept.active }"
+                      >
+                        {{ dept.active ? 'Activo' : 'Inactivo' }}
+                      </span>
+                    </td>
+
+                    <td>{{ formatearFecha(dept.createdAt) }}</td>
+
+                    <td class="acciones-cell">
+                      <button
+                        type="button"
+                        class="btn-tabla btn-editar"
+                        (click)="editarDepartamento(dept.id)"
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        type="button"
+                        class="btn-tabla btn-estado"
+                        (click)="eliminarDepartamento(dept.id)"
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+
+                  <tr *ngIf="departamentosFiltrados.length === 0">
+                    <td colspan="6" class="sin-resultados">
+                      No se encontraron departamentos con ese criterio de búsqueda.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <aside class="areas-side-panel">
+            <div class="side-card">
+              <h3>Jerarquía organizacional</h3>
+              <p>
+                Los departamentos pertenecen a un área y agrupan cargos dentro de la estructura.
+              </p>
+              <ul class="side-list">
+                <li>
+                  <span>Departamentos activos</span>
+                  <strong>{{ totalActivos }}</strong>
+                </li>
+                <li>
+                  <span>Departamentos inactivos</span>
+                  <strong>{{ totalInactivos }}</strong>
+                </li>
+              </ul>
+            </div>
+
+            <div class="side-card">
+              <h3>Crear departamento</h3>
+              <form (ngSubmit)="crearDepartamentoInline()">
+                <div class="form-group">
+                  <label>Nombre *</label>
+                  <input type="text" [(ngModel)]="nuevoDepartamento.nombre" name="nuevoDeptNombre" placeholder="Ej: Contabilidad" />
+                  <small *ngIf="creadoDept && !nuevoDepartamento.nombre" class="error">Campo obligatorio</small>
+                </div>
+                <div class="form-group">
+                  <label>Área *</label>
+                  <select [(ngModel)]="nuevoDepartamento.areaId" name="nuevoDeptAreaId">
+                    <option [ngValue]="0" disabled>Seleccione un área</option>
+                    <option *ngFor="let area of areas" [ngValue]="area.id">{{ area.nombre }}</option>
+                  </select>
+                  <small *ngIf="creadoDept && !nuevoDepartamento.areaId" class="error">Campo obligatorio</small>
+                </div>
+                <button type="submit" class="btn-principal btn-crear">+ Registrar departamento</button>
+              </form>
+            </div>
+          </aside>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>

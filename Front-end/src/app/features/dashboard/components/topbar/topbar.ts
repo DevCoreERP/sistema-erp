@@ -1,6 +1,7 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, inject, OnInit } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-topbar',
@@ -9,24 +10,41 @@ import { RouterLink } from '@angular/router';
   templateUrl: './topbar.html',
   styleUrl: './topbar.css',
 })
-export class Topbar {
-  usuario: any = {};
+export class Topbar implements OnInit {
+  private authService = inject(AuthService);
 
-constructor() {
-  try {
-    this.usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-  } catch {
-    this.usuario = {};
-  }
-}
   menuAbierto = false;
 
+  ngOnInit() {
+    this.authService.getUsuario(1).subscribe({
+      next: (user) => {
+        this.authService.currentUser.set(user);
+      },
+      error: () => {
+        this.authService.currentUser.set(null);
+      },
+    });
+  }
+
   get nombreCompleto(): string {
-    return `${this.usuario.nombre || 'Usuario'} ${this.usuario.apellido || ''}`.trim();
+    const user = this.authService.currentUser();
+    if (user) {
+      return `${user.firstName} ${user.surnames}`.trim();
+    }
+    return 'Usuario';
   }
 
   get inicial(): string {
-    return (this.usuario.nombre?.charAt(0) || 'U').toUpperCase();
+    const user = this.authService.currentUser();
+    if (user) {
+      return user.firstName.charAt(0).toUpperCase();
+    }
+    return 'U';
+  }
+
+  get email(): string {
+    const user = this.authService.currentUser();
+    return user?.email || 'usuario@empresa.com';
   }
 
   toggleMenu() {
@@ -35,6 +53,11 @@ constructor() {
 
   cerrarMenu() {
     this.menuAbierto = false;
+  }
+
+  logout() {
+    this.menuAbierto = false;
+    this.authService.logout().subscribe();
   }
 
   @HostListener('document:click', ['$event'])

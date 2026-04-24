@@ -1,66 +1,44 @@
-import { Injectable } from '@angular/core';
-import { Area } from '../interface/area.interface';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+import { environment } from '../../../../../../environments/environment';
+import { Area, CreateAreaRequest } from '../interface/area.interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AreasService {
-  private areas: Area[] = [
-    {
-      id: 1,
-      nombre: 'Recursos Humanos',
-      descripcion: 'Gestión del personal',
-      estado: 'Activa',
-    },
-    {
-      id: 2,
-      nombre: 'Contabilidad',
-      descripcion: 'Finanzas y contabilidad',
-      estado: 'Activa',
-    },
-    {
-      id: 3,
-      nombre: 'Sistemas',
-      descripcion: 'Tecnología e infraestructura',
-      estado: 'Inactiva',
-    },
-  ];
+  private http = inject(HttpClient);
+  private apiUrl = environment.apiBaseUrl;
 
-  private contadorId = 4;
-
-  obtenerAreas(): Area[] {
-  return [...this.areas];
-}
-
-  obtenerAreaPorId(id: number): Area | undefined {
-    return this.areas.find((a) => a.id === id);
+  obtenerAreas(): Observable<Area[]> {
+    return this.http.get<Area[]>(`${this.apiUrl}/areas`, {
+      withCredentials: true,
+    });
   }
 
-  agregarArea(data: Omit<Area, 'id'>): void {
-    const nueva: Area = {
-      ...data,
-      id: this.contadorId++,
-    };
-
-    this.areas.push(nueva);
+  obtenerAreaPorId(id: number): Observable<Area> {
+    return this.http.get<Area>(`${this.apiUrl}/areas/${id}`, {
+      withCredentials: true,
+    });
   }
 
-  actualizarArea(id: number, data: Partial<Area>): void {
-    const index = this.areas.findIndex((a) => a.id === id);
-
-    if (index !== -1) {
-      this.areas[index] = {
-        ...this.areas[index],
-        ...data,
-      };
-    }
+  agregarArea(data: CreateAreaRequest): Observable<Area> {
+    return this.http.post<Area>(`${this.apiUrl}/areas`, data, {
+      withCredentials: true,
+    });
   }
 
-  cambiarEstado(id: number): void {
-    const area = this.obtenerAreaPorId(id);
+  actualizarArea(id: number, data: CreateAreaRequest): Observable<Area> {
+    return this.http.put<Area>(`${this.apiUrl}/areas/${id}`, data, {
+      withCredentials: true,
+    });
+  }
 
-    if (area) {
-      area.estado = area.estado === 'Activa' ? 'Inactiva' : 'Activa';
-    }
+  eliminarArea(id: number): Observable<Area> {
+    return this.http.delete<Area>(`${this.apiUrl}/areas/${id}`, {
+      withCredentials: true,
+    });
   }
 }

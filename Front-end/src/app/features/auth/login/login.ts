@@ -1,15 +1,17 @@
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
-  standalone: true, 
+  standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
 })
 export class Login {
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   form = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -17,24 +19,30 @@ export class Login {
   });
 
   submitted = false;
+  errorMessage = '';
 
   onSubmit() {
-  this.submitted = true;
-  if (this.form.invalid) {
-    this.form.markAllAsTouched();
-    return;
+    this.submitted = true;
+    this.errorMessage = '';
+
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const { email, password } = this.form.value;
+
+    this.authService.login({ email: email!, password: password! }).subscribe({
+      next: () => {
+        this.router.navigate(['/panel']);
+      },
+      error: (err) => {
+        this.errorMessage = err.status === 401
+          ? 'Credenciales inválidas. Verifica tu correo y contraseña.'
+          : 'Error al iniciar sesión. Intenta de nuevo.';
+      },
+    });
   }
-
-  const usuario = {
-    nombre: 'Juan',
-    apellido: 'Pérez',
-    email: this.form.value.email ?? ''
-  };
-
-  localStorage.setItem('usuario', JSON.stringify(usuario));
-
-  this.router.navigate(['/panel']);
-}
 
   isFieldInvalid(fieldName: string): boolean {
     const field = this.form.get(fieldName);

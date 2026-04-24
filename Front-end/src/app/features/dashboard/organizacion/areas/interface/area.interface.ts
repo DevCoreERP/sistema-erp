@@ -1,6 +1,10 @@
 export interface Area {
   id: number;
   nombre: string;
-  descripcion?: string;
-  estado: 'Activa' | 'Inactiva';
+  active: boolean;
+  createdAt: string;
+}
+
+export interface CreateAreaRequest {
+  nombre: string;
 }
