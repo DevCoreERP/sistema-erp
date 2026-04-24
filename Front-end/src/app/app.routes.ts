@@ -107,6 +107,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'perfil',
+    loadComponent: () =>
+      import('./features/dashboard/perfil/page/perfil').then(
+        (m) => m.PerfilPage
+      ),
+  },
+  {
     path: 'configuracion',
     loadComponent: () =>
       import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
