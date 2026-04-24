@@ -56,7 +56,7 @@ public class Vacacion {
     private Empleado empleado;
 
     // Relación 1:M con Solicitud
-    @OneToMany(mappedBy = "solicitud")
+    @OneToMany(mappedBy = "vacacion")
     @JsonIgnore
     private List<Solicitud> solicitudes;
 
