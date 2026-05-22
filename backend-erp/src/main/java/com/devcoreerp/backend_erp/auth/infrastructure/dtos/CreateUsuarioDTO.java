@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+//Puede que este deteo se vaya a eliminar
 public record CreateUsuarioDTO(
     @NotBlank(message = "El nombre de usuario no puede estar vacío")
     @Size(min = 3, max = 100, message = "El nombre de usuario debe tener entre 3 y 100 caracteres")

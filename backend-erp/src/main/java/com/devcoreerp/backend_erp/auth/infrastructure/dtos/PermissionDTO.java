@@ -4,5 +4,5 @@ public record PermissionDTO(
     Long id,
     String code,
     String description,
-    String category
+    Boolean estado
 ) {}

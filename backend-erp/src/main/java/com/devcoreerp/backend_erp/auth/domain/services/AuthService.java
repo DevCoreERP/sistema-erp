@@ -3,6 +3,7 @@ package com.devcoreerp.backend_erp.auth.domain.services;
 import com.devcoreerp.backend_erp.auth.domain.Usuario;
 import com.devcoreerp.backend_erp.auth.infrastructure.dtos.CreateUsuarioDTO;
 import com.devcoreerp.backend_erp.auth.infrastructure.dtos.LoginRequestDTO;
+import com.devcoreerp.backend_erp.auth.infrastructure.dtos.UsuarioResponseDTO;
 
 public interface AuthService {
     
@@ -25,6 +26,10 @@ public interface AuthService {
      * Crea un nuevo usuario
      */
     void createUsuario(CreateUsuarioDTO createUsuarioDTO);
+
+    UsuarioResponseDTO createUsuarioAndReturn(CreateUsuarioDTO createUsuarioDTO);
+
+    UsuarioResponseDTO assignRoleToUser(Long usuarioId, Long roleId);
     
     /**
      * Obtiene un usuario por ID
