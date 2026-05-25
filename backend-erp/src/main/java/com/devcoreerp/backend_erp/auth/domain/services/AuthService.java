@@ -2,7 +2,6 @@ package com.devcoreerp.backend_erp.auth.domain.services;
 
 import java.util.List;
 
-import org.springframework.security.core.userdetails.UserDetails;
 
 import com.devcoreerp.backend_erp.auth.domain.Usuario;
 import com.devcoreerp.backend_erp.auth.infrastructure.dtos.CreateUsuarioDTO;
