@@ -1,5 +1,6 @@
 package com.devcoreerp.backend_erp.organizational.infrastructure.controllers;
 
+import com.devcoreerp.backend_erp.auth.infrastructure.annotations.RequirePermission;
 import com.devcoreerp.backend_erp.auth.infrastructure.config.ApiConfig;
 import com.devcoreerp.backend_erp.organizational.infrastructure.dtos.CreateCargoDTO;
 import com.devcoreerp.backend_erp.organizational.infrastructure.dtos.ResponseCargoDTO;
@@ -45,6 +46,7 @@ public class CargoController {
     }
 
     @GetMapping("/{id}")
+    @RequirePermission(value = "USER_VIEW", description = "Permiso para ver usuarios")
     public ResponseEntity<?> findById(@PathVariable Long id) {
         try {
             ResponseCargoDTO response = cargoService.findById(id);

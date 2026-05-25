@@ -1,0 +1,174 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-main">
+    <app-topbar></app-topbar>
+
+    <div class="dashboard-content">
+      <div class="areas-page">
+        <div class="areas-header">
+          <div>
+            <span class="areas-kicker">Gestión organizacional</span>
+            <h1>Cargos</h1>
+            <p>
+              Administre los cargos asignados a cada departamento de la empresa.
+            </p>
+          </div>
+
+        </div>
+
+        <section class="areas-summary">
+          <article class="summary-card">
+            <span class="summary-label">Total de cargos</span>
+            <h3>{{ cargos.length }}</h3>
+            <p>Cargos registrados</p>
+          </article>
+
+          <article class="summary-card">
+            <span class="summary-label">Activos</span>
+            <h3>{{ totalActivos }}</h3>
+            <p>Disponibles para operación</p>
+          </article>
+
+          <article class="summary-card">
+            <span class="summary-label">Inactivos</span>
+            <h3>{{ totalInactivos }}</h3>
+            <p>Fuera de operación temporal</p>
+          </article>
+
+          <article class="summary-card">
+            <span class="summary-label">Resultados visibles</span>
+            <h3>{{ cargosFiltrados.length }}</h3>
+            <p>Según el filtro aplicado</p>
+          </article>
+        </section>
+
+        <section class="areas-layout">
+          <div class="areas-main-panel">
+            <div class="panel-head">
+              <div>
+                <h2>Directorio de cargos</h2>
+                <p>Consulte, edite y controle el estado de cada cargo.</p>
+              </div>
+
+              <div class="panel-tools">
+                <input
+                  type="text"
+                  class="areas-search"
+                  placeholder="Buscar por nombre"
+                  [(ngModel)]="terminoBusqueda"
+                />
+              </div>
+            </div>
+
+            <div class="areas-table-wrapper">
+              <table class="areas-table">
+                <thead>
+                  <tr>
+                    <th>Código</th>
+                    <th>Nombre del cargo</th>
+                    <th>Departamento</th>
+                    <th>Estado</th>
+                    <th>Fecha de creación</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr *ngFor="let cargo of cargosFiltrados">
+                    <td>
+                      <span class="area-code">CG-{{ cargo.id | number:'2.0' }}</span>
+                    </td>
+
+                    <td>
+                      <div class="area-name-block">
+                        <strong>{{ cargo.nombre }}</strong>
+                        <small>Cargo organizacional</small>
+                      </div>
+                    </td>
+
+                    <td>{{ cargo.departamento.nombre || '—' }}</td>
+
+                    <td>
+                      <span
+                        class="estado-badge"
+                        [ngClass]="{ activa: cargo.active, inactiva: !cargo.active }"
+                      >
+                        {{ cargo.active ? 'Activo' : 'Inactivo' }}
+                      </span>
+                    </td>
+
+                    <td>{{ formatearFecha(cargo.createdAt) }}</td>
+
+                    <td class="acciones-cell">
+                      <button
+                        type="button"
+                        class="btn-tabla btn-editar"
+                        (click)="editarCargo(cargo.id)"
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        type="button"
+                        class="btn-tabla btn-estado"
+                        (click)="eliminarCargo(cargo.id)"
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+
+                  <tr *ngIf="cargosFiltrados.length === 0">
+                    <td colspan="6" class="sin-resultados">
+                      No se encontraron cargos con ese criterio de búsqueda.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <aside class="areas-side-panel">
+            <div class="side-card">
+              <h3>Jerarquía organizacional</h3>
+              <p>
+                Los cargos pertenecen a un departamento y definen las responsabilidades de los empleados.
+              </p>
+              <ul class="side-list">
+                <li>
+                  <span>Cargos activos</span>
+                  <strong>{{ totalActivos }}</strong>
+                </li>
+                <li>
+                  <span>Cargos inactivos</span>
+                  <strong>{{ totalInactivos }}</strong>
+                </li>
+              </ul>
+            </div>
+
+            <div class="side-card">
+              <h3>Crear cargo</h3>
+              <form (ngSubmit)="crearCargoInline()">
+                <div class="form-group">
+                  <label>Nombre *</label>
+                  <input type="text" [(ngModel)]="nuevoCargo.nombre" name="nuevoCargoNombre" placeholder="Ej: Gerente" />
+                  <small *ngIf="creadoCargo && !nuevoCargo.nombre" class="error">Campo obligatorio</small>
+                </div>
+                <div class="form-group">
+                  <label>Departamento *</label>
+                  <select [(ngModel)]="nuevoCargo.departamentoId" name="nuevoCargoDeptId">
+                    <option [ngValue]="0" disabled>Seleccione un departamento</option>
+                    <option *ngFor="let dept of departamentos" [ngValue]="dept.id">{{ dept.nombre }}</option>
+                  </select>
+                  <small *ngIf="creadoCargo && !nuevoCargo.departamentoId" class="error">Campo obligatorio</small>
+                </div>
+                <button type="submit" class="btn-principal btn-crear">+ Registrar cargo</button>
+              </form>
+            </div>
+          </aside>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>

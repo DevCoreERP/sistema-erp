@@ -1,0 +1,82 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-main">
+    <app-topbar></app-topbar>
+
+    <div class="dashboard-content">
+      <div class="detalle-page" *ngIf="empleado; else noEncontrado">
+        <div class="detalle-header">
+          <div>
+            <h1>Detalle del empleado</h1>
+            <p>Información registrada del empleado</p>
+          </div>
+
+          <div class="detalle-actions">
+            <a routerLink="/empleados" class="btn-volver">← Volver</a>
+            <a [routerLink]="['/empleados/editar', empleado.id]" class="btn-editar">
+              Editar
+            </a>
+          </div>
+        </div>
+
+        <section class="detalle-card">
+          <div class="detalle-top">
+            <div class="detalle-imagen">
+              <img
+                *ngIf="empleado.imagen; else sinImagen"
+                [src]="empleado.imagen"
+                alt="Foto del empleado"
+              />
+
+              <ng-template #sinImagen>
+                <span>Sin imagen</span>
+              </ng-template>
+            </div>
+
+            <div class="detalle-info-principal">
+              <h2>{{ empleado.nombre }}</h2>
+              <p>{{ empleado.puesto }}</p>
+              <span
+                class="estado"
+                [ngClass]="empleado.estado === 'Activo' ? 'activo' : 'inactivo'"
+              >
+                {{ empleado.estado }}
+              </span>
+            </div>
+          </div>
+
+          <div class="detalle-grid">
+            <div class="detalle-item">
+              <label>Correo</label>
+              <p>{{ empleado.correo }}</p>
+            </div>
+
+            <div class="detalle-item">
+              <label>Dirección</label>
+              <p>{{ empleado.direccion }}</p>
+            </div>
+
+            <div class="detalle-item">
+              <label>Teléfono</label>
+              <p>{{ empleado.telefono || 'No registrado' }}</p>
+            </div>
+
+            <div class="detalle-item">
+              <label>Departamento</label>
+              <p>{{ empleado.departamento || 'No registrado' }}</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <ng-template #noEncontrado>
+        <div class="detalle-card">
+          <h2>Empleado no encontrado</h2>
+          <p>No existe información para este registro.</p>
+          <a routerLink="/empleados" class="btn-volver">Volver a empleados</a>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>

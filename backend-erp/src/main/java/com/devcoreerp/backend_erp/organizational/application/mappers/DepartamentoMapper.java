@@ -10,23 +10,25 @@ public class DepartamentoMapper {
     public static ResponseDepartamentoDTO toDTO(Departamento departamento) {
         if (departamento == null) return null;
 
+        Area area = departamento.getArea();
+
         return new ResponseDepartamentoDTO(
             departamento.getId(),
             departamento.getNombre(),
             departamento.getActive(),
             departamento.getCreatedAt(),
-            departamento.getArea()
+            AreaMapper.toDTO(area)
         );
     }
 
     public static Departamento toEntity(ResponseDepartamentoDTO dto) {
         if (dto == null) return null;
 
-        Departamento departamento = new Departamento(dto.nombre(), dto.area());
+        Departamento departamento = new Departamento(dto.nombre(), AreaMapper.toEntity(dto.area()));
         departamento.setId(dto.id());
         departamento.setActive(dto.active());
         departamento.setCreatedAt(dto.createdAt());
-        departamento.setArea(dto.area());
+        departamento.setArea(AreaMapper.toEntity(dto.area()));
         return departamento;
     }
 

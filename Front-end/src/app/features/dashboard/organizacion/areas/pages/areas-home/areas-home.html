@@ -1,0 +1,168 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-main">
+    <app-topbar></app-topbar>
+
+    <div class="dashboard-content">
+      <div class="areas-page">
+        <div class="areas-header">
+          <div>
+            <span class="areas-kicker">Gestión organizacional</span>
+            <h1>Áreas</h1>
+            <p>
+              Administre las áreas de la organización.
+            </p>
+          </div>
+        </div>
+
+        <section class="areas-summary">
+          <article class="summary-card">
+            <span class="summary-label">Total de áreas</span>
+            <h3>{{ areas.length }}</h3>
+            <p>Estructura general registrada</p>
+          </article>
+
+          <article class="summary-card">
+            <span class="summary-label">Activas</span>
+            <h3>{{ totalActivas }}</h3>
+            <p>Disponibles para operación</p>
+          </article>
+
+          <article class="summary-card">
+            <span class="summary-label">Inactivas</span>
+            <h3>{{ totalInactivas }}</h3>
+            <p>Fuera de operación temporal</p>
+          </article>
+
+          <article class="summary-card">
+            <span class="summary-label">Resultados visibles</span>
+            <h3>{{ areasFiltradas.length }}</h3>
+            <p>Según el filtro aplicado</p>
+          </article>
+        </section>
+
+        <!-- TABLA DE ÁREAS -->
+        <section class="areas-layout">
+          <div class="areas-main-panel">
+            <div class="panel-head">
+              <div>
+                <h2>Directorio de áreas</h2>
+                <p>Consulte, edite y controle el estado de cada área.</p>
+              </div>
+
+              <div class="panel-tools">
+                <input
+                  type="text"
+                  class="areas-search"
+                  placeholder="Buscar área por nombre"
+                  [(ngModel)]="terminoBusqueda"
+                />
+              </div>
+            </div>
+
+            <div class="areas-table-wrapper">
+              <table class="areas-table">
+                <thead>
+                  <tr>
+                    <th>Código</th>
+                    <th>Nombre del área</th>
+                    <th>Estado</th>
+                    <th>Fecha de creación</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr *ngFor="let area of areasFiltradas">
+                    <td>
+                      <span class="area-code">AR-{{ area.id | number:'2.0' }}</span>
+                    </td>
+
+                    <td>
+                      <div class="area-name-block">
+                        <strong>{{ area.nombre }}</strong>
+                        <small>Estructura organizacional</small>
+                      </div>
+                    </td>
+
+                    <td>
+                      <span
+                        class="estado-badge"
+                        [ngClass]="{ activa: area.active, inactiva: !area.active }"
+                      >
+                        {{ area.active ? 'Activa' : 'Inactiva' }}
+                      </span>
+                    </td>
+
+                    <td>{{ formatearFecha(area.createdAt) }}</td>
+
+                    <td class="acciones-cell">
+                      <button
+                        type="button"
+                        class="btn-tabla btn-editar"
+                        (click)="editarArea(area.id)"
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        type="button"
+                        class="btn-tabla btn-estado"
+                        (click)="eliminarArea(area.id)"
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+
+                  <tr *ngIf="areasFiltradas.length === 0">
+                    <td colspan="5" class="sin-resultados">
+                      No se encontraron áreas con ese criterio de búsqueda.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <aside class="areas-side-panel">
+            <div class="side-card">
+              <h3>Áreas</h3>
+              <p>
+                Defina las áreas de la empresa para estructurar la organización.
+              </p>
+              <ul class="side-list">
+                <li>
+                  <span>Total</span>
+                  <strong>{{ areas.length }}</strong>
+                </li>
+                <li>
+                  <span>Activas</span>
+                  <strong>{{ totalActivas }}</strong>
+                </li>
+                <li>
+                  <span>Inactivas</span>
+                  <strong>{{ totalInactivas }}</strong>
+                </li>
+              </ul>
+            </div>
+
+            <div class="side-card">
+              <h3>Crear área</h3>
+              <form (ngSubmit)="crearAreaInline()">
+                <div class="form-group">
+                  <label>Nombre del área *</label>
+                  <input type="text" [(ngModel)]="nuevaArea.nombre" name="nuevaAreaNombre" placeholder="Ej: Recursos Humanos" />
+                  <small *ngIf="creadoArea && !nuevaArea.nombre" class="error">Campo obligatorio</small>
+                </div>
+                <button type="submit" class="btn-principal btn-crear">+ Registrar área</button>
+              </form>
+            </div>
+          </aside>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</div>

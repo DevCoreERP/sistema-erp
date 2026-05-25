@@ -1,0 +1,76 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-main">
+    <app-topbar></app-topbar>
+
+    <div class="dashboard-content">
+      <div class="area-form-page">
+        <div class="area-form-header">
+          <div>
+            <span class="form-kicker">Gestión organizacional</span>
+            <h1>{{ modoEdicion ? 'Editar departamento' : 'Nuevo departamento' }}</h1>
+            <p>
+              {{ modoEdicion ? 'Actualice la información del departamento.' : 'Registre un nuevo departamento dentro de un área.' }}
+            </p>
+          </div>
+
+          <a routerLink="/departamentos" class="btn-volver">← Volver</a>
+        </div>
+
+        <form class="area-form-layout" (ngSubmit)="guardarDepartamento()">
+          <section class="form-card principal">
+            <h2>Datos generales</h2>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Nombre del departamento *</label>
+                <input type="text" [(ngModel)]="departamento.nombre" name="nombre" />
+                <small *ngIf="enviado && !departamento.nombre" class="error">Campo obligatorio</small>
+              </div>
+
+              <div class="form-group">
+                <label>Área *</label>
+                <select [(ngModel)]="departamento.areaId" name="areaId">
+                  <option [ngValue]="0" disabled>Seleccione un área</option>
+                  <option *ngFor="let area of areas" [ngValue]="area.id">{{ area.nombre }}</option>
+                </select>
+                <small *ngIf="enviado && !departamento.areaId" class="error">Campo obligatorio</small>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <a routerLink="/departamentos" class="btn-cancelar">Cancelar</a>
+              <button type="submit" class="btn-guardar" [disabled]="cargando">
+                {{ cargando ? 'Guardando...' : (modoEdicion ? 'Guardar cambios y salir' : 'Registrar departamento') }}
+              </button>
+            </div>
+          </section>
+
+          <aside class="form-side">
+            <div class="side-card">
+              <h3>Jerarquía organizacional</h3>
+              <div class="mini-org">
+                <div class="org-level top">Empresa</div>
+                <div class="org-line"></div>
+                <div class="org-level">Área</div>
+                <div class="org-line"></div>
+                <div class="org-level current">Departamento</div>
+                <div class="org-line"></div>
+                <div class="org-level">Cargo</div>
+              </div>
+            </div>
+
+            <div class="side-card">
+              <h3>Importancia del departamento</h3>
+              <p>
+                Los departamentos agrupan cargos dentro de un área. Cada departamento
+                pertenece a un área y puede contener múltiples cargos.
+              </p>
+            </div>
+          </aside>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

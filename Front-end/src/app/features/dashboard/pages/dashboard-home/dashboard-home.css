@@ -1,0 +1,282 @@
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f5f7fb;
+}
+
+.dashboard-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-content {
+  flex: 1;
+  padding: 24px;
+  background: #f3f4f6;
+}
+
+/* GRID DE CARDS */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+/* CARD */
+.stat-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  border: 1px solid #eef2f7;
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+.stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stat-card h3 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.stat-card p {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* ICONOS */
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.stat-icon.blue {
+  background: #dbeafe;
+}
+
+.stat-icon.green {
+  background: #dcfce7;
+}
+
+.stat-icon.orange {
+  background: #ffedd5;
+}
+
+.stat-icon.purple {
+  background: #f3e8ff;
+}
+
+/* TEXTO ABAJO */
+.stat-note {
+  display: block;
+  margin-top: 14px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.stat-note.positive {
+  color: #16a34a;
+}
+
+.stat-note.warning {
+  color: #d97706;
+}
+
+.stat-note.neutral {
+  color: #6b7280;
+}
+
+/* BLOQUE INFERIOR */
+.dashboard-lower {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+.activity-card,
+.summary-card,
+.alerts-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  border: 1px solid #eef2f7;
+}
+
+.activity-card {
+  transition: all 0.2s ease;
+}
+
+.activity-card:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+.section-header {
+  margin-bottom: 18px;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #111827;
+}
+
+.section-header p {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* TABLA */
+.activity-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.activity-table thead th {
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  padding: 12px 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.activity-table tbody td {
+  padding: 14px 10px;
+  font-size: 14px;
+  color: #111827;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.activity-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* ESTADOS */
+.status {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status.pending {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.status.approved {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status.review {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* PANEL DERECHO */
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* RESUMEN */
+.summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.summary-item span {
+  color: #475569;
+  font-size: 14px;
+}
+
+.summary-item strong {
+  color: #111827;
+  font-size: 18px;
+}
+
+/* ALERTAS */
+.alert-item {
+  padding: 14px 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alert-item strong {
+  font-size: 15px;
+}
+
+.alert-item span {
+  font-size: 13px;
+}
+
+.warning-alert {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.info-alert {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.danger-alert {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 1100px) {
+  .dashboard-lower {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+}

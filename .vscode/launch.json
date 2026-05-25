@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-BackendErpApplication<backend-erp>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.devcoreerp.backend_erp.BackendErpApplication",
+      "projectName": "backend-erp",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}
