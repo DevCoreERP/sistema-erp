@@ -1,5 +1,6 @@
 package com.devcoreerp.backend_erp.auth.domain;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 import java.time.LocalDate;
@@ -24,6 +26,8 @@ import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import com.devcoreerp.backend_erp.control_asistencia.domain.AsignacionTurno;
 
 @Getter
 @Setter
@@ -64,13 +68,15 @@ public class Usuario implements UserDetails {
     private Boolean estado = true;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "usuario_roles", 
-        joinColumns = @JoinColumn(name = "usuario_id"), 
-        inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
+    @JoinTable(name = "usuario_roles", joinColumns = @JoinColumn(name = "usuario_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
+
+
+    //Asigancion de turno
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private Set<AsignacionTurno> asignacionesTurno = new HashSet<>();
 
     @Column(nullable = false)
     @Builder.Default
@@ -121,7 +127,7 @@ public class Usuario implements UserDetails {
         return (firstName != null && surnames != null) ? firstName + " " + surnames : username;
     }
 
-    //Verifica si el usuario tiene un permiso específico
+    // Verifica si el usuario tiene un permiso específico
     public boolean hasPermission(String permissionCode) {
         return getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equalsIgnoreCase(permissionCode));

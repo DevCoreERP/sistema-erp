@@ -48,7 +48,16 @@ public class BaseRoleSeeder implements CommandLineRunner {
                 "ROL_EDITAR",
                 "ROL_ELIMINAR",
                 "ROL_ASIGNAR_PERMISO",
-                "PERMISO_LISTAR"
+                "PERMISO_LISTAR",
+                "TURNO_CREAR",
+                "TURNO_LISTAR",
+                "TURNO_EDITAR",
+                "TURNO_ELIMINAR",
+                "ASIGNACION_TURNO_CREAR",
+                "ASIGNACION_TURNO_LISTAR",
+                "ASIGNACION_TURNO_EDITAR",
+                "ASIGNACION_TURNO_ELIMINAR",
+                "AGENDA_TURNO_LISTAR"
             )
         );
 

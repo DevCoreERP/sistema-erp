@@ -39,7 +39,19 @@ public class BasePermissionSeeder implements CommandLineRunner {
             new PermissionSeed("ROL_ELIMINAR", "Eliminar o desactivar roles"),
             new PermissionSeed("ROL_ASIGNAR_PERMISO", "Asignar permisos a roles"),
 
-            new PermissionSeed("PERMISO_LISTAR", "Listar o consultar permisos")
+            new PermissionSeed("PERMISO_LISTAR", "Listar o consultar permisos"),
+
+            new PermissionSeed("TURNO_CREAR", "Crear usuarios"),
+            new PermissionSeed("TURNO_LISTAR", "Listar o consultar usuarios"),
+            new PermissionSeed("TURNO_EDITAR", "Editar usuarios"),
+            new PermissionSeed("TURNO_ELIMINAR", "Eliminar o desactivar usuarios"),
+
+            new PermissionSeed("ASIGNACION_TURNO_CREAR", "Crear asignaciones de turno laboral"),
+            new PermissionSeed("ASIGNACION_TURNO_LISTAR", "Listar o consultar asignaciones de turno laboral"),
+            new PermissionSeed("ASIGNACION_TURNO_EDITAR", "Editar o finalizar asignaciones de turno laboral"),
+            new PermissionSeed("ASIGNACION_TURNO_ELIMINAR", "Desactivar asignaciones de turno laboral"),
+
+            new PermissionSeed("AGENDA_TURNO_LISTAR", "Consultar agenda propia de turnos laborales")
         );
 
         permissions.forEach(seed -> {
