@@ -1,4 +1,4 @@
-package com.devcoreerp.backend_erp.auth.infrastructure.config;
+package com.devcoreerp.backend_erp.config;
 
 import com.devcoreerp.backend_erp.auth.domain.Permission;
 import com.devcoreerp.backend_erp.auth.domain.Role;
@@ -48,7 +48,6 @@ public class BaseRoleSeeder implements CommandLineRunner {
                 "ROL_EDITAR",
                 "ROL_ELIMINAR",
                 "ROL_ASIGNAR_PERMISO",
-                "PERMISO_CREAR",
                 "PERMISO_LISTAR"
             )
         );

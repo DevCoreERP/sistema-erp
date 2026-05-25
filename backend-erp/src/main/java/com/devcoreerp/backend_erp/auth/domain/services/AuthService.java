@@ -1,9 +1,14 @@
 package com.devcoreerp.backend_erp.auth.domain.services;
 
+import java.util.List;
+
+import org.springframework.security.core.userdetails.UserDetails;
+
 import com.devcoreerp.backend_erp.auth.domain.Usuario;
 import com.devcoreerp.backend_erp.auth.infrastructure.dtos.CreateUsuarioDTO;
 import com.devcoreerp.backend_erp.auth.infrastructure.dtos.LoginRequestDTO;
 import com.devcoreerp.backend_erp.auth.infrastructure.dtos.UsuarioResponseDTO;
+import com.devcoreerp.backend_erp.auth.infrastructure.dtos.UsuarioUpdateDTO;
 
 public interface AuthService {
     
@@ -29,7 +34,7 @@ public interface AuthService {
 
     UsuarioResponseDTO createUsuarioAndReturn(CreateUsuarioDTO createUsuarioDTO);
 
-    UsuarioResponseDTO assignRoleToUser(Long usuarioId, Long roleId);
+    UsuarioResponseDTO assignRolesToUser(Long usuarioId, List<Long> roleId);
     
     /**
      * Obtiene un usuario por ID
@@ -40,4 +45,14 @@ public interface AuthService {
      * Obtiene un usuario por username
      */
     Usuario getUsuarioByUsername(String username);
+
+    //-------------------------------------------------------
+    List<UsuarioResponseDTO> listarUsuarios(Boolean estado);
+
+    void eliminarLogicamente(Long id);
+
+    UsuarioResponseDTO actualizarCampoUsuario(Long id, UsuarioUpdateDTO dto);
+
+    UsuarioResponseDTO me(Long id);
+
 }

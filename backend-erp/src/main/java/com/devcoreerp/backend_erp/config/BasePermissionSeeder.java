@@ -1,4 +1,4 @@
-package com.devcoreerp.backend_erp.auth.infrastructure.config;
+package com.devcoreerp.backend_erp.config;
 
 import com.devcoreerp.backend_erp.auth.domain.Permission;
 import com.devcoreerp.backend_erp.auth.infrastructure.persistance.PermissionRepository;
@@ -32,12 +32,13 @@ public class BasePermissionSeeder implements CommandLineRunner {
             new PermissionSeed("USUARIO_EDITAR", "Editar usuarios"),
             new PermissionSeed("USUARIO_ELIMINAR", "Eliminar o desactivar usuarios"),
             new PermissionSeed("USUARIO_ASIGNAR_ROL", "Asignar roles a usuarios"),
+
             new PermissionSeed("ROL_CREAR", "Crear roles"),
             new PermissionSeed("ROL_LISTAR", "Listar o consultar roles"),
             new PermissionSeed("ROL_EDITAR", "Editar roles"),
             new PermissionSeed("ROL_ELIMINAR", "Eliminar o desactivar roles"),
             new PermissionSeed("ROL_ASIGNAR_PERMISO", "Asignar permisos a roles"),
-            new PermissionSeed("PERMISO_CREAR", "Crear permisos"),
+
             new PermissionSeed("PERMISO_LISTAR", "Listar o consultar permisos")
         );
 

@@ -1,6 +1,8 @@
 package com.devcoreerp.backend_erp.auth.infrastructure.persistance;
 
 import com.devcoreerp.backend_erp.auth.domain.Usuario;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -27,4 +29,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);
+
+    boolean existsByPhoneNumber(String telefono);
+
+    List<Usuario> findAllByEstado(Boolean estado);
+
 }

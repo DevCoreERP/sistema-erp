@@ -26,22 +26,22 @@ public class PermissionService {
         this.permissionRepository = permissionRepository;
     }
 
-    public PermissionDTO createPermission(CreatePermissionDTO createPermissionDTO) {
-        String code = normalizePermissionCode(createPermissionDTO.code());
+    // public PermissionDTO createPermission(CreatePermissionDTO createPermissionDTO) {
+    //     String code = normalizePermissionCode(createPermissionDTO.code());
 
-        if (permissionRepository.existsByCode(code)) {
-            throw new ResponseStatusException(
-                HttpStatus.CONFLICT,
-                "Ya existe un permiso con el codigo: " + code
-            );
-        }
+    //     if (permissionRepository.existsByCode(code)) {
+    //         throw new ResponseStatusException(
+    //             HttpStatus.CONFLICT,
+    //             "Ya existe un permiso con el codigo: " + code
+    //         );
+    //     }
 
-        Permission permission = new Permission(code, createPermissionDTO.description().trim());
-        Permission savedPermission = permissionRepository.save(permission);
-        logger.info("[PERMISSION] Permiso creado: {} (ID: {})", savedPermission.getCode(), savedPermission.getId());
+    //     Permission permission = new Permission(code, createPermissionDTO.description().trim());
+    //     Permission savedPermission = permissionRepository.save(permission);
+    //     logger.info("[PERMISSION] Permiso creado: {} (ID: {})", savedPermission.getCode(), savedPermission.getId());
 
-        return mapToDTO(savedPermission);
-    }
+    //     return mapToDTO(savedPermission);
+    // }
 
     @Transactional(readOnly = true)
     public PermissionDTO getPermissionById(Long permissionId) {

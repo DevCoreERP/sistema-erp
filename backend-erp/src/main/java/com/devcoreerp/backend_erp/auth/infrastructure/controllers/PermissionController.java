@@ -30,12 +30,12 @@ public class PermissionController {
         this.permissionService = permissionService;
     }
 
-    @PostMapping
-    @PreAuthorize("hasAuthority('PERMISO_CREAR')")
-    public ResponseEntity<PermissionDTO> createPermission(@RequestBody @Valid CreatePermissionDTO createPermissionDTO) {
-        logger.info("[PERMISSION] Crear permiso: {}", createPermissionDTO.code());
-        return ResponseEntity.status(HttpStatus.CREATED).body(permissionService.createPermission(createPermissionDTO));
-    }
+    // @PostMapping
+    // @PreAuthorize("hasAuthority('PERMISO_CREAR')")
+    // public ResponseEntity<PermissionDTO> createPermission(@RequestBody @Valid CreatePermissionDTO createPermissionDTO) {
+    //     logger.info("[PERMISSION] Crear permiso: {}", createPermissionDTO.code());
+    //     return ResponseEntity.status(HttpStatus.CREATED).body(permissionService.createPermission(createPermissionDTO));
+    // }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('PERMISO_LISTAR')")

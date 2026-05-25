@@ -1,5 +1,6 @@
 package com.devcoreerp.backend_erp.auth.application.services;
 
+import com.devcoreerp.backend_erp.auth.application.mapper.UsuarioMapper;
 import com.devcoreerp.backend_erp.auth.domain.Role;
 import com.devcoreerp.backend_erp.auth.domain.Usuario;
 import com.devcoreerp.backend_erp.auth.domain.services.AuthService;
@@ -7,9 +8,12 @@ import com.devcoreerp.backend_erp.auth.domain.services.TokenService;
 import com.devcoreerp.backend_erp.auth.infrastructure.dtos.CreateUsuarioDTO;
 import com.devcoreerp.backend_erp.auth.infrastructure.dtos.LoginRequestDTO;
 import com.devcoreerp.backend_erp.auth.infrastructure.dtos.UsuarioResponseDTO;
+import com.devcoreerp.backend_erp.auth.infrastructure.dtos.UsuarioUpdateDTO;
 import com.devcoreerp.backend_erp.auth.infrastructure.persistance.RoleRepository;
 import com.devcoreerp.backend_erp.auth.infrastructure.persistance.UsuarioRepository;
-import java.util.Date;
+
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
@@ -41,18 +45,21 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
     private final TokenService tokenService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final UsuarioMapper usuarioMapper;
 
     public AuthServiceImpl(
             UsuarioRepository usuarioRepository,
             RoleRepository roleRepository,
             TokenService tokenService,
             PasswordEncoder passwordEncoder,
-            AuthenticationConfiguration authenticationConfiguration) {
+            AuthenticationConfiguration authenticationConfiguration,
+            UsuarioMapper usuarioMapper) {
         this.usuarioRepository = usuarioRepository;
         this.roleRepository = roleRepository;
         this.tokenService = tokenService;
         this.passwordEncoder = passwordEncoder;
         this.authenticationConfiguration = authenticationConfiguration;
+        this.usuarioMapper = usuarioMapper;
     }
 
     @Override
@@ -62,9 +69,8 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
 
             AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
             Authentication authRequest = new UsernamePasswordAuthenticationToken(
-                loginRequest.email(),
-                loginRequest.password()
-            );
+                    loginRequest.email(),
+                    loginRequest.password());
 
             Authentication authentication = authenticationManager.authenticate(authRequest);
             Usuario usuario = (Usuario) authentication.getPrincipal();
@@ -100,6 +106,7 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
         createUsuarioAndReturn(createUsuarioDTO);
     }
 
+    @Transactional
     public UsuarioResponseDTO createUsuarioAndReturn(CreateUsuarioDTO createUsuarioDTO) {
         if (usuarioRepository.existsByEmail(createUsuarioDTO.email())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe un usuario con ese email");
@@ -110,58 +117,70 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
         }
 
         Role role = roleRepository.findByName(createUsuarioDTO.roleName().trim())
-            .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Rol no encontrado: " + createUsuarioDTO.roleName()
-            ));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Rol no encontrado: " + createUsuarioDTO.roleName()));
 
         if (!Boolean.TRUE.equals(role.getEstado())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se puede asignar un rol inactivo");
         }
 
         Usuario usuario = Usuario.builder()
-            .username(createUsuarioDTO.username().trim())
-            .password(passwordEncoder.encode(createUsuarioDTO.password()))
-            .email(createUsuarioDTO.email().trim().toLowerCase())
-            .firstName(createUsuarioDTO.firstName().trim())
-            .surnames(createUsuarioDTO.surnames().trim())
-            .phoneNumber(createUsuarioDTO.phoneNumber().trim())
-            .fechaIngreso(new Date())
-            .estado(true)
-            .enabled(true)
-            .accountNonExpired(true)
-            .accountNonLocked(true)
-            .credentialsNonExpired(true)
-            .build();
+                .username(createUsuarioDTO.username().trim())
+                .password(passwordEncoder.encode(createUsuarioDTO.password()))
+                .email(createUsuarioDTO.email().trim().toLowerCase())
+                .firstName(createUsuarioDTO.firstName().trim())
+                .surnames(createUsuarioDTO.surnames().trim())
+                .phoneNumber(createUsuarioDTO.phoneNumber().trim())
+                .fechaIngreso(LocalDate.now())
+                .estado(true)
+                .enabled(true)
+                .accountNonExpired(true)
+                .accountNonLocked(true)
+                .credentialsNonExpired(true)
+                .build();
         usuario.getRoles().add(role);
 
         Usuario savedUsuario = usuarioRepository.save(usuario);
-        logger.info("[AUTH] Usuario creado exitosamente: {} (ID: {})", savedUsuario.getUsername(), savedUsuario.getId());
+        logger.info("[AUTH] Usuario creado exitosamente: {} (ID: {})", savedUsuario.getUsername(),
+                savedUsuario.getId());
         return mapToResponseDTO(savedUsuario);
     }
 
-    public UsuarioResponseDTO assignRoleToUser(Long usuarioId, Long roleId) {
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+    @Override
+    @Transactional
+    public UsuarioResponseDTO assignRolesToUser(Long usuarioId, List<Long> roleIds) {
 
-        Role role = roleRepository.findById(roleId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rol no encontrado"));
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 
         if (!Boolean.TRUE.equals(usuario.getEstado()) || !Boolean.TRUE.equals(usuario.getEnabled())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se puede asignar rol a un usuario inactivo");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "No se puede asignar roles a un usuario inactivo");
         }
 
-        if (!Boolean.TRUE.equals(role.getEstado())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se puede asignar un rol inactivo");
+        List<Role> roles = roleRepository.findAllById(roleIds);
+
+        if (roles.size() != roleIds.size()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Uno o mas roles no existen");
         }
 
-        boolean alreadyAssigned = usuario.getRoles().stream()
-            .anyMatch(existing -> existing.getId().equals(role.getId()));
-        if (alreadyAssigned) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "El rol ya esta asignado al usuario");
+        boolean hasInactiveRole = roles.stream().anyMatch(role -> !Boolean.TRUE.equals(role.getEstado()));
+
+        if (hasInactiveRole) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se pueden asignar roles inactivos");
         }
 
-        usuario.getRoles().add(role);
+        Set<Long> existingRoleIds = usuario.getRoles().stream().map(Role::getId).collect(Collectors.toSet());
+
+        List<Role> newRoles = roles.stream().filter(role -> !existingRoleIds.contains(role.getId())).toList();
+
+        if (newRoles.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Todos los roles ya estan asignados al usuario");
+        }
+
+        usuario.getRoles().addAll(newRoles);
+
         return mapToResponseDTO(usuarioRepository.save(usuario));
     }
 
@@ -169,24 +188,26 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
     @Transactional(readOnly = true)
     public Usuario getUsuario(Long id) {
         return usuarioRepository.findWithRolesById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado con ID: " + id));
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado con ID: " + id));
     }
 
     @Override
     @Transactional(readOnly = true)
     public Usuario getUsuarioByUsername(String username) {
         return usuarioRepository.findByUsername(username)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado: " + username));
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado: " + username));
     }
 
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) {
         Usuario usuario = usuarioRepository.findByEmail(email)
-            .orElseThrow(() -> {
-                logger.error("[AUTH] Usuario no encontrado con email: {}", email);
-                return new UsernameNotFoundException("Usuario no encontrado");
-            });
+                .orElseThrow(() -> {
+                    logger.error("[AUTH] Usuario no encontrado con email: {}", email);
+                    return new UsernameNotFoundException("Usuario no encontrado");
+                });
 
         if (!usuario.isEnabled()) {
             throw new DisabledException("Usuario inactivo");
@@ -197,25 +218,99 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
 
     private UsuarioResponseDTO mapToResponseDTO(Usuario usuario) {
         Set<String> roleNames = usuario.getRoles().stream()
-            .filter(role -> Boolean.TRUE.equals(role.getEstado()))
-            .map(Role::getName)
-            .collect(Collectors.toSet());
+                .filter(role -> Boolean.TRUE.equals(role.getEstado()))
+                .map(Role::getName)
+                .collect(Collectors.toSet());
 
         return new UsuarioResponseDTO(
-            usuario.getId(),
-            usuario.getUsername(),
-            usuario.getFirstName(),
-            usuario.getSurnames(),
-            usuario.getEmail(),
-            usuario.getPhoneNumber(),
-            usuario.getEstado(),
-            roleNames
-        );
+                usuario.getId(),
+                usuario.getUsername(),
+                usuario.getFirstName(),
+                usuario.getSurnames(),
+                usuario.getEmail(),
+                usuario.getPhoneNumber(),
+                usuario.getFechaIngreso(),
+                usuario.getEstado(),
+                roleNames);
     }
 
     public Set<String> getCurrentPermissionCodes(Usuario usuario) {
         return usuario.getAuthorities().stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.toSet());
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UsuarioResponseDTO> listarUsuarios(Boolean estado) {
+        List<Usuario> list = estado == null ? usuarioRepository.findAll() : usuarioRepository.findAllByEstado(estado);
+        return list.stream()
+                .map(usuarioMapper::toResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void eliminarLogicamente(Long id) {
+        Usuario usuario = buscarUsuarioPorId(id);
+
+        // Borrado lógico: no elimina el registro físico, solo cambia su estado.
+        usuario.setEstado(Boolean.FALSE);
+    }
+
+    private Usuario buscarUsuarioPorId(Long id) {
+        return usuarioRepository.findById(id)
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado con ID: " + id));
+    }
+
+    @Override
+    @Transactional
+    public UsuarioResponseDTO actualizarCampoUsuario(Long id, UsuarioUpdateDTO dto) {
+        Usuario usuario = buscarUsuarioPorId(id);
+
+        //validar que el email nose repita con otro usuario
+        if (dto.getEmail() != null && !dto.getEmail().equals(usuario.getEmail())) {
+            if (usuarioRepository.existsByEmail(dto.getEmail())) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "El email ya está en uso");
+            }
+        }
+
+        // Validar username único
+        if (dto.getUsername() != null && !dto.getUsername().equals(usuario.getUsername())) {
+            if (usuarioRepository.existsByUsername(dto.getUsername())) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "El username ya está en uso");
+            }
+        }
+
+        // Validar telelfono único
+        if (dto.getPhoneNumber() != null && !dto.getPhoneNumber().equals(usuario.getPhoneNumber())) {
+            if (usuarioRepository.existsByPhoneNumber(dto.getPhoneNumber())) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "El telefono ya está en uso");
+            }
+        }
+
+        usuarioMapper.updateFromDTO(dto, usuario); // campos simples
+
+        // Actualizar roles solo si vienen en el request
+        if (dto.getRoleNames() != null && !dto.getRoleNames().isEmpty()) {
+            Set<Role> roles = dto.getRoleNames().stream()
+                    .map(name -> roleRepository.findByName(name)
+                            .orElseThrow(() -> new ResponseStatusException(
+                                    HttpStatus.NOT_FOUND, "Rol no encontrado: " + name)))
+                    .collect(Collectors.toSet());
+            usuario.setRoles(roles);
+        }
+
+        return usuarioMapper.toResponseDTO(usuario);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UsuarioResponseDTO me(Long id) {
+        Usuario usuario = usuarioRepository.findWithRolesById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado con ID: " + id));
+        return usuarioMapper.toResponseDTO(usuario);
+    }
+
 }

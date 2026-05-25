@@ -6,6 +6,8 @@ import com.devcoreerp.backend_erp.auth.infrastructure.dtos.AssignPermissionToRol
 import com.devcoreerp.backend_erp.auth.infrastructure.dtos.CreateRoleDTO;
 import com.devcoreerp.backend_erp.auth.infrastructure.dtos.RoleResponseDTO;
 import com.devcoreerp.backend_erp.auth.infrastructure.dtos.UpdateRoleDTO;
+
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
@@ -34,6 +36,7 @@ public class RoleController {
         this.roleService = roleService;
     }
 
+    //se debe asignar almenos un permiso
     @PostMapping
     @PreAuthorize("hasAuthority('ROL_CREAR')")
     public ResponseEntity<RoleResponseDTO> createRole(@RequestBody @Valid CreateRoleDTO createRoleDTO) {
@@ -55,6 +58,7 @@ public class RoleController {
         return ResponseEntity.ok(roleService.getAllActiveRoles());
     }
 
+    @Operation(summary = "ROL_EDITAR",description = "Actualizar o Editar campos del Rol")
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ROL_EDITAR')")
     public ResponseEntity<RoleResponseDTO> updateRole(
@@ -72,21 +76,14 @@ public class RoleController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(description = "Asignar nuevos permisos al Rol")
     @PostMapping("/{roleId}/permissions")
     @PreAuthorize("hasAuthority('ROL_ASIGNAR_PERMISO')")
     public ResponseEntity<RoleResponseDTO> assignPermissionToRole(
             @PathVariable Long roleId,
             @RequestBody @Valid AssignPermissionToRoleDTO dto) {
-        logger.info("[ROLE] Asignar permiso {} al rol {}", dto.permissionId(), roleId);
-        return ResponseEntity.ok(roleService.assignPermissionToRole(roleId, dto.permissionId()));
+        logger.info("[ROLE] Asignar permiso {} al rol {}", dto.permissionIds(), roleId);
+        return ResponseEntity.ok(roleService.assignPermissionToRole(roleId, dto.permissionIds()));
     }
 
-    @PostMapping("/{roleId}/permissions/{permissionId}")
-    @PreAuthorize("hasAuthority('ROL_ASIGNAR_PERMISO')")
-    public ResponseEntity<RoleResponseDTO> assignPermissionToRoleByPath(
-            @PathVariable Long roleId,
-            @PathVariable Long permissionId) {
-        logger.info("[ROLE] Asignar permiso {} al rol {}", permissionId, roleId);
-        return ResponseEntity.ok(roleService.assignPermissionToRole(roleId, permissionId));
-    }
 }

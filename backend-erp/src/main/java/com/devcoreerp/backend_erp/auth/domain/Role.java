@@ -44,12 +44,13 @@ public class Role {
     @Column(nullable = false, length = 255)
     private String description;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean estado = true;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RoleType tipo;
-
-    @Column(nullable = false)
-    private Boolean estado = true;
 
     /**
      * Preparado para SaaS: en el futuro este valor debe reemplazarse por una
@@ -61,8 +62,8 @@ public class Role {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "role_permissions",
-        joinColumns = @JoinColumn(name = "role_id"),
+        name = "role_permissions", 
+        joinColumns = @JoinColumn(name = "role_id"), 
         inverseJoinColumns = @JoinColumn(name = "permission_id")
     )
     @Builder.Default
@@ -76,16 +77,19 @@ public class Role {
         this.permissions = new HashSet<>();
     }
 
+    //Verifica si el rol tiene un permiso especifico
     public boolean hasPermission(String permissionCode) {
         return this.permissions.stream()
-            .anyMatch(permission -> Boolean.TRUE.equals(permission.getEstado())
-                && permission.getCode().equalsIgnoreCase(permissionCode));
+                .anyMatch(permission -> Boolean.TRUE.equals(permission.getEstado())
+                        && permission.getCode().equalsIgnoreCase(permissionCode));
     }
 
+    //verifica si el rol tiene todos los permisos enviados
     public boolean hasAllPermissions(Set<String> permissionCodes) {
         return permissionCodes.stream().allMatch(this::hasPermission);
     }
 
+    //verifica si el rol cuenta con almenos uno
     public boolean hasAnyPermission(Set<String> permissionCodes) {
         return permissionCodes.stream().anyMatch(this::hasPermission);
     }

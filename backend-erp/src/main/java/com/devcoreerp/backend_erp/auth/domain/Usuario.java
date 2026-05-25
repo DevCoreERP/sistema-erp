@@ -10,10 +10,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+
+import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -54,44 +53,50 @@ public class Usuario implements UserDetails {
     @Column(nullable = false, length = 100)
     private String surnames;
 
-    @Column(length = 20)
+    @Column(length = 20, unique = true)
     private String phoneNumber;
 
-    @Temporal(TemporalType.DATE)
-    private Date fechaIngreso;
+    @Column(nullable = false)
+    private LocalDate fechaIngreso;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean estado = true;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "usuario_roles",
-        joinColumns = @JoinColumn(name = "usuario_id"),
+        name = "usuario_roles", 
+        joinColumns = @JoinColumn(name = "usuario_id"), 
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean accountNonExpired = true;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean accountNonLocked = true;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean credentialsNonExpired = true;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean enabled = true;
 
-    public Usuario(String username, String password, String email, String firstName, String surnames, String phoneNumber) {
+    public Usuario(String username, String password, String email, String firstName, String surnames,
+            String phoneNumber) {
         this.username = username;
         this.password = password;
         this.email = email;
         this.firstName = firstName;
         this.surnames = surnames;
         this.phoneNumber = phoneNumber;
-        this.fechaIngreso = new Date();
+        this.fechaIngreso = LocalDate.now();
         this.estado = true;
     }
 
@@ -102,23 +107,24 @@ public class Usuario implements UserDetails {
         }
 
         return roles.stream()
-            .filter(role -> Boolean.TRUE.equals(role.getEstado()))
-            .flatMap(role -> role.getPermissions().stream())
-            .filter(permission -> Boolean.TRUE.equals(permission.getEstado()))
-            .map(Permission::getCode)
-            .map(String::toUpperCase)
-            .distinct()
-            .map(SimpleGrantedAuthority::new)
-            .collect(Collectors.toSet());
+                .filter(role -> Boolean.TRUE.equals(role.getEstado()))
+                .flatMap(role -> role.getPermissions().stream())
+                .filter(permission -> Boolean.TRUE.equals(permission.getEstado()))
+                .map(Permission::getCode)
+                .map(String::toUpperCase)
+                .distinct()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toSet());
     }
 
     public String getFullName() {
         return (firstName != null && surnames != null) ? firstName + " " + surnames : username;
     }
 
+    //Verifica si el usuario tiene un permiso específico
     public boolean hasPermission(String permissionCode) {
         return getAuthorities().stream()
-            .anyMatch(authority -> authority.getAuthority().equalsIgnoreCase(permissionCode));
+                .anyMatch(authority -> authority.getAuthority().equalsIgnoreCase(permissionCode));
     }
 
     @Override

@@ -1,8 +1,10 @@
 package com.devcoreerp.backend_erp.auth.infrastructure.dtos;
 
+import java.util.List;
+
 import jakarta.validation.constraints.NotNull;
 
-public record AssignRoleToUserDTO(
+public record AssignRolesToUserDTO(
     @NotNull(message = "El ID del rol es obligatorio")
-    Long roleId
+    List<Long> rolesId
 ) {}
