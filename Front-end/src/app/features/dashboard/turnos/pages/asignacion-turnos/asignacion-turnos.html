@@ -1,0 +1,203 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-main">
+    <app-topbar></app-topbar>
+
+    <main class="dashboard-content">
+      <section class="shift-page">
+
+        <div class="page-hero">
+          <div>
+            <span class="module-label">Planificación laboral</span>
+            <h1>Asignación de Turnos Laborales</h1>
+            <p>
+              Asigna turnos a empleados activos, controla fechas de vigencia
+              y evita cruces de horarios dentro de la organización.
+            </p>
+          </div>
+
+          <div class="hero-badge">
+            <span>Estado</span>
+            <strong>Activo</strong>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <article class="summary-card">
+            <span>Total asignaciones</span>
+            <strong>{{ totalAsignaciones }}</strong>
+            <p>Registros generados</p>
+          </article>
+
+          <article class="summary-card success">
+            <span>Asignadas</span>
+            <strong>{{ totalAsignadas }}</strong>
+            <p>Turnos confirmados</p>
+          </article>
+
+          <article class="summary-card warning">
+            <span>Pendientes</span>
+            <strong>{{ totalPendientes }}</strong>
+            <p>Revisión administrativa</p>
+          </article>
+
+          <article class="summary-card danger">
+            <span>Conflictos</span>
+            <strong>{{ totalConflictos }}</strong>
+            <p>Horarios cruzados</p>
+          </article>
+        </div>
+
+        <div class="work-grid">
+          <section class="panel assign-panel">
+            <div class="panel-title">
+              <div>
+                <h2>Nueva asignación</h2>
+                <p>Seleccione empleado, turno y rango de fechas.</p>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <label>
+                Empleado activo
+                <select [(ngModel)]="empleadoSeleccionadoId">
+                  <option [ngValue]="null">Seleccione un empleado</option>
+                  <option *ngFor="let empleado of empleadosActivos" [ngValue]="empleado.id">
+                    {{ empleado.nombre }} · {{ empleado.cargo }}
+                  </option>
+                </select>
+              </label>
+
+              <label>
+                Turno laboral
+                <select [(ngModel)]="turnoSeleccionadoId">
+                  <option [ngValue]="null">Seleccione un turno</option>
+                  <option *ngFor="let turno of turnosActivos" [ngValue]="turno.id">
+                    {{ turno.nombre }} · {{ turno.horaInicio }} - {{ turno.horaFin }}
+                  </option>
+                </select>
+              </label>
+
+              <label>
+                Fecha inicial
+                <input type="date" [(ngModel)]="fechaI" />
+              </label>
+
+              <label>
+                Fecha final
+                <input type="date" [(ngModel)]="fechaF" />
+              </label>
+            </div>
+
+            <button class="assign-button" type="button" (click)="asignarTurno()">
+              Asignar turno laboral
+            </button>
+
+            <div *ngIf="mensaje" class="message" [class.error]="tipoMensaje === 'error'">
+              {{ mensaje }}
+            </div>
+          </section>
+
+          <section class="panel staff-panel">
+            <div class="panel-title">
+              <div>
+                <h2>Personal disponible</h2>
+                <p>Empleados activos habilitados para asignación.</p>
+              </div>
+            </div>
+
+            <input
+              class="search-input"
+              type="text"
+              placeholder="Buscar por nombre, cargo, departamento o correo"
+              [(ngModel)]="busquedaEmpleado"
+            />
+
+            <div class="staff-list">
+              <article class="staff-card" *ngFor="let empleado of empleadosFiltrados">
+                <div class="avatar">
+                  {{ empleado.nombre.charAt(0) }}
+                </div>
+
+                <div class="staff-info">
+                  <h3>{{ empleado.nombre }}</h3>
+                  <p>{{ empleado.cargo }}</p>
+                  <small>{{ empleado.departamento }}</small>
+                </div>
+
+                <span class="active-pill">{{ empleado.estado }}</span>
+              </article>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel table-panel">
+          <div class="panel-title">
+            <div>
+              <h2>Turnos asignados</h2>
+              <p>Lista de empleados con turnos laborales registrados.</p>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Empleado</th>
+                  <th>Departamento</th>
+                  <th>Turno</th>
+                  <th>Horario</th>
+                  <th>Fecha inicial</th>
+                  <th>Fecha final</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr *ngFor="let asignacion of asignaciones">
+                  <td>{{ asignacion.empleado }}</td>
+                  <td>{{ asignacion.departamento }}</td>
+                  <td>{{ asignacion.turno }}</td>
+                  <td>{{ asignacion.horario }}</td>
+                  <td>{{ asignacion.fechaI }}</td>
+                  <td>{{ asignacion.fechaF }}</td>
+                  <td>
+                    <span
+                      class="state-pill"
+                      [class.pending]="asignacion.estado === 'Pendiente'"
+                      [class.conflict]="asignacion.estado === 'Conflicto'"
+                    >
+                      {{ asignacion.estado }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="actions">
+                      <button type="button">Ver</button>
+                      <button type="button">Editar</button>
+                      <button
+                        type="button"
+                        class="danger-action"
+                        (click)="anularAsignacion(asignacion.id)"
+                      >
+                        Anular
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr *ngIf="asignaciones.length === 0">
+                  <td colspan="8" class="empty-cell">
+                    No existen asignaciones registradas.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </section>
+    </main>
+  </div>
+</div>
