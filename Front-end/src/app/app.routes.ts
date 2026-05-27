@@ -37,6 +37,8 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/landing/page/landing').then((m) => m.Landing),
   },
+
+  // DASHBOARD PRINCIPAL
   {
     path: 'panel',
     canActivate: [authGuard],
@@ -45,6 +47,8 @@ export const routes: Routes = [
         (m) => m.DashboardHome
       ),
   },
+
+  // EMPLEADOS
   {
     path: 'empleados',
     canActivate: [authGuard],
@@ -77,6 +81,8 @@ export const routes: Routes = [
         (m) => m.EmpleadoForm
       ),
   },
+
+  // MÓDULOS GENERALES
   {
     path: 'asistencia',
     canActivate: [authGuard],
@@ -133,76 +139,96 @@ export const routes: Routes = [
         (m) => m.DashboardHome
       ),
   },
+
+  // GESTIÓN ORGANIZACIONAL
   {
-  path: 'areas',
+    path: 'areas',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/organizacion/areas/pages/areas-home/areas-home').then(
+        (m) => m.AreasHome
+      ),
+  },
+  {
+    path: 'areas/nueva',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/organizacion/areas/pages/area-form/area-form').then(
+        (m) => m.AreaForm
+      ),
+  },
+  {
+    path: 'areas/editar/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/organizacion/areas/pages/area-form/area-form').then(
+        (m) => m.AreaForm
+      ),
+  },
+  {
+    path: 'departamentos',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/organizacion/departamentos/pages/departamentos-home/departamentos-home').then(
+        (m) => m.DepartamentosHome
+      ),
+  },
+  {
+    path: 'departamentos/nuevo',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/organizacion/departamentos/pages/departamento-form/departamento-form').then(
+        (m) => m.DepartamentoForm
+      ),
+  },
+  {
+    path: 'departamentos/editar/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/organizacion/departamentos/pages/departamento-form/departamento-form').then(
+        (m) => m.DepartamentoForm
+      ),
+  },
+  {
+    path: 'cargos',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/organizacion/cargos/pages/cargos-home/cargos-home').then(
+        (m) => m.CargosHome
+      ),
+  },
+  {
+    path: 'cargos/nuevo',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/organizacion/cargos/pages/cargo-form/cargo-form').then(
+        (m) => m.CargoForm
+      ),
+  },
+  {
+    path: 'cargos/editar/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/organizacion/cargos/pages/cargo-form/cargo-form').then(
+        (m) => m.CargoForm
+      ),
+  },
+
+  // TURNOS LABORALES
+  {
+  path: 'gestion-turnos',
   canActivate: [authGuard],
   loadComponent: () =>
-    import('./features/dashboard/organizacion/areas/pages/areas-home/areas-home').then(
-      (m) => m.AreasHome
+    import('./features/dashboard/turnos/pages/gestion-turnos/gestion-turnos').then(
+      (m) => m.GestionTurnosComponent
     ),
-},
-{
-  path: 'areas/nueva',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./features/dashboard/organizacion/areas/pages/area-form/area-form').then(
-      (m) => m.AreaForm
-    ),
-},
-{
-  path: 'areas/editar/:id',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./features/dashboard/organizacion/areas/pages/area-form/area-form').then(
-      (m) => m.AreaForm
-    ),
-},
-{
-  path: 'departamentos',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./features/dashboard/organizacion/departamentos/pages/departamentos-home/departamentos-home').then(
-      (m) => m.DepartamentosHome
-    ),
-},
-{
-  path: 'departamentos/nuevo',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./features/dashboard/organizacion/departamentos/pages/departamento-form/departamento-form').then(
-      (m) => m.DepartamentoForm
-    ),
-},
-{
-  path: 'departamentos/editar/:id',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./features/dashboard/organizacion/departamentos/pages/departamento-form/departamento-form').then(
-      (m) => m.DepartamentoForm
-    ),
-},
-{
-  path: 'cargos',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./features/dashboard/organizacion/cargos/pages/cargos-home/cargos-home').then(
-      (m) => m.CargosHome
-    ),
-},
-{
-  path: 'cargos/nuevo',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./features/dashboard/organizacion/cargos/pages/cargo-form/cargo-form').then(
-      (m) => m.CargoForm
-    ),
-},
-{
-  path: 'cargos/editar/:id',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./features/dashboard/organizacion/cargos/pages/cargo-form/cargo-form').then(
-      (m) => m.CargoForm
-    ),
-},
+  },
+  {
+    path: 'asignacion-turnos',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/turnos/pages/asignacion-turnos/asignacion-turnos').then(
+        (m) => m.AsignacionTurnos
+      ),
+  },
 ];
