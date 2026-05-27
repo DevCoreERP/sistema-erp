@@ -82,63 +82,71 @@ export const routes: Routes = [
       ),
   },
 
-  // MÓDULOS GENERALES
+  // ASISTENCIA
   {
     path: 'asistencia',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
-        (m) => m.DashboardHome
+      import('./features/dashboard/asistencia/pages/asistencia-home/asistencia-home').then(
+        (m) => m.AsistenciaHome
       ),
   },
-  {
-    path: 'nomina',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
-        (m) => m.DashboardHome
-      ),
-  },
-  {
-    path: 'permisos',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
-        (m) => m.DashboardHome
-      ),
-  },
-  {
-    path: 'vacaciones',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
-        (m) => m.DashboardHome
-      ),
-  },
-  {
-    path: 'reportes',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
-        (m) => m.DashboardHome
-      ),
-  },
-  {
-    path: 'perfil',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/dashboard/perfil/page/perfil').then(
-        (m) => m.PerfilPage
-      ),
-  },
-  {
-    path: 'configuracion',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
-        (m) => m.DashboardHome
-      ),
-  },
+
+  // MÓDULOS GENERALES AÚN NO DESARROLLADOS
+  // MÓDULOS DEL DASHBOARD
+{
+  path: 'nomina',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/dashboard/nominas/pages/nominas-home/nominas-home').then(
+      (m) => m.NominasHome
+    ),
+},
+{
+  path: 'nominas',
+  redirectTo: 'nomina',
+  pathMatch: 'full',
+},
+{
+  path: 'permisos',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/dashboard/permisos/pages/permisos-home/permisos-home').then(
+      (m) => m.PermisosHome
+    ),
+},
+{
+  path: 'vacaciones',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
+      (m) => m.DashboardHome
+    ),
+},
+{
+  path: 'reportes',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
+      (m) => m.DashboardHome
+    ),
+},
+{
+  path: 'perfil',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/dashboard/perfil/page/perfil').then(
+      (m) => m.PerfilPage
+    ),
+},
+{
+  path: 'configuracion',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
+      (m) => m.DashboardHome
+    ),
+},
 
   // GESTIÓN ORGANIZACIONAL
   {
@@ -216,12 +224,12 @@ export const routes: Routes = [
 
   // TURNOS LABORALES
   {
-  path: 'gestion-turnos',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./features/dashboard/turnos/pages/gestion-turnos/gestion-turnos').then(
-      (m) => m.GestionTurnosComponent
-    ),
+    path: 'gestion-turnos',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/turnos/pages/gestion-turnos/gestion-turnos').then(
+        (m) => m.GestionTurnosComponent
+      ),
   },
   {
     path: 'asignacion-turnos',
