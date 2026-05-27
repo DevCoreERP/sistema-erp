@@ -6,11 +6,12 @@ import { Sidebar } from '../../../../components/sidebar/sidebar';
 import { Topbar } from '../../../../components/topbar/topbar';
 import { AreasService } from '../../service/areas.service';
 import { Area } from '../../interface/area.interface';
+import { CuadrosInformativosComponent } from '../../../components/cuadros-informativos/cuadros-informativos';
 
 @Component({
   selector: 'app-areas-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, Sidebar, Topbar],
+  imports: [CommonModule, FormsModule, Sidebar, Topbar, CuadrosInformativosComponent],
   templateUrl: './areas-home.html',
   styleUrl: './areas-home.css',
 })

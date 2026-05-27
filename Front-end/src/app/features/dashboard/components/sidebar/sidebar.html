@@ -16,6 +16,7 @@
         Gestión organizacional
         <span class="chevron">&#9662;</span>
       </button>
+
       <div class="menu-children" [class.open]="orgExpanded">
         <a routerLink="/areas" routerLinkActive="active">Áreas</a>
         <a routerLink="/departamentos" routerLinkActive="active">Departamentos</a>
@@ -24,6 +25,19 @@
     </div>
 
     <a routerLink="/asistencia" routerLinkActive="active">Asistencia</a>
+
+    <div class="menu-group">
+      <button class="menu-parent" (click)="toggleTurnos()" [class.expanded]="turnosExpanded">
+        Turnos laborales
+        <span class="chevron">&#9662;</span>
+      </button>
+
+      <div class="menu-children" [class.open]="turnosExpanded">
+        <a routerLink="/gestion-turnos" routerLinkActive="active">Gestión de turnos</a>
+        <a routerLink="/asignacion-turnos" routerLinkActive="active">Asignación de turnos</a>
+      </div>
+    </div>
+
     <a routerLink="/nomina" routerLinkActive="active">Nómina</a>
     <a routerLink="/permisos" routerLinkActive="active">Permisos</a>
     <a routerLink="/vacaciones" routerLinkActive="active">Vacaciones</a>
