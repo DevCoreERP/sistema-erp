@@ -16,31 +16,7 @@
           </div>
         </div>
 
-        <section class="areas-summary">
-          <article class="summary-card">
-            <span class="summary-label">Total de áreas</span>
-            <h3>{{ areas.length }}</h3>
-            <p>Estructura general registrada</p>
-          </article>
-
-          <article class="summary-card">
-            <span class="summary-label">Activas</span>
-            <h3>{{ totalActivas }}</h3>
-            <p>Disponibles para operación</p>
-          </article>
-
-          <article class="summary-card">
-            <span class="summary-label">Inactivas</span>
-            <h3>{{ totalInactivas }}</h3>
-            <p>Fuera de operación temporal</p>
-          </article>
-
-          <article class="summary-card">
-            <span class="summary-label">Resultados visibles</span>
-            <h3>{{ areasFiltradas.length }}</h3>
-            <p>Según el filtro aplicado</p>
-          </article>
-        </section>
+        <app-cuadros-informativos nombreSeccion="áreas" [totalAreas]="areas.length" [activas]="totalActivas" [inactivas]="totalInactivas" [filtradas]="areasFiltradas.length"></app-cuadros-informativos>
 
         <!-- TABLA DE ÁREAS -->
         <section class="areas-layout">
@@ -129,9 +105,7 @@
           <aside class="areas-side-panel">
             <div class="side-card">
               <h3>Áreas</h3>
-              <p>
-                Defina las áreas de la empresa para estructurar la organización.
-              </p>
+
               <ul class="side-list">
                 <li>
                   <span>Total</span>
@@ -150,6 +124,9 @@
 
             <div class="side-card">
               <h3>Crear área</h3>
+              <p>
+                Defina las áreas de la empresa para estructurar la organización.
+              </p>
               <form (ngSubmit)="crearAreaInline()">
                 <div class="form-group">
                   <label>Nombre del área *</label>

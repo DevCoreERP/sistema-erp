@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
@@ -9,9 +9,22 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   styleUrls: ['./sidebar.css'],
 })
 export class Sidebar {
-  orgExpanded = false;
+  private router = inject(Router);
+
+  orgExpanded =
+    this.router.url.includes('/areas') ||
+    this.router.url.includes('/departamentos') ||
+    this.router.url.includes('/cargos');
+
+  turnosExpanded =
+    this.router.url.includes('/gestion-turnos') ||
+    this.router.url.includes('/asignacion-turnos');
 
   toggleOrg(): void {
     this.orgExpanded = !this.orgExpanded;
+  }
+
+  toggleTurnos(): void {
+    this.turnosExpanded = !this.turnosExpanded;
   }
 }

@@ -2,7 +2,7 @@ import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs'; // 🔴 IMPORTANTE: Agrega esto
+import { forkJoin } from 'rxjs';
 
 import { Sidebar } from '../../../components/sidebar/sidebar';
 import { Topbar } from '../../../components/topbar/topbar';
@@ -55,7 +55,7 @@ export class EmpleadoForm implements OnInit {
   ngOnInit() {
     this.inicializarDatosEstaticos(); // Carga usuarios de prueba si está vacío
 
-    // 🔴 1. Cargamos TODA la estructura organizacional al mismo tiempo
+    //  1. Cargamos TODA la estructura organizacional al mismo tiempo
     forkJoin({
       areas: this.orgService.getAreas(),
       departamentos: this.orgService.getDepartamentos(),
@@ -66,7 +66,7 @@ export class EmpleadoForm implements OnInit {
         this.departamentos = data.departamentos;
         this.cargos = data.cargos;
 
-        // 🔴 2. Solo DESPUÉS de tener las áreas, verificamos si es modo edición
+        // 2. Solo DESPUÉS de tener las áreas, verificamos si es modo edición
         this.verificarModoEdicion();
       },
       error: (err) => console.error("Error cargando estructura", err)
@@ -94,7 +94,7 @@ export class EmpleadoForm implements OnInit {
           };
           this.imagenPreview = empleadoExistente.imagen || null;
 
-          // 🔴 3. MAGIA: Buscamos el cargo exacto en el JSON para sacar los IDs
+          // 3. MAGIA: Buscamos el cargo exacto en el JSON para sacar los IDs
           const cargoReal = this.cargos.find(c => c.nombre === empleadoExistente.puesto);
 
           if (cargoReal) {
@@ -199,7 +199,7 @@ export class EmpleadoForm implements OnInit {
     }
   }
 
-  // 🔴 MOCK DATA: Genera empleados estáticos basados en tu estructura
+  // MOCK DATA: Genera empleados estáticos basados en tu estructura
   private inicializarDatosEstaticos() {
     const stored = localStorage.getItem('empleados');
     if (!stored || JSON.parse(stored).length === 0) {
