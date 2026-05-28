@@ -1,6 +1,6 @@
 package com.devcoreerp.backend_erp.vacaciones.infrastructure.controllers;
 
-import com.devcoreerp.backend_erp.auth.infrastructure.annotations.RequirePermission;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.devcoreerp.backend_erp.auth.infrastructure.config.ApiConfig;
 import com.devcoreerp.backend_erp.vacaciones.infrastructure.dtos.CreateSolicitudDTO;
 import com.devcoreerp.backend_erp.vacaciones.infrastructure.dtos.ResponseSolicitudDTO;
@@ -23,7 +23,7 @@ public class SolicitudController {
     }
 
     @PostMapping
-    @RequirePermission( value = "USER_CREATE")
+    @PreAuthorize("hasAuthority('SOLICITUD_CREAR')")
     public ResponseEntity<?> create(@RequestBody CreateSolicitudDTO dto) {
         try {
             ResponseSolicitudDTO response = solicitudService.create(dto);
@@ -36,7 +36,7 @@ public class SolicitudController {
     }
 
     @GetMapping
-    @RequirePermission( value = "USER_VIEW")
+    @PreAuthorize("hasAuthority('SOLICITUD_LISTAR')")
     public ResponseEntity<?> findAll() {
         try {
             List<ResponseSolicitudDTO> response = solicitudService.findAll();
@@ -49,7 +49,7 @@ public class SolicitudController {
     }
 
     @GetMapping("/{id}")
-    @RequirePermission( value = "USER_VIEW")
+    @PreAuthorize("hasAuthority('SOLICITUD_LISTAR')")
     public ResponseEntity<?> findById(@PathVariable Long id) {
         try {
             ResponseSolicitudDTO response = solicitudService.findById(id);
@@ -65,10 +65,11 @@ public class SolicitudController {
      * Realiza el descuento de dias automaticamente
      */
     @PutMapping("/{id}/aprobar")
-    @RequirePermission( value = "USER_EDIT")
-    public ResponseEntity<?> aprobar(@PathVariable Long id, @RequestBody CreateSolicitudDTO dto) {
+    @PreAuthorize("hasAuthority('SOLICITUD_EDITAR')")
+    public ResponseEntity<?> aprobar(@PathVariable Long id) {
         try {
-            ResponseSolicitudDTO response = solicitudService.aprobar(id, dto);
+            ResponseSolicitudDTO response = solicitudService.aprobar(id);
+            System.out.println("HELLO: Response");
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -78,7 +79,7 @@ public class SolicitudController {
     }
 
     @PutMapping("/{id}")
-    @RequirePermission( value = "USER_EDIT")
+    @PreAuthorize("hasAuthority('SOLICITUD_EDITAR')")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody CreateSolicitudDTO dto) {
         try {
             ResponseSolicitudDTO response = solicitudService.update(id, dto);
@@ -91,7 +92,7 @@ public class SolicitudController {
     }
 
     @DeleteMapping("/{id}")
-    @RequirePermission( value = "USER_DELETE")
+    @PreAuthorize("hasAuthority('SOLICITUD_DELETE')")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         try {
             ResponseSolicitudDTO response = solicitudService.delete(id);

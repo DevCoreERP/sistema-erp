@@ -9,3 +9,6 @@ application:
       secure: true
       max-age: 60 * 12 # 12 min
       same-site: Strict
+  springdoc:
+    swagger-ui:
+      persist-authorization: true

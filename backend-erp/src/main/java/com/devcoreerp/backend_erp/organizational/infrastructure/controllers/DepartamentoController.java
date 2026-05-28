@@ -1,6 +1,7 @@
 package com.devcoreerp.backend_erp.organizational.infrastructure.controllers;
 
-import com.devcoreerp.backend_erp.auth.infrastructure.annotations.RequirePermission;
+// import com.devcoreerp.backend_erp.auth.infrastructure.annotations.RequirePermission;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.devcoreerp.backend_erp.auth.infrastructure.config.ApiConfig;
 import com.devcoreerp.backend_erp.organizational.infrastructure.dtos.CreateDepartamentoDTO;
 import com.devcoreerp.backend_erp.organizational.infrastructure.dtos.ResponseDepartamentoDTO;
@@ -22,6 +23,7 @@ public class DepartamentoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('DEPARTAMENTO_CREAR')")
     public ResponseEntity<?> create(@RequestBody CreateDepartamentoDTO dto) {
         try {
             ResponseDepartamentoDTO response = departamentoService.create(dto);
@@ -34,6 +36,7 @@ public class DepartamentoController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('DEPARTAMENTO_LISTAR')")
     public ResponseEntity<?> findAll() {
         try {
             List<ResponseDepartamentoDTO> response = departamentoService.findAll();
@@ -46,7 +49,7 @@ public class DepartamentoController {
     }
 
     @GetMapping("/{id}")
-    @RequirePermission(value = "USER_VIEW", description = "Permiso para ver usuarios")
+    @PreAuthorize("hasAuthority('DEPARTAMENTO_LISTAR')")
     public ResponseEntity<?> findById(@PathVariable Long id) {
         try {
             ResponseDepartamentoDTO response = departamentoService.findById(id);
@@ -59,6 +62,7 @@ public class DepartamentoController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('DEPARTAMENTO_EDITAR')")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody CreateDepartamentoDTO dto) {
         try {
             ResponseDepartamentoDTO response = departamentoService.update(id, dto);
@@ -71,6 +75,7 @@ public class DepartamentoController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('DEPARTAMENTO_ELIMINAR')")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         try {
             ResponseDepartamentoDTO response = departamentoService.delete(id);

@@ -4,28 +4,28 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.AssertTrue;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public record CreateSolicitudDTO(
     String estado,
 
     @NotNull(message = "La fechaInicio no puede estar vacío")
     @FutureOrPresent
-    Date fechaInicio,
+    LocalDate fechaInicio,
 
     @NotNull(message = "La fechaFin no puede estar vacío")
     @FutureOrPresent
-    Date fechaFin,
+    LocalDate fechaFin,
 
-    @NotNull(message = "El vacacionId es obligatorio")
-    Long vacacionId
+    @NotNull(message = "El saldoId es obligatorio")
+    Long saldoId
 ) {
     @AssertTrue(message = "La fechaFin debe ser posterior o igual a la fechaInicio")
     public boolean isFechaRangoValido() {
         if (fechaInicio == null || fechaFin == null) {
             return true; // @NotNull
         }
-        return !fechaFin.before(fechaInicio);
+        return !fechaFin.isBefore(fechaInicio());
     }
 
     @AssertTrue(message = "El estado debe ser [pendiente|aprobado|rechazado]")

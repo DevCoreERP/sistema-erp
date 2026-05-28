@@ -1,13 +1,14 @@
 package com.devcoreerp.backend_erp.vacaciones.infrastructure.dtos;
 
 import java.util.Date;
+import java.time.LocalDate;
 
 public record ResponseSolicitudDTO(
     Long id,
     String estado,
-    Date fechaInicio,
-    Date fechaFin,
+    LocalDate fechaInicio,
+    LocalDate fechaFin,
     Date createdAt,
     Date UpdatedAt,
-    ResponseVacacionDTO vacacion
+    Long saldo
 ){}

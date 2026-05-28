@@ -7,5 +7,6 @@ public record ResponseDepartamentoDTO(
     String nombre,
     Boolean active,
     Date createdAt,
-    ResponseAreaDTO area
+    Long padre
+    // ResponseAreaDTO area
 ){}

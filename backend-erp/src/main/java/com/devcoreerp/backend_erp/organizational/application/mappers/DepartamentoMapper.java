@@ -3,38 +3,35 @@ package com.devcoreerp.backend_erp.organizational.application.mappers;
 import com.devcoreerp.backend_erp.organizational.infrastructure.dtos.CreateDepartamentoDTO;
 import com.devcoreerp.backend_erp.organizational.infrastructure.dtos.ResponseDepartamentoDTO;
 import com.devcoreerp.backend_erp.organizational.domain.Departamento;
-import com.devcoreerp.backend_erp.organizational.domain.Area;
 
 public class DepartamentoMapper {
 
     public static ResponseDepartamentoDTO toDTO(Departamento departamento) {
         if (departamento == null) return null;
 
-        Area area = departamento.getArea();
-
         return new ResponseDepartamentoDTO(
             departamento.getId(),
             departamento.getNombre(),
             departamento.getActive(),
             departamento.getCreatedAt(),
-            AreaMapper.toDTO(area)
+            departamento.getPadre()
         );
     }
 
     public static Departamento toEntity(ResponseDepartamentoDTO dto) {
         if (dto == null) return null;
 
-        Departamento departamento = new Departamento(dto.nombre(), AreaMapper.toEntity(dto.area()));
+        Departamento departamento = new Departamento(dto.nombre(), dto.padre());
         departamento.setId(dto.id());
         departamento.setActive(dto.active());
         departamento.setCreatedAt(dto.createdAt());
-        departamento.setArea(AreaMapper.toEntity(dto.area()));
+        departamento.setPadre(dto.padre());
         return departamento;
     }
 
-    public static Departamento toEntity(CreateDepartamentoDTO dto, Area area) {
+    public static Departamento toEntity(CreateDepartamentoDTO dto) {
         if (dto == null) return null;
-        Departamento departamento = new Departamento(dto.nombre(), area);
+        Departamento departamento = new Departamento(dto.nombre(), dto.padreId());
         return departamento;
     }
 }

@@ -10,9 +10,9 @@ import java.util.Date;
 @Repository
 public interface SolicitudRepository extends JpaRepository<Solicitud, Long> {
     /**
-     * Busca un deparatamento por su vacacion
+     * Busca un deparatamento por su saldoId
      */
-    List<Solicitud> findByVacacionId(Long areaId);
+    List<Solicitud> findBySaldo(Long saldoId);
 
     /**
      * Busca un departamento por su fechaInicio

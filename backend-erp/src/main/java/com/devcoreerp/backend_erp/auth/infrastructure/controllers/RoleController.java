@@ -1,147 +1,89 @@
 package com.devcoreerp.backend_erp.auth.infrastructure.controllers;
 
 import com.devcoreerp.backend_erp.auth.application.services.RoleService;
-import com.devcoreerp.backend_erp.auth.infrastructure.annotations.RequirePermission;
-import com.devcoreerp.backend_erp.auth.infrastructure.annotations.RequirePermissions;
-import com.devcoreerp.backend_erp.auth.infrastructure.dtos.CreateRoleDTO;
-import com.devcoreerp.backend_erp.auth.infrastructure.dtos.UpdateRoleDTO;
-import com.devcoreerp.backend_erp.auth.infrastructure.dtos.RoleResponseDTO;
 import com.devcoreerp.backend_erp.auth.infrastructure.config.ApiConfig;
+import com.devcoreerp.backend_erp.auth.infrastructure.dtos.AssignPermissionToRoleDTO;
+import com.devcoreerp.backend_erp.auth.infrastructure.dtos.CreateRoleDTO;
+import com.devcoreerp.backend_erp.auth.infrastructure.dtos.RoleResponseDTO;
+import com.devcoreerp.backend_erp.auth.infrastructure.dtos.UpdateRoleDTO;
+
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Set;
-
-/**
- * RoleController: Maneja operaciones relacionadas con roles.
- * Endpoints:
- * - POST /roles - Crear rol (requiere ROLE_CREATE)
- * - GET /roles/{id} - Obtener rol (requiere ROLE_VIEW)
- * - GET /roles - Listar roles activos (requiere ROLE_VIEW)
- * - PUT /roles/{id} - Actualizar rol (requiere ROLE_EDIT)
- * - DELETE /roles/{id} - Desactivar rol (requiere ROLE_DELETE)
- */
 @RestController
 @RequestMapping(ApiConfig.API_BASE_PATH + "/roles")
 public class RoleController {
-    
+
     private static final Logger logger = LogManager.getLogger(RoleController.class);
-    
+
     private final RoleService roleService;
-    
+
     public RoleController(RoleService roleService) {
         this.roleService = roleService;
     }
-    
-    /**
-     * Endpoint para crear un nuevo rol
-     * POST /hey-fincas-api/v1/roles
-     * Requiere permiso: ROLE_CREATE
-     */
+
+    //se debe asignar almenos un permiso
     @PostMapping
-    @RequirePermission(value = "ROLE_CREATE", description = "Permiso para crear roles")
-    public ResponseEntity<?> createRole(@RequestBody @Valid CreateRoleDTO createRoleDTO) {
+    @PreAuthorize("hasAuthority('ROL_CREAR')")
+    public ResponseEntity<RoleResponseDTO> createRole(@RequestBody @Valid CreateRoleDTO createRoleDTO) {
         logger.info("[ROLE] Crear rol: {}", createRoleDTO.name());
-        
-        try {
-            RoleResponseDTO response = roleService.createRole(createRoleDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-            
-        } catch (Exception e) {
-            logger.error("[ROLE] Error al crear rol: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("{\"error\": \"" + e.getMessage() + "\"}");
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(roleService.createRole(createRoleDTO));
     }
-    
-    /**
-     * Endpoint para obtener un rol por ID
-     * GET /hey-fincas-api/v1/roles/{id}
-     * Requiere permiso: ROLE_VIEW
-     */
+
     @GetMapping("/{id}")
-    @RequirePermission(value = "ROLE_VIEW", description = "Permiso para ver roles")
-    public ResponseEntity<?> getRoleById(@PathVariable Long id) {
+    @PreAuthorize("hasAuthority('ROL_LISTAR')")
+    public ResponseEntity<RoleResponseDTO> getRoleById(@PathVariable Long id) {
         logger.info("[ROLE] Obtener rol: {}", id);
-        
-        try {
-            RoleResponseDTO response = roleService.getRoleById(id);
-            return ResponseEntity.ok(response);
-            
-        } catch (Exception e) {
-            logger.error("[ROLE] Error al obtener rol: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("{\"error\": \"" + e.getMessage() + "\"}");
-        }
+        return ResponseEntity.ok(roleService.getRoleById(id));
     }
-    
-    /**
-     * Endpoint para listar todos los roles activos
-     * GET /hey-fincas-api/v1/roles
-     * Requiere permiso: ROLE_VIEW
-     */
+
     @GetMapping
-    @RequirePermission(value = "ROLE_VIEW", description = "Permiso para ver roles")
-    public ResponseEntity<?> getAllRoles() {
-        logger.info("[ROLE] Listar todos los roles");
-        
-        try {
-            Set<RoleResponseDTO> response = roleService.getAllActiveRoles();
-            return ResponseEntity.ok(response);
-            
-        } catch (Exception e) {
-            logger.error("[ROLE] Error al listar roles: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"error\": \"" + e.getMessage() + "\"}");
-        }
+    @PreAuthorize("hasAuthority('ROL_LISTAR')")
+    public ResponseEntity<Set<RoleResponseDTO>> getAllRoles() {
+        logger.info("[ROLE] Listar roles activos");
+        return ResponseEntity.ok(roleService.getAllActiveRoles());
     }
-    
-    /**
-     * Endpoint para actualizar un rol
-     * PUT /hey-fincas-api/v1/roles/{id}
-     * Requiere permiso: ROLE_EDIT
-     */
+
+    @Operation(summary = "ROL_EDITAR",description = "Actualizar o Editar campos del Rol")
     @PutMapping("/{id}")
-    @RequirePermission(value = "ROLE_EDIT", description = "Permiso para editar roles")
-    public ResponseEntity<?> updateRole(
+    @PreAuthorize("hasAuthority('ROL_EDITAR')")
+    public ResponseEntity<RoleResponseDTO> updateRole(
             @PathVariable Long id,
             @RequestBody @Valid UpdateRoleDTO updateRoleDTO) {
-        
         logger.info("[ROLE] Actualizar rol: {}", id);
-        
-        try {
-            RoleResponseDTO response = roleService.updateRole(id, updateRoleDTO);
-            return ResponseEntity.ok(response);
-            
-        } catch (Exception e) {
-            logger.error("[ROLE] Error al actualizar rol: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("{\"error\": \"" + e.getMessage() + "\"}");
-        }
+        return ResponseEntity.ok(roleService.updateRole(id, updateRoleDTO));
     }
-    
-    /**
-     * Endpoint para desactivar un rol
-     * DELETE /hey-fincas-api/v1/roles/{id}
-     * Requiere permiso: ROLE_DELETE
-     */
+
     @DeleteMapping("/{id}")
-    @RequirePermission(value = "ROLE_DELETE", description = "Permiso para eliminar roles")
-    public ResponseEntity<?> deleteRole(@PathVariable Long id) {
+    @PreAuthorize("hasAuthority('ROL_ELIMINAR')")
+    public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
         logger.info("[ROLE] Desactivar rol: {}", id);
-        
-        try {
-            roleService.deactivateRole(id);
-            return ResponseEntity.noContent().build();
-            
-        } catch (Exception e) {
-            logger.error("[ROLE] Error al desactivar rol: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("{\"error\": \"" + e.getMessage() + "\"}");
-        }
+        roleService.deactivateRole(id);
+        return ResponseEntity.noContent().build();
     }
+
+    @Operation(description = "Asignar nuevos permisos al Rol")
+    @PostMapping("/{roleId}/permissions")
+    @PreAuthorize("hasAuthority('ROL_ASIGNAR_PERMISO')")
+    public ResponseEntity<RoleResponseDTO> assignPermissionToRole(
+            @PathVariable Long roleId,
+            @RequestBody @Valid AssignPermissionToRoleDTO dto) {
+        logger.info("[ROLE] Asignar permiso {} al rol {}", dto.permissionIds(), roleId);
+        return ResponseEntity.ok(roleService.assignPermissionToRole(roleId, dto.permissionIds()));
+    }
+
 }
