@@ -1,9 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 
 import { Sidebar } from '../../../components/sidebar/sidebar';
 import { Topbar } from '../../../components/topbar/topbar';
+
+import { TurnosService, Turno as TurnoBackend } from '../../../../../core/services/turnos.service';
+import {
+  AsignacionTurnosService,
+  AsignacionTurno as AsignacionTurnoBackend,
+  AsignacionTurnoRequest,
+} from '../../../../../core/services/asignacion-turnos.service';
+import { UsuariosService, Usuario as UsuarioBackend } from '../../../../../core/services/usuarios.service';
 
 interface Empleado {
   id: number;
@@ -43,7 +52,11 @@ interface AsignacionTurno {
   templateUrl: './asignacion-turnos.html',
   styleUrl: './asignacion-turnos.css',
 })
-export class AsignacionTurnos {
+export class AsignacionTurnos implements OnInit {
+  private turnosService = inject(TurnosService);
+  private asignacionTurnosService = inject(AsignacionTurnosService);
+  private usuariosService = inject(UsuariosService);
+
   busquedaEmpleado = '';
 
   empleadoSeleccionadoId: number | null = null;
@@ -55,11 +68,93 @@ export class AsignacionTurnos {
   mensaje = '';
   tipoMensaje: 'ok' | 'error' | '' = '';
 
-  empleados: Empleado[] = [ ];
+  empleados: Empleado[] = [];
+  turnos: Turno[] = [];
+  asignaciones: AsignacionTurno[] = [];
 
-  turnos: Turno[] = [ ];
+  ngOnInit(): void {
+    this.cargarDatos();
+  }
 
-  asignaciones: AsignacionTurno[] = [ ];
+  cargarDatos(): void {
+    forkJoin({
+      usuarios: this.usuariosService.listar(),
+      turnos: this.turnosService.listar(),
+      asignaciones: this.asignacionTurnosService.listar(),
+    }).subscribe({
+      next: ({ usuarios, turnos, asignaciones }) => {
+        this.empleados = usuarios.map((usuario) => this.mapearUsuario(usuario));
+        this.turnos = turnos.map((turno) => this.mapearTurno(turno));
+        this.asignaciones = asignaciones.map((asignacion) =>
+          this.mapearAsignacion(asignacion)
+        );
+      },
+      error: (err) => {
+        console.error('Error al cargar asignaciones:', err);
+
+        if (err.status === 401 || err.status === 403) {
+          this.mensaje = 'No autorizado. Debe iniciar sesión con un usuario ADMIN válido.';
+          this.tipoMensaje = 'error';
+          return;
+        }
+
+        this.mensaje = 'No se pudieron cargar los datos desde el backend.';
+        this.tipoMensaje = 'error';
+      },
+    });
+  }
+
+  mapearUsuario(usuario: UsuarioBackend): Empleado {
+    const nombreCompleto = `${usuario.firstName ?? ''} ${usuario.surnames ?? ''}`.trim();
+
+    return {
+      id: usuario.id,
+      nombre: nombreCompleto || usuario.username || 'Usuario sin nombre',
+      correo: usuario.email ?? 'Sin correo',
+      cargo: usuario.roleNames?.join(', ') || 'Sin cargo',
+      departamento: 'Sin departamento',
+      estado: usuario.estado === false ? 'Inactivo' : 'Activo',
+    };
+  }
+
+  mapearTurno(turno: TurnoBackend): Turno {
+    return {
+      id: turno.id,
+      nombre: turno.nombre,
+      horaInicio: turno.horaInicio,
+      horaFin: turno.horaFin,
+      descripcion: turno.descripcion,
+      estado: turno.estado,
+    };
+  }
+
+  mapearAsignacion(asignacion: AsignacionTurnoBackend): AsignacionTurno {
+    const empleadoId = asignacion.usuarioId ?? asignacion.empleadoId ?? 0;
+    const empleado = this.empleados.find((item) => item.id === empleadoId);
+    const turno = this.turnos.find((item) => item.id === asignacion.turnoId);
+
+    const fechaInicio = asignacion.fechaInicio ?? asignacion.fechaI ?? '';
+    const fechaFin = asignacion.fechaFin ?? asignacion.fechaF ?? '';
+
+    return {
+      id: asignacion.id,
+      empleadoId,
+      empleado: empleado?.nombre ?? `Usuario ${empleadoId}`,
+      departamento: empleado?.departamento ?? 'Sin departamento',
+      turnoId: asignacion.turnoId,
+      turno: turno?.nombre ?? `Turno ${asignacion.turnoId}`,
+      horario: turno ? `${turno.horaInicio} - ${turno.horaFin}` : 'Sin horario',
+      fechaI: fechaInicio,
+      fechaF: fechaFin,
+      estado: this.normalizarEstadoAsignacion(asignacion.estado),
+    };
+  }
+
+  normalizarEstadoAsignacion(estado: string): 'Asignado' | 'Pendiente' | 'Conflicto' {
+    if (estado === 'Pendiente') return 'Pendiente';
+    if (estado === 'Conflicto') return 'Conflicto';
+    return 'Asignado';
+  }
 
   get empleadosActivos(): Empleado[] {
     return this.empleados.filter((empleado) => empleado.estado === 'Activo');
@@ -156,41 +251,54 @@ export class AsignacionTurnos {
       return;
     }
 
-    const nuevoId =
-      this.asignaciones.length > 0
-        ? Math.max(...this.asignaciones.map((asignacion) => asignacion.id)) + 1
-        : 1;
-
-    const nuevaAsignacion: AsignacionTurno = {
-      id: nuevoId,
-      empleadoId: empleado.id,
-      empleado: empleado.nombre,
-      departamento: empleado.departamento,
+    const request: AsignacionTurnoRequest = {
+      usuarioId: empleado.id,
       turnoId: turno.id,
-      turno: turno.nombre,
-      horario: `${turno.horaInicio} - ${turno.horaFin}`,
-      fechaI: this.fechaI,
-      fechaF: this.fechaF,
-      estado: 'Asignado',
+      fechaInicio: this.fechaI,
+      fechaFin: this.fechaF,
     };
 
-    this.asignaciones = [nuevaAsignacion, ...this.asignaciones];
+    this.asignacionTurnosService.crear(request).subscribe({
+      next: () => {
+        this.empleadoSeleccionadoId = null;
+        this.turnoSeleccionadoId = null;
+        this.fechaI = '';
+        this.fechaF = '';
 
-    this.empleadoSeleccionadoId = null;
-    this.turnoSeleccionadoId = null;
-    this.fechaI = '';
-    this.fechaF = '';
+        this.mensaje = 'Turno asignado correctamente.';
+        this.tipoMensaje = 'ok';
 
-    this.mensaje = 'Turno asignado correctamente.';
-    this.tipoMensaje = 'ok';
+        this.cargarDatos();
+      },
+      error: (err) => {
+        console.error('Error al asignar turno:', err);
+
+        if (err.status === 401 || err.status === 403) {
+          this.mensaje = 'No autorizado. Debe iniciar sesión con un usuario ADMIN válido.';
+          this.tipoMensaje = 'error';
+          return;
+        }
+
+        this.mensaje = 'No se pudo asignar el turno desde el backend.';
+        this.tipoMensaje = 'error';
+      },
+    });
   }
 
   anularAsignacion(id: number): void {
-    this.asignaciones = this.asignaciones.filter(
-      (asignacion) => asignacion.id !== id
-    );
+    this.asignacionTurnosService.cambiarEstado(id, 'Inactivo').subscribe({
+      next: () => {
+        this.mensaje = 'Asignación anulada correctamente.';
+        this.tipoMensaje = 'ok';
 
-    this.mensaje = 'Asignación anulada correctamente.';
-    this.tipoMensaje = 'ok';
+        this.cargarDatos();
+      },
+      error: (err) => {
+        console.error('Error al anular asignación:', err);
+
+        this.mensaje = 'No se pudo anular la asignación.';
+        this.tipoMensaje = 'error';
+      },
+    });
   }
 }

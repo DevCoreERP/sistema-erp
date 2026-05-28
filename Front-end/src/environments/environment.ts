@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://localhost:8080/hey-fincas-api/v1',
+  apiBaseUrl: 'http://localhost:8080/erp-rrhh/v1',
 };
