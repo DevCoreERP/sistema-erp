@@ -1,11 +1,8 @@
-package com.devcoreerp.backend_erp.organizational.domain;
+package com.devcoreerp.backend_erp.vacaciones.domain;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,33 +23,32 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "cargos")
-public class Cargo {
+@Table(name = "vacaciones")
+public class Saldo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
-    private String nombre;
-
     @Column(nullable = false)
-    private Boolean active;
+    private Long dias;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false, updatable = false)
     private Date createdAt;
 
-    // Relación M:1 con Departamento
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "departamento_id", nullable = false)
-    private Departamento departamento;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false, updatable = true)
+    private Date updatedAt;
 
-    public Cargo(String nombre, Departamento departamento) {
-        this.departamento = departamento;
-        this.nombre = nombre;
-        this.active = true;
+    @Column(name = "usuario_id", unique = true, nullable = false)
+    private Long usuario;
+
+    public Saldo(Long usuario, Long dias) {
+        this.usuario = usuario;
+        this.dias = dias;
         this.createdAt = new Date();
+        this.updatedAt = new Date();
     }
 
 }

@@ -57,7 +57,19 @@ public class BaseRoleSeeder implements CommandLineRunner {
                 "ASIGNACION_TURNO_LISTAR",
                 "ASIGNACION_TURNO_EDITAR",
                 "ASIGNACION_TURNO_ELIMINAR",
-                "AGENDA_TURNO_LISTAR"
+                "AGENDA_TURNO_LISTAR",
+                "DEPARTAMENTO_CREAR",
+                "DEPARTAMENTO_LISTAR",
+                "DEPARTAMENTO_EDITAR",
+                "DEPARTAMENTO_ELIMINAR",
+                "SALDO_CREAR",
+                "SALDO_LISTAR",
+                "SALDO_EDITAR",
+                "SALDO_ELIMINAR",
+                "SOLICITUD_CREAR",
+                "SOLICITUD_LISTAR",
+                "SOLICITUD_EDITAR",
+                "SOLICITUD_ELIMINAR"
             )
         );
 

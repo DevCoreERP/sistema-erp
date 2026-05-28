@@ -1,11 +1,10 @@
-package com.devcoreerp.backend_erp.organizational.infrastructure.controllers;
+package com.devcoreerp.backend_erp.vacaciones.infrastructure.controllers;
 
-// import com.devcoreerp.backend_erp.auth.infrastructure.annotations.RequirePermission;
 import org.springframework.security.access.prepost.PreAuthorize;
 import com.devcoreerp.backend_erp.auth.infrastructure.config.ApiConfig;
-import com.devcoreerp.backend_erp.organizational.infrastructure.dtos.CreateDepartamentoDTO;
-import com.devcoreerp.backend_erp.organizational.infrastructure.dtos.ResponseDepartamentoDTO;
-import com.devcoreerp.backend_erp.organizational.application.services.DepartamentoService;
+import com.devcoreerp.backend_erp.vacaciones.infrastructure.dtos.CreateSaldoDTO;
+import com.devcoreerp.backend_erp.vacaciones.infrastructure.dtos.ResponseSaldoDTO;
+import com.devcoreerp.backend_erp.vacaciones.application.services.SaldoService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -13,20 +12,20 @@ import org.springframework.http.HttpStatus;
 import java.util.List;
 
 @RestController
-@RequestMapping(ApiConfig.API_BASE_PATH + "/departamentos")
-public class DepartamentoController {
+@RequestMapping(ApiConfig.API_BASE_PATH + "/saldos")
+public class SaldoController {
 
-    private final DepartamentoService departamentoService;
+    private final SaldoService saldoService;
 
-    public DepartamentoController(DepartamentoService departamentoService) {
-        this.departamentoService = departamentoService;
+    public SaldoController(SaldoService saldoService) {
+        this.saldoService = saldoService;
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('DEPARTAMENTO_CREAR')")
-    public ResponseEntity<?> create(@RequestBody CreateDepartamentoDTO dto) {
+    @PreAuthorize("hasAuthority('SALDO_CREAR')")
+    public ResponseEntity<?> create(@RequestBody CreateSaldoDTO dto) {
         try {
-            ResponseDepartamentoDTO response = departamentoService.create(dto);
+            ResponseSaldoDTO response = saldoService.create(dto);
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -36,10 +35,10 @@ public class DepartamentoController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('DEPARTAMENTO_LISTAR')")
+    @PreAuthorize("hasAuthority('SALDO_LISTAR')")
     public ResponseEntity<?> findAll() {
         try {
-            List<ResponseDepartamentoDTO> response = departamentoService.findAll();
+            List<ResponseSaldoDTO> response = saldoService.findAll();
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -49,10 +48,10 @@ public class DepartamentoController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('DEPARTAMENTO_LISTAR')")
+    @PreAuthorize("hasAuthority('SALDO_LISTAR')")
     public ResponseEntity<?> findById(@PathVariable Long id) {
         try {
-            ResponseDepartamentoDTO response = departamentoService.findById(id);
+            ResponseSaldoDTO response = saldoService.findById(id);
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -62,10 +61,10 @@ public class DepartamentoController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('DEPARTAMENTO_EDITAR')")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody CreateDepartamentoDTO dto) {
+    @PreAuthorize("hasAuthority('SALDO_EDITAR')")
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody CreateSaldoDTO dto) {
         try {
-            ResponseDepartamentoDTO response = departamentoService.update(id, dto);
+            ResponseSaldoDTO response = saldoService.update(id, dto);
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -75,10 +74,10 @@ public class DepartamentoController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('DEPARTAMENTO_ELIMINAR')")
+    @PreAuthorize("hasAuthority('SALDO_ELIMINAR')")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         try {
-            ResponseDepartamentoDTO response = departamentoService.delete(id);
+            ResponseSaldoDTO response = saldoService.delete(id);
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
