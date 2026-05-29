@@ -3,7 +3,6 @@ package com.devcoreerp.backend_erp.auth.application.services;
 // Java
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.stream.Collectors;
 
 // Spring
 import org.springframework.stereotype.Service;
@@ -15,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 
 // Spring Security
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 
 // JWT (Spring Security OAuth2)
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -51,9 +49,6 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public String generateToken(Authentication authentication) {
         Instant now = Instant.now();
-        String scope = authentication.getAuthorities().stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.joining(" "));
 
         Usuario currentUser = (Usuario) authentication.getPrincipal();
         JwtClaimsSet claims = JwtClaimsSet.builder()

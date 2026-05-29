@@ -8,7 +8,7 @@ public record RoleResponseDTO(
     Long id,
     String name,
     String description,
-    RoleType roleType,
-    Boolean active,
+    RoleType tipo,
+    Boolean estado,
     Set<PermissionDTO> permissions
 ) {}

@@ -1,12 +1,12 @@
 package com.devcoreerp.backend_erp.vacaciones.application.services;
 
 import com.devcoreerp.backend_erp.vacaciones.infrastructure.persistence.SolicitudRepository;
-import com.devcoreerp.backend_erp.vacaciones.infrastructure.persistence.VacacionRepository;
+import com.devcoreerp.backend_erp.vacaciones.infrastructure.persistence.SaldoRepository;
 import com.devcoreerp.backend_erp.vacaciones.infrastructure.dtos.CreateSolicitudDTO;
 import com.devcoreerp.backend_erp.vacaciones.infrastructure.dtos.ResponseSolicitudDTO;
 import com.devcoreerp.backend_erp.vacaciones.application.mappers.*;
 import com.devcoreerp.backend_erp.vacaciones.domain.Solicitud;
-import com.devcoreerp.backend_erp.vacaciones.domain.Vacacion;
+import com.devcoreerp.backend_erp.vacaciones.domain.Saldo;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -17,60 +17,59 @@ import java.util.Date;
 import java.util.List;
 import java.time.temporal.ChronoUnit;
 import java.time.LocalDate;
-import java.time.ZoneId;
 
 @Service
 public class SolicitudService{
 
     private final SolicitudRepository solicitudRepository;
-    private final VacacionRepository vacacionRepository;
+    private final SaldoRepository saldoRepository;
 
-    public SolicitudService(SolicitudRepository solicitudRepository, VacacionRepository vacacionRepository){
+    public SolicitudService(SolicitudRepository solicitudRepository, SaldoRepository saldoRepository){
         this.solicitudRepository = solicitudRepository;
-        this.vacacionRepository = vacacionRepository;
+        this.saldoRepository = saldoRepository;
     }
 
-    private long deltaDays(Date inicio, Date fin){
-        ZoneId zone = ZoneId.systemDefault();
-        LocalDate start = inicio.toInstant().atZone(zone).toLocalDate();
-        LocalDate end   = fin.toInstant().atZone(zone).toLocalDate();
-        return ChronoUnit.DAYS.between(start, end) + 1;
+    private long deltaDays(LocalDate inicio, LocalDate fin){
+        return ChronoUnit.DAYS.between(inicio, fin) + 1;
     }
 
-    public ResponseSolicitudDTO aprobar(Long id, CreateSolicitudDTO dto){
+    public ResponseSolicitudDTO aprobar(Long id){
         Solicitud solicitud = solicitudRepository.findById(id)
         .orElseThrow(() -> new ResponseStatusException(
             HttpStatus.NOT_FOUND, "Solicitud no encontrada"
         ));
-        if (dto.estado() != "aprobado"){
-            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "Solicitud no aprobada" );
-        }
-        solicitud.setEstado(dto.estado());
-        solicitud.setUpdatedAt(new Date());
-        Vacacion vacacion = vacacionRepository.findById(dto.vacacionId())
+        solicitud.setEstado("aprobado");
+        System.out.println("HELLO: APROBADO");
+        // solicitud.setUpdatedAt(new Date());
+        Saldo saldo = saldoRepository.findById(solicitud.getSaldo())
         .orElseThrow(() -> new ResponseStatusException(
             HttpStatus.NOT_FOUND, "Vacacion no encontrada"
         ));
-        long days = deltaDays(dto.fechaInicio(), dto.fechaFin());
-        if (days > vacacion.getDias()){
+        System.out.println("HELLO: GET SALDO");
+        System.out.println("HELLO: " + solicitud.getFechaInicio().getClass());
+        long days = deltaDays(solicitud.getFechaInicio(), solicitud.getFechaFin());
+        System.out.println("HELLO: GET DAYS");
+        if (days > saldo.getDias()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sin dias suficientes");
         }
-        vacacion.setDias(vacacion.getDias()-days);
-        vacacionRepository.save(vacacion);
+        saldo.setDias(saldo.getDias()-days);
+        System.out.println("HELLO: SET SALDO");
+        saldoRepository.save(saldo);
         Solicitud updated = solicitudRepository.save(solicitud);
+        System.out.println("HELLO: SAVED");
         return SolicitudMapper.toDTO(updated);
     }
 
     public ResponseSolicitudDTO create(CreateSolicitudDTO dto){
-        Vacacion vacacion = vacacionRepository.findById(dto.vacacionId())
+        Saldo saldo = saldoRepository.findById(dto.saldoId())
         .orElseThrow(() -> new ResponseStatusException(
             HttpStatus.NOT_FOUND, "Vacacion no encontrada"
         ));
         long days = deltaDays(dto.fechaInicio(), dto.fechaFin());
-        if (days > vacacion.getDias()){
+        if (days > saldo.getDias()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sin dias suficientes");
         }
-        Solicitud solicitud = SolicitudMapper.toEntity(dto,vacacion);
+        Solicitud solicitud = SolicitudMapper.toEntity(dto,dto.saldoId());
         Solicitud saved = solicitudRepository.save(solicitud);
         return SolicitudMapper.toDTO(saved);
     }

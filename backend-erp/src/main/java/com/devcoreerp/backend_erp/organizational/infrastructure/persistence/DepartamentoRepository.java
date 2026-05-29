@@ -13,9 +13,9 @@ import java.util.List;
 @Repository
 public interface DepartamentoRepository extends JpaRepository<Departamento, Long> {
     /**
-     * Busca un deparatamento por su área
+     * Busca un deparatamento por su padre
      */
-    List<Departamento> findByAreaId(Long areaId);
+    List<Departamento> findByPadre(Long padreId);
     /**
      * Busca un departamento por su nombre
      */

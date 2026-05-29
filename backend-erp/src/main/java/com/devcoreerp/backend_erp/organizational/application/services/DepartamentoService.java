@@ -1,6 +1,5 @@
 package com.devcoreerp.backend_erp.organizational.application.services;
 
-import com.devcoreerp.backend_erp.organizational.infrastructure.persistence.AreaRepository;
 import com.devcoreerp.backend_erp.organizational.infrastructure.persistence.DepartamentoRepository;
 import com.devcoreerp.backend_erp.organizational.infrastructure.dtos.CreateDepartamentoDTO;
 import com.devcoreerp.backend_erp.organizational.infrastructure.dtos.ResponseDepartamentoDTO;
@@ -18,20 +17,18 @@ import java.util.List;
 public class DepartamentoService{
 
     private final DepartamentoRepository departamentoRepository;
-    private final AreaRepository areaRepository;
 
-    public DepartamentoService(DepartamentoRepository departamentoRepository, AreaRepository areaRepository){
+    public DepartamentoService(DepartamentoRepository departamentoRepository){
         this.departamentoRepository = departamentoRepository;
-        this.areaRepository = areaRepository;
     }
 
     public ResponseDepartamentoDTO create(CreateDepartamentoDTO dto){
-        Departamento departamento = DepartamentoMapper.toEntity(dto,
-            areaRepository.findById(dto.areaId())
-            .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Area no encontrada"
-            ))
-        );
+        if (!departamentoRepository.existsById(dto.padreId())){
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "departamento padre no encontrado"
+            );
+        }
+        Departamento departamento = DepartamentoMapper.toEntity(dto);
         Departamento saved = departamentoRepository.save(departamento);
         return DepartamentoMapper.toDTO(saved);
     }

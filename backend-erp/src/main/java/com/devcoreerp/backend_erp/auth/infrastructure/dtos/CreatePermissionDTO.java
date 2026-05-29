@@ -7,8 +7,8 @@ public record CreatePermissionDTO(
     String code,
     
     @NotBlank(message = "La descripción no puede estar vacía")
-    String description,
+    String description
     
-    @NotBlank(message = "La categoría no puede estar vacía")
-    String category
+    // @NotBlank(message = "La categoría no puede estar vacía")
+    // String category
 ) {}
