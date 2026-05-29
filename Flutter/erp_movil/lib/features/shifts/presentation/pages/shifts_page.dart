@@ -3,6 +3,8 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_sizes.dart';
+import 'package:get_it/get_it.dart';
+import '../../../../core/network/api_client.dart';
 
 class ShiftsPage extends StatefulWidget {
   const ShiftsPage({super.key});
@@ -34,43 +36,35 @@ class _ShiftsPageState extends State<ShiftsPage> {
   }
 
   void _generateMockData(DateTime now) {
-    // Generar turnos para el mes actual y parte del siguiente
-    // Asignaremos asistencia a los días anteriores al actual
-    for (int i = -10; i < 20; i++) {
-      final date = DateTime(now.year, now.month, now.day + i);
-      // Omitir domingos por ejemplo
-      if (date.weekday == DateTime.sunday) continue;
+    setState(() {
+      _shiftsData.clear();
+      // Generar turnos estáticos para cualquier usuario
+      for (int i = -10; i < 20; i++) {
+        final date = DateTime(now.year, now.month, now.day + i);
+        // Omitir domingos
+        if (date.weekday == DateTime.sunday) continue;
 
-      String asistencia = 'Pendiente';
-      if (date.isBefore(DateTime(now.year, now.month, now.day))) {
-        // Simular que faltó 1 día específico, el resto asistió
-        if (i == -2) {
-          asistencia = 'Ausente';
-        } else {
-          asistencia = 'Asistió';
+        String asistencia = 'Pendiente';
+        if (date.isBefore(DateTime(now.year, now.month, now.day))) {
+          if (i == -2) {
+            asistencia = 'Ausente';
+          } else {
+            asistencia = 'Asistió';
+          }
         }
+
+        _shiftsData[_normalizeDate(date)] = {
+          'tipo': 'Turno Regular',
+          'entrada': '08:00 AM',
+          'comida': '13:00 - 14:00 PM',
+          'salida': '17:00 PM',
+          'asistencia': asistencia,
+        };
       }
-
-      _shiftsData[_normalizeDate(date)] = {
-        'tipo': 'Trabajo',
-        'entrada': '08:00 AM',
-        'comida': '13:00 - 14:00 PM',
-        'salida': '17:00 PM',
-        'asistencia': asistencia,
-      };
-    }
-
-    // Sobreescribir 5 días del próximo mes como vacaciones
-    final nextMonth = DateTime(now.year, now.month + 1, 10);
-    for (int i = 0; i < 5; i++) {
-      final vacDate = DateTime(nextMonth.year, nextMonth.month, nextMonth.day + i);
-      _shiftsData[_normalizeDate(vacDate)] = {
-        'tipo': 'Vacaciones',
-        'mensaje': 'Disfruta tus vacaciones.',
-        'asistencia': 'Aprobado',
-      };
-    }
+    });
   }
+
+
 
   // Normalizar fechas para comparar solo día, mes y año
   DateTime _normalizeDate(DateTime date) {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_sizes.dart';
+import 'package:get_it/get_it.dart';
+import '../../../../core/network/api_client.dart';
 
 class VacationsPage extends StatefulWidget {
   const VacationsPage({super.key});
@@ -26,8 +28,17 @@ class _VacationsPageState extends State<VacationsPage> {
       _isLoading = true;
     });
 
-    // Simular retardo de red
-    await Future.delayed(const Duration(seconds: 3));
+    // Simular retardo de red o llamar API real
+    try {
+      final apiClient = GetIt.instance<ApiClient>();
+      await apiClient.post('/solicitudes', body: {
+        'fechaInicio': _startDate,
+        'fechaFin': _endDate,
+        'motivo': 'Vacaciones',
+      });
+    } catch (e) {
+      // Ignorar para efectos de presentación si falla, pero en prod mostraríamos error
+    }
 
     setState(() {
       _isLoading = false;

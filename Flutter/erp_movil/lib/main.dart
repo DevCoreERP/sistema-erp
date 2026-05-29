@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => di.sl<AuthBloc>()),
       ],
       child: MaterialApp(
-        title: 'ERP Móvil',
+        title: 'Prisma ERP Móvil',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         home: const LoginPage(),

@@ -6,7 +6,6 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../../../home/presentation/pages/main_layout.dart';
-import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -18,6 +17,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isPasswordVisible = false;
 
   @override
   void dispose() {
@@ -38,8 +38,18 @@ class _LoginPageState extends State<LoginPage> {
               MaterialPageRoute(builder: (_) => const MainLayout()),
             );
           } else if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: AppColors.errorRed),
+            showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text('Error de Autenticación'),
+                content: Text(state.message),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('Entendido'),
+                  ),
+                ],
+              ),
             );
           }
         },
@@ -52,14 +62,13 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Icon(
-                      Icons.business,
-                      size: 80,
-                      color: AppColors.primaryBlue,
+                    Image.asset(
+                      'assets/prismaLogo_transparent.png',
+                      height: 120,
                     ),
                     const SizedBox(height: AppSizes.p24),
                     const Text(
-                      'Portal Empleado ERP',
+                      'Portal Empleado Prisma',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 28,
@@ -79,11 +88,19 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: AppSizes.p16),
                     TextField(
                       controller: _passwordController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Contraseña',
-                        prefixIcon: Icon(Icons.lock),
+                        prefixIcon: const Icon(Icons.lock),
+                        suffixIcon: IconButton(
+                          icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
+                          onPressed: () {
+                            setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            });
+                          },
+                        ),
                       ),
-                      obscureText: true,
+                      obscureText: !_isPasswordVisible,
                     ),
                     const SizedBox(height: AppSizes.p32),
                     if (state is AuthLoading)
@@ -91,22 +108,14 @@ class _LoginPageState extends State<LoginPage> {
                     else
                       ElevatedButton(
                         onPressed: () {
-                          context.read<AuthBloc>().add(
-                            LoginEvent(_emailController.text, _passwordController.text),
-                          );
+                          if (_emailController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
+                            context.read<AuthBloc>().add(
+                              LoginEvent(_emailController.text.trim(), _passwordController.text),
+                            );
+                          }
                         },
                         child: const Text('Iniciar Sesión', style: TextStyle(fontSize: 16)),
                       ),
-                    const SizedBox(height: AppSizes.p16),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const RegisterPage()),
-                        );
-                      },
-                      child: const Text('¿No tienes cuenta? Regístrate aquí', style: TextStyle(color: AppColors.secondaryBlue)),
-                    ),
                   ],
                 ),
               ),
