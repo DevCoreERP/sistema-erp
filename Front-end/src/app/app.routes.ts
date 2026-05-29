@@ -92,63 +92,72 @@ export const routes: Routes = [
       ),
   },
 
-  // MÓDULOS GENERALES AÚN NO DESARROLLADOS
-  // MÓDULOS DEL DASHBOARD
-{
-  path: 'nomina',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./features/dashboard/nominas/pages/nominas-home/nominas-home').then(
-      (m) => m.NominasHome
-    ),
-},
-{
-  path: 'nominas',
-  redirectTo: 'nomina',
-  pathMatch: 'full',
-},
-{
-  path: 'permisos',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./features/dashboard/permisos/pages/permisos-home/permisos-home').then(
-      (m) => m.PermisosHome
-    ),
-},
-{
-  path: 'vacaciones',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
-      (m) => m.DashboardHome
-    ),
-},
-{
-  path: 'reportes',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
-      (m) => m.DashboardHome
-    ),
-},
-{
-  path: 'perfil',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./features/dashboard/perfil/page/perfil').then(
-      (m) => m.PerfilPage
-    ),
-},
-{
-  path: 'configuracion',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
-      (m) => m.DashboardHome
-    ),
-},
+  // NÓMINA
+  {
+    path: 'nomina',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/nominas/pages/nominas-home/nominas-home').then(
+        (m) => m.NominasHome
+      ),
+  },
+  {
+    path: 'nominas',
+    redirectTo: 'nomina',
+    pathMatch: 'full',
+  },
 
-  // GESTIÓN ORGANIZACIONAL
+  // PERMISOS LABORALES
+  {
+    path: 'permisos',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/permisos/pages/permisos-home/permisos-home').then(
+        (m) => m.PermisosHome
+      ),
+  },
+
+  // VACACIONES
+  {
+    path: 'vacaciones',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/vacaciones/pages/vacaciones-home/vacaciones-home').then(
+        (m) => m.VacacionesHome
+      ),
+  },
+
+  // REPORTES
+  {
+    path: 'reportes',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
+        (m) => m.DashboardHome
+      ),
+  },
+
+  // PERFIL
+  {
+    path: 'perfil',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/perfil/page/perfil').then(
+        (m) => m.PerfilPage
+      ),
+  },
+
+  // CONFIGURACIÓN
+  {
+    path: 'configuracion',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
+        (m) => m.DashboardHome
+      ),
+  },
+
+  // GESTIÓN ORGANIZACIONAL - ÁREAS
   {
     path: 'areas',
     canActivate: [authGuard],
@@ -173,6 +182,8 @@ export const routes: Routes = [
         (m) => m.AreaForm
       ),
   },
+
+  // GESTIÓN ORGANIZACIONAL - DEPARTAMENTOS
   {
     path: 'departamentos',
     canActivate: [authGuard],
@@ -197,6 +208,8 @@ export const routes: Routes = [
         (m) => m.DepartamentoForm
       ),
   },
+
+  // GESTIÓN ORGANIZACIONAL - CARGOS
   {
     path: 'cargos',
     canActivate: [authGuard],

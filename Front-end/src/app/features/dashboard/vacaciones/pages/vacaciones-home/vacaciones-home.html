@@ -1,0 +1,450 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-main">
+    <app-topbar></app-topbar>
+
+    <main class="dashboard-content">
+      <section class="vacaciones-page">
+        <header class="page-header">
+          <div>
+            <p class="eyebrow">Módulo de Recursos Humanos</p>
+            <h1>Gestión de Vacaciones</h1>
+            <p class="page-description">
+              Registro, revisión y control de solicitudes de vacaciones del personal,
+              considerando usuario, fechas, gestión y estado de solicitud.
+            </p>
+          </div>
+        </header>
+
+        <section class="summary-grid">
+          <article class="summary-card">
+            <span>Total solicitudes</span>
+            <strong>{{ totalSolicitudes }}</strong>
+            <small>Solicitudes registradas</small>
+          </article>
+
+          <article class="summary-card">
+            <span>Pendientes</span>
+            <strong>{{ totalPendientes }}</strong>
+            <small>En espera de revisión</small>
+          </article>
+
+          <article class="summary-card">
+            <span>Aprobadas</span>
+            <strong>{{ totalAprobadas }}</strong>
+            <small>Vacaciones autorizadas</small>
+          </article>
+
+          <article class="summary-card">
+            <span>Rechazadas / Anuladas</span>
+            <strong>{{ totalRechazadasAnuladas }}</strong>
+            <small>Solicitudes cerradas</small>
+          </article>
+        </section>
+
+        <section class="content-grid single-column">
+          <article class="panel form-panel">
+            <div class="panel-header">
+              <div>
+                <h2>Nueva solicitud</h2>
+                <p>Registra una solicitud inicial en estado Pendiente.</p>
+              </div>
+            </div>
+
+            <form class="vacaciones-form" (ngSubmit)="registrarSolicitud()">
+              <div class="form-row">
+                <label>
+                  Usuario
+                  <input
+                    type="text"
+                    name="usuarioNombre"
+                    [(ngModel)]="nuevaSolicitud.usuarioNombre"
+                    placeholder="Escriba el nombre del usuario"
+                    autocomplete="off"
+                  />
+                </label>
+
+                <label>
+                  Correo
+                  <input
+                    type="email"
+                    name="usuarioCorreo"
+                    [(ngModel)]="nuevaSolicitud.usuarioCorreo"
+                    placeholder="correo@empresa.com"
+                    autocomplete="off"
+                  />
+                </label>
+              </div>
+
+              <div class="form-row">
+                <label>
+                  Fecha de solicitud
+                  <input
+                    type="date"
+                    name="fechaSolicitud"
+                    [(ngModel)]="nuevaSolicitud.fechaSolicitud"
+                  />
+                </label>
+
+                <label>
+                  Estado inicial
+                  <input
+                    type="text"
+                    [value]="nuevaSolicitud.estado"
+                    readonly
+                  />
+                </label>
+              </div>
+
+              <div class="form-row">
+                <label>
+                  Fecha inicio
+                  <input
+                    type="date"
+                    name="fechaInicio"
+                    [(ngModel)]="nuevaSolicitud.fechaInicio"
+                  />
+                </label>
+
+                <label>
+                  Fecha fin
+                  <input
+                    type="date"
+                    name="fechaFin"
+                    [(ngModel)]="nuevaSolicitud.fechaFin"
+                  />
+                </label>
+              </div>
+
+              <div class="form-row">
+                <label>
+                  Días solicitados
+                  <input
+                    type="number"
+                    [value]="diasSolicitadosCalculados"
+                    readonly
+                  />
+                </label>
+              </div>
+
+              <label>
+                Motivo / observación
+                <textarea
+                  name="motivo"
+                  rows="4"
+                  [(ngModel)]="nuevaSolicitud.motivo"
+                  placeholder="Ejemplo: descanso familiar, viaje programado, asuntos personales..."
+                ></textarea>
+              </label>
+
+              <p
+                class="form-message"
+                *ngIf="mensajeFormulario"
+                [class.success]="mensajeFormulario.includes('correctamente')"
+              >
+                {{ mensajeFormulario }}
+              </p>
+
+              <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                  Registrar solicitud
+                </button>
+              </div>
+            </form>
+          </article>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Solicitudes de vacaciones</h2>
+              <p>Listado filtrable según usuario, estado, gestión y fecha.</p>
+            </div>
+          </div>
+
+          <div class="filters-grid">
+            <label>
+              Usuario
+              <input
+                type="text"
+                name="filtroUsuario"
+                [(ngModel)]="filtros.usuario"
+                placeholder="Buscar usuario..."
+                autocomplete="off"
+              />
+            </label>
+
+            <label>
+              Estado
+              <select name="filtroEstado" [(ngModel)]="filtros.estado">
+                <option value="TODOS">Todos</option>
+                <option *ngFor="let estado of estadosSolicitud" [value]="estado">
+                  {{ estado }}
+                </option>
+              </select>
+            </label>
+
+            <label>
+              Gestión
+              <select name="filtroGestion" [(ngModel)]="filtros.gestion">
+                <option value="TODAS">Todas</option>
+                <option *ngFor="let gestion of gestionesDisponibles" [value]="gestion">
+                  {{ gestion }}
+                </option>
+              </select>
+            </label>
+
+            <label>
+              Fecha
+              <input
+                type="date"
+                name="filtroFecha"
+                [(ngModel)]="filtros.fecha"
+              />
+            </label>
+
+            <button type="button" class="btn-secondary" (click)="limpiarFiltros()">
+              Limpiar filtros
+            </button>
+          </div>
+
+          <div class="table-wrapper solicitudes-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Fecha inicio</th>
+                  <th>Fecha fin</th>
+                  <th>Días</th>
+                  <th>Fecha solicitud</th>
+                  <th>Estado</th>
+                  <th class="acciones-column">Acciones</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr *ngFor="let solicitud of solicitudesFiltradas">
+                  <td>
+                    <strong>{{ obtenerNombreUsuario(solicitud.usuarioId) }}</strong>
+                    <small>{{ obtenerCorreoUsuario(solicitud.usuarioId) }}</small>
+                  </td>
+
+                  <td>{{ solicitud.fechaInicio }}</td>
+                  <td>{{ solicitud.fechaFin }}</td>
+                  <td>{{ solicitud.diasSolicitados }}</td>
+                  <td>{{ solicitud.fechaSolicitud }}</td>
+
+                  <td>
+                    <span [class]="obtenerClaseEstado(solicitud.estado)">
+                      {{ solicitud.estado }}
+                    </span>
+                  </td>
+
+                  <td>
+                    <div class="action-buttons">
+                      <button
+                        type="button"
+                        class="btn-table"
+                        (click)="verDetalle(solicitud)"
+                      >
+                        Ver
+                      </button>
+
+                      <button
+                        type="button"
+                        class="btn-table approve"
+                        [disabled]="!puedeAprobar(solicitud)"
+                        (click)="aprobarSolicitud(solicitud)"
+                      >
+                        Aprobar
+                      </button>
+
+                      <button
+                        type="button"
+                        class="btn-table reject"
+                        [disabled]="!puedeRechazarOAnular(solicitud)"
+                        (click)="abrirRevision(solicitud, 'RECHAZADA')"
+                      >
+                        Rechazar
+                      </button>
+
+                      <button
+                        type="button"
+                        class="btn-table cancel"
+                        [disabled]="!puedeRechazarOAnular(solicitud)"
+                        (click)="abrirRevision(solicitud, 'ANULADA')"
+                      >
+                        Anular
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr *ngIf="solicitudesFiltradas.length === 0">
+                  <td colspan="7">
+                    <div class="empty-state">
+                      No existen solicitudes con los filtros seleccionados.
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <div class="modal-backdrop" *ngIf="solicitudSeleccionada as solicitud">
+        <article class="modal-card">
+          <header class="modal-header">
+            <div>
+              <p class="eyebrow">Detalle de solicitud</p>
+              <h2>Vacaciones de {{ obtenerNombreUsuario(solicitud.usuarioId) }}</h2>
+            </div>
+
+            <button type="button" class="modal-close" (click)="cerrarDetalle()">
+              ×
+            </button>
+          </header>
+
+          <section class="detail-grid">
+            <div>
+              <span>Usuario</span>
+              <strong>{{ obtenerNombreUsuario(solicitud.usuarioId) }}</strong>
+            </div>
+
+            <div>
+              <span>Correo</span>
+              <strong>{{ obtenerCorreoUsuario(solicitud.usuarioId) }}</strong>
+            </div>
+
+            <div>
+              <span>Fecha inicio</span>
+              <strong>{{ solicitud.fechaInicio }}</strong>
+            </div>
+
+            <div>
+              <span>Fecha fin</span>
+              <strong>{{ solicitud.fechaFin }}</strong>
+            </div>
+
+            <div>
+              <span>Días solicitados</span>
+              <strong>{{ solicitud.diasSolicitados }}</strong>
+            </div>
+
+            <div>
+              <span>Estado</span>
+              <strong>{{ solicitud.estado }}</strong>
+            </div>
+
+            <div>
+              <span>Gestión</span>
+              <strong>{{ solicitud.gestion }}</strong>
+            </div>
+          </section>
+
+          <section class="detail-block">
+            <span>Motivo</span>
+            <p>{{ solicitud.motivo }}</p>
+          </section>
+
+          <section class="detail-block">
+            <span>Observación de revisión</span>
+            <p>
+              {{ solicitud.observacionRevision || 'Sin observación registrada.' }}
+            </p>
+          </section>
+
+          <footer class="modal-actions">
+            <button
+              type="button"
+              class="btn-secondary"
+              (click)="cerrarDetalle()"
+            >
+              Cerrar
+            </button>
+
+            <button
+              type="button"
+              class="btn-primary"
+              [disabled]="!puedeAprobar(solicitud)"
+              (click)="aprobarSolicitud(solicitud)"
+            >
+              Aprobar
+            </button>
+
+            <button
+              type="button"
+              class="btn-danger"
+              [disabled]="!puedeRechazarOAnular(solicitud)"
+              (click)="abrirRevision(solicitud, 'RECHAZADA')"
+            >
+              Rechazar
+            </button>
+
+            <button
+              type="button"
+              class="btn-warning"
+              [disabled]="!puedeRechazarOAnular(solicitud)"
+              (click)="abrirRevision(solicitud, 'ANULADA')"
+            >
+              Anular
+            </button>
+          </footer>
+        </article>
+      </div>
+
+      <div class="modal-backdrop" *ngIf="solicitudRevision as solicitud">
+        <article class="modal-card small-modal">
+          <header class="modal-header">
+            <div>
+              <p class="eyebrow">Revisión de solicitud</p>
+              <h2>
+                {{ accionRevision === 'RECHAZADA' ? 'Rechazar solicitud' : 'Anular solicitud' }}
+              </h2>
+            </div>
+
+            <button type="button" class="modal-close" (click)="cerrarRevision()">
+              ×
+            </button>
+          </header>
+
+          <p class="revision-text">
+            Solicitud de <strong>{{ obtenerNombreUsuario(solicitud.usuarioId) }}</strong>,
+            desde <strong>{{ solicitud.fechaInicio }}</strong> hasta
+            <strong>{{ solicitud.fechaFin }}</strong>.
+          </p>
+
+          <label class="revision-label">
+            Observación de revisión
+            <textarea
+              rows="5"
+              name="observacionRevision"
+              [(ngModel)]="observacionRevision"
+              placeholder="Escriba el motivo de rechazo o anulación..."
+            ></textarea>
+          </label>
+
+          <footer class="modal-actions">
+            <button
+              type="button"
+              class="btn-secondary"
+              (click)="cerrarRevision()"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="button"
+              class="btn-danger"
+              (click)="confirmarRevision()"
+            >
+              Confirmar
+            </button>
+          </footer>
+        </article>
+      </div>
+    </main>
+  </div>
+</div>
