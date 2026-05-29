@@ -19,23 +19,34 @@ class MainLayout extends StatefulWidget {
 
 class _MainLayoutState extends State<MainLayout> {
   late int _currentIndex;
+  bool _hasUnreadNotifications = true;
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
+    if (_currentIndex == 2) {
+      _hasUnreadNotifications = false;
+    }
   }
 
   void _onItemTapped(int index) {
     setState(() {
       _currentIndex = index;
+      if (index == 2) {
+        _hasUnreadNotifications = false;
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      const HomeContent(),
+      HomeContent(
+        hasUnreadNotifications: _hasUnreadNotifications,
+        onNotificationTap: () => _onItemTapped(2),
+        onAvatarTap: () => _onItemTapped(3),
+      ),
       const WorkPage(),
       const NotificationsPage(),
       const AccountPage(),
@@ -83,43 +94,68 @@ class _MainLayoutState extends State<MainLayout> {
     return Drawer(
       child: Column(
         children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(color: AppColors.primaryBlue),
+          DrawerHeader(
+            decoration: const BoxDecoration(color: AppColors.primaryBlue),
             child: SizedBox(
               width: double.infinity,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Icon(Icons.business, size: 48, color: AppColors.pureWhite),
-                  SizedBox(height: AppSizes.p12),
-                  Text('Portal ERP', style: TextStyle(color: AppColors.pureWhite, fontSize: 20, fontWeight: FontWeight.bold)),
+                  Image.asset('assets/prismaLogo_transparent.png', height: 48),
+                  const SizedBox(height: AppSizes.p12),
+                  const Text(
+                    'Portal Prisma',
+                    style: TextStyle(
+                      color: AppColors.pureWhite,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.calendar_month, color: AppColors.primaryBlue),
+            leading: const Icon(
+              Icons.calendar_month,
+              color: AppColors.primaryBlue,
+            ),
             title: const Text('Turnos'),
             onTap: () {
               Navigator.pop(context); // Close drawer
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const ShiftsPage()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ShiftsPage()),
+              );
             },
           ),
           ListTile(
-            leading: const Icon(Icons.assignment_late, color: AppColors.primaryBlue),
+            leading: const Icon(
+              Icons.assignment_late,
+              color: AppColors.primaryBlue,
+            ),
             title: const Text('Permisos'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const PermissionsPage()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const PermissionsPage()),
+              );
             },
           ),
           ListTile(
-            leading: const Icon(Icons.beach_access, color: AppColors.primaryBlue),
+            leading: const Icon(
+              Icons.beach_access,
+              color: AppColors.primaryBlue,
+            ),
             title: const Text('Vacaciones'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const VacationsPage()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const VacationsPage()),
+              );
             },
           ),
         ],

@@ -1,10 +1,9 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'features/auth/data/repositories/auth_repository_impl.dart';
+import 'core/network/api_client.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/domain/usecases/login_usecase.dart';
-import 'features/auth/domain/usecases/register_usecase.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 
 final sl = GetIt.instance; // sl = Service Locator
@@ -24,22 +23,21 @@ Future<void> init() async {
   }
 
   sl.registerLazySingleton(() => sharedPreferences);
+  sl.registerLazySingleton(() => ApiClient(sharedPreferences: sl()));
 
   //! Features - Auth
   // Bloc
   sl.registerFactory(
     () => AuthBloc(
       loginUseCase: sl(),
-      registerUseCase: sl(),
     ),
   );
 
   // Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
-  sl.registerLazySingleton(() => RegisterUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(sl()),
+    () => AuthRepositoryImpl(apiClient: sl(), sharedPreferences: sl()),
   );
 }
