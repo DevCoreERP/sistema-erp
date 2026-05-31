@@ -16,7 +16,7 @@ export class Topbar implements OnInit {
   menuAbierto = false;
 
   ngOnInit() {
-    this.authService.getUsuario(1).subscribe({
+    this.authService.getUsuario(2).subscribe({
       next: (user) => {
         this.authService.currentUser.set(user);
       },

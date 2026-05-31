@@ -11,6 +11,7 @@ import com.devcoreerp.backend_erp.auth.infrastructure.dtos.UsuarioResponseDTO;
 import com.devcoreerp.backend_erp.auth.infrastructure.dtos.UsuarioUpdateDTO;
 import com.devcoreerp.backend_erp.auth.infrastructure.persistance.RoleRepository;
 import com.devcoreerp.backend_erp.auth.infrastructure.persistance.UsuarioRepository;
+import com.devcoreerp.backend_erp.organizational.infrastructure.persistence.DepartamentoRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -40,6 +41,7 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
 
     private static final Logger logger = LogManager.getLogger(AuthServiceImpl.class);
 
+    private final DepartamentoRepository departamentoRepository;
     private final UsuarioRepository usuarioRepository;
     private final RoleRepository roleRepository;
     private final TokenService tokenService;
@@ -53,7 +55,10 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
             TokenService tokenService,
             PasswordEncoder passwordEncoder,
             AuthenticationConfiguration authenticationConfiguration,
-            UsuarioMapper usuarioMapper) {
+            UsuarioMapper usuarioMapper,
+            DepartamentoRepository departamentoRepository
+    ) {
+        this.departamentoRepository = departamentoRepository;
         this.usuarioRepository = usuarioRepository;
         this.roleRepository = roleRepository;
         this.tokenService = tokenService;
@@ -125,6 +130,10 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se puede asignar un rol inactivo");
         }
 
+        if (!departamentoRepository.existsById(createUsuarioDTO.departamento())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Departamento inexistente");
+        }
+
         Usuario usuario = Usuario.builder()
                 .username(createUsuarioDTO.username().trim())
                 .password(passwordEncoder.encode(createUsuarioDTO.password()))
@@ -132,6 +141,7 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
                 .firstName(createUsuarioDTO.firstName().trim())
                 .surnames(createUsuarioDTO.surnames().trim())
                 .phoneNumber(createUsuarioDTO.phoneNumber().trim())
+                .departamento(createUsuarioDTO.departamento())
                 .fechaIngreso(LocalDate.now())
                 .estado(true)
                 .enabled(true)
