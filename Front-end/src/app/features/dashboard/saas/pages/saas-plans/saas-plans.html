@@ -1,0 +1,462 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-main">
+    <app-topbar></app-topbar>
+
+    <main class="dashboard-content">
+      <div class="sp-wrapper">
+
+        <!-- ══════════════════════════════════════════
+             HEADER
+        ══════════════════════════════════════════ -->
+        <div class="sp-header">
+          <button class="sp-btn sp-btn-back" (click)="volverSuscripcion()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Volver a mi suscripción
+          </button>
+
+          <div class="sp-header-center">
+            <h1 class="sp-title">Elige tu plan SaaS</h1>
+            <p class="sp-subtitle">
+              Selecciona el plan mensual que mejor se adapta a las necesidades de tu empresa
+            </p>
+          </div>
+
+          <div class="sp-header-spacer"></div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+             BANNER DE FLUJO
+        ══════════════════════════════════════════ -->
+        <div class="sp-banner" [ngClass]="'sp-banner-' + obtenerIconoModo()">
+          <div class="sp-banner-icon">
+            <svg *ngIf="obtenerIconoModo() === 'new'" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+
+            <svg *ngIf="obtenerIconoModo() === 'change'" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="17 1 21 5 17 9"/>
+              <path d="M3 11V9a4 4 0 014-4h14"/>
+              <polyline points="7 23 3 19 7 15"/>
+              <path d="M21 13v2a4 4 0 01-4 4H3"/>
+            </svg>
+
+            <svg *ngIf="obtenerIconoModo() === 'payment'" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="1" y="4" width="22" height="16" rx="3"/>
+              <path d="M1 10h22"/>
+            </svg>
+          </div>
+
+          <div class="sp-banner-texto">
+            <span class="sp-banner-modo">{{ obtenerTextoModo() }}</span>
+
+            <span *ngIf="suscripcionActual" class="sp-banner-actual">
+              Plan actual:
+              <strong>{{ suscripcionActual.plan }}</strong>
+            </span>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+             BANNER DE LÍMITE MENSUAL
+        ══════════════════════════════════════════ -->
+        <div
+          class="sp-monthly-rule"
+          [ngClass]="{
+            'sp-monthly-rule-warning': getOperacionesRestantesMes() === 1,
+            'sp-monthly-rule-blocked': getOperacionesRestantesMes() === 0
+          }"
+        >
+          <div class="sp-monthly-rule-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <path d="M16 2v4M8 2v4M3 10h18"/>
+            </svg>
+          </div>
+
+          <div class="sp-monthly-rule-text">
+            <strong>Regla mensual de cambios:</strong>
+            <span>{{ getResumenOperacionesMes() }}</span>
+          </div>
+        </div>
+
+        <!-- Error general de selección -->
+        <div *ngIf="mostrarErrorSeleccion && mensajeErrorSeleccion" class="sp-error-msg sp-error-top">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          {{ mensajeErrorSeleccion }}
+        </div>
+
+        <!-- ══════════════════════════════════════════
+             LAYOUT PRINCIPAL: PLANES + RESUMEN
+        ══════════════════════════════════════════ -->
+        <div class="sp-layout">
+
+          <!-- GRID DE PLANES -->
+          <div class="sp-planes-grid">
+
+            <div
+              *ngFor="let plan of planes"
+              class="sp-plan-card"
+              [ngClass]="{
+                'sp-plan-card-destacado': plan.destacado,
+                'sp-plan-card-seleccionado': esPlanSeleccionado(plan),
+                'sp-plan-card-actual': esPlanActual(plan),
+                'sp-plan-card-bloqueado': planEstaBloqueado(plan)
+              }"
+              (click)="!planEstaBloqueado(plan) && seleccionarPlan(plan)"
+            >
+
+              <!-- Badges superiores -->
+              <div class="sp-badges-row">
+                <span *ngIf="plan.destacado" class="sp-badge sp-badge-recomendado">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                  </svg>
+                  Recomendado
+                </span>
+
+                <span *ngIf="esPlanActual(plan)" class="sp-badge sp-badge-actual">
+                  Plan actual
+                </span>
+
+                <span
+                  *ngIf="!esPlanActual(plan) && planFueCompradoEsteMes(plan)"
+                  class="sp-badge sp-badge-comprado"
+                >
+                  Comprado este mes
+                </span>
+
+                <span
+                  *ngIf="!esPlanActual(plan) && !planFueCompradoEsteMes(plan) && superoLimiteOperacionesPlanMes()"
+                  class="sp-badge sp-badge-limite"
+                >
+                  Límite mensual
+                </span>
+
+                <span
+                  *ngIf="esPlanSeleccionado(plan) && !planEstaBloqueado(plan)"
+                  class="sp-badge sp-badge-seleccionado"
+                >
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  Seleccionado
+                </span>
+              </div>
+
+              <!-- Nombre y precio -->
+              <div class="sp-plan-head">
+                <div>
+                  <div class="sp-plan-eyebrow">Plan</div>
+                  <div class="sp-plan-nombre" [ngClass]="getPlanClaseColor(plan)">
+                    {{ plan.nombre }}
+                  </div>
+                  <div class="sp-plan-ideal">{{ plan.ideal }}</div>
+                </div>
+
+                <div class="sp-plan-precio-bloque">
+                  <div class="sp-plan-precio">
+                    <span class="sp-precio-moneda">$</span>
+                    <span class="sp-precio-valor">{{ plan.precio }}</span>
+                  </div>
+                  <div class="sp-precio-unit">USD / mes</div>
+                </div>
+              </div>
+
+              <!-- Motivo de bloqueo -->
+              <div *ngIf="planEstaBloqueado(plan)" class="sp-plan-lock-info">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="5" y="11" width="14" height="10" rx="2"/>
+                  <path d="M8 11V7a4 4 0 018 0v4"/>
+                </svg>
+                <span>{{ obtenerEstadoBloqueoPlan(plan) }}</span>
+              </div>
+
+              <!-- Datos del plan -->
+              <div class="sp-plan-totales">
+                <div class="sp-total-item">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                  </svg>
+                  <span class="sp-total-label">Usuarios mínimos:</span>
+                  <span class="sp-total-val">{{ plan.usuariosMinimos }}</span>
+                </div>
+
+                <div class="sp-total-item sp-total-base">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"/>
+                    <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                  </svg>
+                  <span class="sp-total-label">Precio mensual:</span>
+                  <span class="sp-total-base-val">${{ calcularTotalBase(plan) }} USD</span>
+                </div>
+              </div>
+
+              <div class="sp-plan-div"></div>
+
+              <!-- Módulos -->
+              <div class="sp-plan-seccion">
+                <div class="sp-seccion-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="7" height="7" rx="1"/>
+                    <rect x="15" y="3" width="7" height="7" rx="1"/>
+                    <rect x="2" y="15" width="7" height="7" rx="1"/>
+                    <rect x="15" y="15" width="7" height="7" rx="1"/>
+                  </svg>
+                  Módulos incluidos
+                </div>
+
+                <ul class="sp-lista">
+                  <li *ngFor="let m of plan.modulos" class="sp-lista-item">
+                    <span class="sp-lista-check">
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </span>
+                    {{ m }}
+                  </li>
+                </ul>
+              </div>
+
+              <div class="sp-plan-div"></div>
+
+              <!-- Beneficios -->
+              <div class="sp-plan-seccion">
+                <div class="sp-seccion-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 11 12 14 22 4"/>
+                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                  </svg>
+                  Beneficios incluidos
+                </div>
+
+                <ul class="sp-lista">
+                  <li *ngFor="let b of plan.beneficios" class="sp-lista-item sp-lista-item-beneficio">
+                    <span class="sp-lista-check sp-check-emerald">
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </span>
+                    {{ b }}
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Botón seleccionar -->
+              <button
+                class="sp-btn sp-btn-seleccionar"
+                [disabled]="planEstaBloqueado(plan)"
+                [ngClass]="{
+                  'sp-btn-seleccionar-activo': esPlanSeleccionado(plan),
+                  'sp-btn-seleccionar-destacado': plan.destacado && !esPlanSeleccionado(plan) && !planEstaBloqueado(plan),
+                  'sp-btn-seleccionar-disabled': planEstaBloqueado(plan)
+                }"
+                (click)="!planEstaBloqueado(plan) && seleccionarPlan(plan); $event.stopPropagation()"
+              >
+
+                <svg *ngIf="planEstaBloqueado(plan)" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <rect x="5" y="11" width="14" height="10" rx="2"/>
+                  <path d="M8 11V7a4 4 0 018 0v4"/>
+                </svg>
+
+                <svg *ngIf="!planEstaBloqueado(plan) && esPlanSeleccionado(plan)" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+
+                <svg *ngIf="!planEstaBloqueado(plan) && !esPlanSeleccionado(plan)" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 8v4M12 16h.01"/>
+                </svg>
+
+                {{ obtenerTextoBotonPlan(plan) }}
+              </button>
+
+            </div>
+          </div>
+
+          <!-- PANEL RESUMEN -->
+          <div class="sp-resumen-panel">
+            <div class="sp-resumen-card">
+
+              <!-- Sin plan seleccionado -->
+              <div *ngIf="!planSeleccionado" class="sp-resumen-vacio">
+                <div class="sp-resumen-vacio-icon">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                </div>
+
+                <p class="sp-resumen-vacio-titulo">Sin plan seleccionado</p>
+                <p class="sp-resumen-vacio-desc">
+                  Haz clic en un plan disponible para ver el resumen antes de continuar.
+                </p>
+              </div>
+
+              <!-- Con plan seleccionado -->
+              <div *ngIf="planSeleccionado" class="sp-resumen-body">
+
+                <div class="sp-resumen-header">
+                  <div class="sp-resumen-eyebrow">Resumen del plan</div>
+                  <div class="sp-resumen-plan-nombre" [ngClass]="getPlanClaseColor(planSeleccionado)">
+                    {{ planSeleccionado.nombre }}
+                  </div>
+                  <div class="sp-resumen-ideal">{{ planSeleccionado.ideal }}</div>
+                </div>
+
+                <div class="sp-resumen-datos">
+                  <div class="sp-resumen-fila">
+                    <span class="sp-resumen-label">Precio mensual</span>
+                    <span class="sp-resumen-val">${{ planSeleccionado.precio }} USD / mes</span>
+                  </div>
+
+                  <div class="sp-resumen-fila">
+                    <span class="sp-resumen-label">Usuarios mínimos</span>
+                    <span class="sp-resumen-val">{{ planSeleccionado.usuariosMinimos }}</span>
+                  </div>
+
+                  <div class="sp-resumen-fila sp-resumen-fila-total">
+                    <span class="sp-resumen-label">Total mensual</span>
+                    <span class="sp-resumen-total">${{ calcularTotalBase(planSeleccionado) }} USD</span>
+                  </div>
+                </div>
+
+                <div class="sp-resumen-modulos">
+                  <div class="sp-seccion-label">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="3" width="7" height="7" rx="1"/>
+                      <rect x="15" y="3" width="7" height="7" rx="1"/>
+                      <rect x="2" y="15" width="7" height="7" rx="1"/>
+                      <rect x="15" y="15" width="7" height="7" rx="1"/>
+                    </svg>
+                    Módulos principales
+                  </div>
+
+                  <div class="sp-resumen-chips">
+                    <span *ngFor="let m of getModulosPrincipales(planSeleccionado)" class="sp-chip">
+                      {{ m }}
+                    </span>
+
+                    <span *ngIf="planSeleccionado.modulos.length > 4" class="sp-chip sp-chip-mas">
+                      +{{ planSeleccionado.modulos.length - 4 }} más
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Error de validación -->
+                <div *ngIf="mostrarErrorSeleccion" class="sp-error-msg">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                  {{ mensajeErrorSeleccion || 'Selecciona un plan antes de continuar.' }}
+                </div>
+
+                <button class="sp-btn sp-btn-continuar" (click)="continuarFacturacion()">
+                  {{
+                    suscripcionActual
+                      ? 'Continuar con cambio de plan'
+                      : 'Continuar con este plan'
+                  }}
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="9 18 15 12 9 6"/>
+                  </svg>
+                </button>
+
+              </div>
+
+              <!-- Error cuando no hay plan seleccionado y se intenta continuar -->
+              <div *ngIf="!planSeleccionado && mostrarErrorSeleccion" class="sp-error-msg sp-error-standalone">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                {{ mensajeErrorSeleccion || 'Selecciona un plan antes de continuar.' }}
+              </div>
+
+              <!-- Botón continuar cuando no hay plan seleccionado -->
+              <div *ngIf="!planSeleccionado" class="sp-resumen-footer-vacio">
+                <button class="sp-btn sp-btn-continuar sp-btn-continuar-disabled" (click)="continuarFacturacion()">
+                  Continuar con este plan
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="9 18 15 12 9 6"/>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Nota informativa -->
+              <div class="sp-nota">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; margin-top:1px;">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                El pago se confirmará en el siguiente paso. Los módulos se habilitarán después de completar la facturación.
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ══════════════════════════════════════════
+             MODAL CONFIRMACIÓN CAMBIO DE PLAN
+        ══════════════════════════════════════════ -->
+        <div *ngIf="mostrarModalCambioPlan" class="sp-modal-backdrop">
+          <div class="sp-modal-card">
+
+            <div class="sp-modal-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <polyline points="17 1 21 5 17 9"/>
+                <path d="M3 11V9a4 4 0 014-4h14"/>
+                <polyline points="7 23 3 19 7 15"/>
+                <path d="M21 13v2a4 4 0 01-4 4H3"/>
+              </svg>
+            </div>
+
+            <h2 class="sp-modal-title">¿Seguro que quieres cambiar tu plan?</h2>
+
+            <p class="sp-modal-text">
+              Se realizará un nuevo cobro mensual para actualizar tu suscripción
+              al plan seleccionado. Tu nuevo plan se activará después de completar
+              el pago en facturación.
+            </p>
+
+            <div *ngIf="planPendienteCambio" class="sp-modal-plan">
+              <span>Nuevo plan</span>
+              <strong>{{ planPendienteCambio.nombre }}</strong>
+              <small>${{ calcularTotalBase(planPendienteCambio) }} USD / mes</small>
+            </div>
+
+            <div class="sp-modal-actions">
+              <button class="sp-btn sp-btn-modal-cancel" (click)="cerrarModalCambioPlan()">
+                Volver
+              </button>
+
+              <button class="sp-btn sp-btn-modal-confirm" (click)="confirmarCambioPlan()">
+                Continuar al pago
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
