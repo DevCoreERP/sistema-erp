@@ -3,6 +3,9 @@ package com.devcoreerp.backend_erp.auth.infrastructure.filters;
 import com.devcoreerp.backend_erp.auth.application.AuthCookieConstants.AuthConstants;
 import com.devcoreerp.backend_erp.auth.domain.services.AuthService;
 import com.devcoreerp.backend_erp.auth.infrastructure.config.WebSecurityConfig;
+import com.devcoreerp.backend_erp.multitenancy.Tenant;
+import com.devcoreerp.backend_erp.multitenancy.TenantContext;
+import com.devcoreerp.backend_erp.multitenancy.TenantSchemaResolver;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -26,10 +29,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final AuthService authService;
     private final UserDetailsService userDetailsService;
+    private final TenantSchemaResolver tenantSchemaResolver;
 
-    public JwtAuthenticationFilter(AuthService authService, UserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(
+            AuthService authService,
+            UserDetailsService userDetailsService,
+            TenantSchemaResolver tenantSchemaResolver) {
         this.authService = authService;
         this.userDetailsService = userDetailsService;
+        this.tenantSchemaResolver = tenantSchemaResolver;
     }
 
     @Override
@@ -46,6 +54,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Optional<String> token = getJwtFromRequest(request);
 
             if (token.isPresent() && authService.validateToken(token.get())) {
+                Tenant tenant = resolveTenantFromToken(token.get());
+                TenantContext.setCurrentTenant(tenant);
                 String email = authService.getUserFromToken(token.get());
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
@@ -62,7 +72,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             logger.warn("JWT invalido o usuario no autorizado: {}", e.getMessage());
         }
 
-        filterChain.doFilter(request, response);
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            TenantContext.clear();
+        }
+    }
+
+    private Tenant resolveTenantFromToken(String token) {
+        Long tenantId = authService.getTenantIdFromToken(token);
+        String tenantSubdomain = authService.getTenantSubdomainFromToken(token);
+
+        Tenant tenant = tenantId != null
+                ? tenantSchemaResolver.resolveActiveTenantById(tenantId)
+                : tenantSchemaResolver.resolveActiveTenantBySubdomain(tenantSubdomain);
+
+        if (tenantSubdomain != null && !tenantSubdomain.equals(tenant.getSubdomain())) {
+            throw new IllegalArgumentException("Tenant del token no coincide con el tenant activo");
+        }
+
+        return tenant;
     }
 
     private Optional<String> getJwtFromRequest(HttpServletRequest request) {

@@ -3,6 +3,9 @@ package com.devcoreerp.backend_erp.auth.infrastructure.config;
 import com.devcoreerp.backend_erp.auth.application.AuthCookieConstants.AuthConstants;
 import com.devcoreerp.backend_erp.auth.domain.services.AuthService;
 import com.devcoreerp.backend_erp.auth.infrastructure.filters.JwtAuthenticationFilter;
+import com.devcoreerp.backend_erp.multitenancy.TenantLoginFilter;
+import com.devcoreerp.backend_erp.multitenancy.TenantResolver;
+import com.devcoreerp.backend_erp.multitenancy.TenantSchemaResolver;
 import jakarta.servlet.Filter;
 import jakarta.servlet.http.Cookie;
 import org.springframework.context.annotation.Bean;
@@ -32,18 +35,25 @@ public class WebSecurityConfig {
     private final AuthService authService;
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
+    private final TenantResolver tenantResolver;
+    private final TenantSchemaResolver tenantSchemaResolver;
 
     public WebSecurityConfig(
             AuthService authService,
             UserDetailsService userDetailsService,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            TenantResolver tenantResolver,
+            TenantSchemaResolver tenantSchemaResolver) {
         this.authService = authService;
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
+        this.tenantResolver = tenantResolver;
+        this.tenantSchemaResolver = tenantSchemaResolver;
     }
 
     public static final String LOGIN_URL_MATCHER = ApiConfig.API_BASE_PATH + "/auth/login";
     public static final String LOG_OUT_URL_MATCHER = ApiConfig.API_BASE_PATH + "/auth/logout";
+    public static final String TENANTS_URL_MATCHER = ApiConfig.API_BASE_PATH + "/tenants";
     public static final String BASE_URL_MATCHER = ApiConfig.API_BASE_PATH + "/**";
 
     @Bean
@@ -57,6 +67,7 @@ public class WebSecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(requests -> requests
                 .requestMatchers(HttpMethod.POST, LOGIN_URL_MATCHER).permitAll()
+                .requestMatchers(HttpMethod.POST, TENANTS_URL_MATCHER).permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                 .requestMatchers(BASE_URL_MATCHER).authenticated()
                 .anyRequest().denyAll()
@@ -71,6 +82,7 @@ public class WebSecurityConfig {
                     response.addCookie(cookie);
                 })
             )
+            .addFilterBefore(tenantLoginFilter(), LogoutFilter.class)
             .addFilterBefore(jwtFilter, LogoutFilter.class)
             .authenticationManager(authenticationManager())
             .exceptionHandling(handler -> handler
@@ -101,6 +113,10 @@ public class WebSecurityConfig {
     }
 
     private JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(authService, userDetailsService);
+        return new JwtAuthenticationFilter(authService, userDetailsService, tenantSchemaResolver);
+    }
+
+    private TenantLoginFilter tenantLoginFilter() {
+        return new TenantLoginFilter(tenantResolver, tenantSchemaResolver);
     }
 }

@@ -8,20 +8,16 @@ import com.devcoreerp.backend_erp.auth.infrastructure.persistance.RoleRepository
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import org.springframework.core.annotation.Order;
-
 /**
- * Clase que crea los roles base del sistema y les asigna sus permisos.
- * Se ejecuta cada vez que levanta la aplicación.
- * Si el rol ya existe, actualiza sus permisos base.
+ * Inicializa roles base dentro del schema tenant activo.
+ * No corre automaticamente al iniciar la aplicacion.
+ * Debe ejecutarse con TenantContext ya configurado.
  */
-@Component
-@Order(2)
-public class BaseRoleSeeder implements CommandLineRunner {
+@Service
+public class BaseRoleSeeder {
 
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
@@ -31,9 +27,8 @@ public class BaseRoleSeeder implements CommandLineRunner {
         this.permissionRepository = permissionRepository;
     }
 
-    @Override
     @Transactional
-    public void run(String... args) {
+    public void initializeBaseRolesForCurrentTenant() {
         createOrUpdateRole(
             "ADMIN",
             "Administrador del sistema con acceso completo",
@@ -52,6 +47,7 @@ public class BaseRoleSeeder implements CommandLineRunner {
                 "TURNO_CREAR",
                 "TURNO_LISTAR",
                 "TURNO_EDITAR",
+                "TURNO_ACTUALIZAR",
                 "TURNO_ELIMINAR",
                 "ASIGNACION_TURNO_CREAR",
                 "ASIGNACION_TURNO_LISTAR",
@@ -69,7 +65,8 @@ public class BaseRoleSeeder implements CommandLineRunner {
                 "SOLICITUD_CREAR",
                 "SOLICITUD_LISTAR",
                 "SOLICITUD_EDITAR",
-                "SOLICITUD_ELIMINAR"
+                "SOLICITUD_ELIMINAR",
+                "SOLICITUD_DELETE"
             )
         );
 

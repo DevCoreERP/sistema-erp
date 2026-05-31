@@ -11,7 +11,7 @@ import org.springframework.core.annotation.Order;
 
 /**
  * Clase que crea los permisos base para el sistema se ejecuta cuando corre
- * si ya esta inserto lo ignora debe estar el propertis en update
+ * si ya esta inserto lo ignora. Los permisos viven en public.permissions.
  */
 @Component
 @Order(1)
@@ -44,6 +44,7 @@ public class BasePermissionSeeder implements CommandLineRunner {
             new PermissionSeed("TURNO_CREAR", "Crear usuarios"),
             new PermissionSeed("TURNO_LISTAR", "Listar o consultar usuarios"),
             new PermissionSeed("TURNO_EDITAR", "Editar usuarios"),
+            new PermissionSeed("TURNO_ACTUALIZAR", "Actualizar turnos"),
             new PermissionSeed("TURNO_ELIMINAR", "Eliminar o desactivar usuarios"),
 
             new PermissionSeed("ASIGNACION_TURNO_CREAR", "Crear asignaciones de turno laboral"),
@@ -66,7 +67,8 @@ public class BasePermissionSeeder implements CommandLineRunner {
             new PermissionSeed("SOLICITUD_CREAR", "Crear solicitud"),
             new PermissionSeed("SOLICITUD_LISTAR", "Listar solicitud"),
             new PermissionSeed("SOLICITUD_EDITAR", "Editar solicitud"),
-            new PermissionSeed("SOLICITUD_ELIMINAR", "Eliminar solicitud")
+            new PermissionSeed("SOLICITUD_ELIMINAR", "Eliminar solicitud"),
+            new PermissionSeed("SOLICITUD_DELETE", "Eliminar solicitud")
         );
 
         permissions.forEach(seed -> {
