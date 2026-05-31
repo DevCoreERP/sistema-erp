@@ -4,6 +4,7 @@ import com.devcoreerp.backend_erp.auth.domain.Role;
 import com.devcoreerp.backend_erp.auth.domain.Usuario;
 import com.devcoreerp.backend_erp.auth.infrastructure.persistance.RoleRepository;
 import com.devcoreerp.backend_erp.auth.infrastructure.persistance.UsuarioRepository;
+import com.devcoreerp.backend_erp.config.BasePermissionSeeder;
 import com.devcoreerp.backend_erp.config.BaseRoleSeeder;
 import com.devcoreerp.backend_erp.multitenancy.dtos.TenantProvisioningRequestDTO;
 import com.devcoreerp.backend_erp.multitenancy.dtos.TenantResponseDTO;
@@ -27,6 +28,7 @@ public class TenantProvisioningService {
 
     private final TenantRepository tenantRepository;
     private final DataSource dataSource;
+    private final BasePermissionSeeder basePermissionSeeder;
     private final BaseRoleSeeder baseRoleSeeder;
     private final UsuarioRepository usuarioRepository;
     private final RoleRepository roleRepository;
@@ -36,6 +38,7 @@ public class TenantProvisioningService {
     public TenantProvisioningService(
             TenantRepository tenantRepository,
             DataSource dataSource,
+            BasePermissionSeeder basePermissionSeeder,
             BaseRoleSeeder baseRoleSeeder,
             UsuarioRepository usuarioRepository,
             RoleRepository roleRepository,
@@ -43,6 +46,7 @@ public class TenantProvisioningService {
             TransactionTemplate transactionTemplate) {
         this.tenantRepository = tenantRepository;
         this.dataSource = dataSource;
+        this.basePermissionSeeder = basePermissionSeeder;
         this.baseRoleSeeder = baseRoleSeeder;
         this.usuarioRepository = usuarioRepository;
         this.roleRepository = roleRepository;
@@ -69,6 +73,8 @@ public class TenantProvisioningService {
         }
 
         try {
+            TenantContext.clear();
+            basePermissionSeeder.seedBasePermissions();
             createSchema(schemaName);
             migrateTenantSchema(schemaName);
             initializeTenantData(tenant, request);

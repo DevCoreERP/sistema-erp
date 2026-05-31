@@ -26,11 +26,13 @@ public class TenantResolver {
     }
 
     public String resolveSubdomain(HttpServletRequest request) {
+        // Este es el caso de Produccion
         Optional<String> hostSubdomain = resolveFromHost(request);
         if (hostSubdomain.isPresent()) {
             return TenantValidator.normalizeSubdomain(hostSubdomain.get());
         }
 
+        // Cuando es en desarollo en localhost
         if (isHeaderTenantAllowed(request)) {
             String headerValue = request.getHeader(tenantHeaderName);
             if (headerValue != null && !headerValue.isBlank()) {

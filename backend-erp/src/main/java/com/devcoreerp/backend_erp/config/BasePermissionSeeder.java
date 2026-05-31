@@ -26,6 +26,11 @@ public class BasePermissionSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
+        seedBasePermissions();
+    }
+
+    @Transactional
+    public void seedBasePermissions() {
         List<PermissionSeed> permissions = List.of(
             new PermissionSeed("USUARIO_CREAR", "Crear usuarios"),
             new PermissionSeed("USUARIO_LISTAR", "Listar o consultar usuarios"),
