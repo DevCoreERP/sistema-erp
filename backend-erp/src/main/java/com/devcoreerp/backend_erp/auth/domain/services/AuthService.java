@@ -1,6 +1,7 @@
 package com.devcoreerp.backend_erp.auth.domain.services;
 
 import java.util.List;
+import java.util.Set;
 
 
 import com.devcoreerp.backend_erp.auth.domain.Usuario;
@@ -25,6 +26,14 @@ public interface AuthService {
      * Obtiene el email del usuario desde un token
      */
     String getUserFromToken(String token);
+
+    Long getTenantIdFromToken(String token);
+
+    String getTenantSubdomainFromToken(String token);
+
+    Set<String> getRolesFromToken(String token);
+
+    Set<String> getPermissionsFromToken(String token);
     
     /**
      * Crea un nuevo usuario

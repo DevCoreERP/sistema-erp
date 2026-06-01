@@ -1,0 +1,45 @@
+CREATE TABLE IF NOT EXISTS public.permissions (
+    id BIGSERIAL PRIMARY KEY,
+    code VARCHAR(100) NOT NULL UNIQUE,
+    description VARCHAR(255) NOT NULL,
+    estado BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+INSERT INTO public.permissions (code, description, estado) VALUES
+    ('USUARIO_CREAR', 'Crear usuarios', TRUE),
+    ('USUARIO_LISTAR', 'Listar o consultar usuarios', TRUE),
+    ('USUARIO_EDITAR', 'Editar usuarios', TRUE),
+    ('USUARIO_ELIMINAR', 'Eliminar o desactivar usuarios', TRUE),
+    ('USUARIO_ASIGNAR_ROL', 'Asignar roles a usuarios', TRUE),
+    ('ROL_CREAR', 'Crear roles', TRUE),
+    ('ROL_LISTAR', 'Listar o consultar roles', TRUE),
+    ('ROL_EDITAR', 'Editar roles', TRUE),
+    ('ROL_ELIMINAR', 'Eliminar o desactivar roles', TRUE),
+    ('ROL_ASIGNAR_PERMISO', 'Asignar permisos a roles', TRUE),
+    ('PERMISO_LISTAR', 'Listar o consultar permisos', TRUE),
+    ('TURNO_CREAR', 'Crear turnos', TRUE),
+    ('TURNO_LISTAR', 'Listar o consultar turnos', TRUE),
+    ('TURNO_EDITAR', 'Editar turnos', TRUE),
+    ('TURNO_ACTUALIZAR', 'Actualizar turnos', TRUE),
+    ('TURNO_ELIMINAR', 'Eliminar o desactivar turnos', TRUE),
+    ('ASIGNACION_TURNO_CREAR', 'Crear asignaciones de turno laboral', TRUE),
+    ('ASIGNACION_TURNO_LISTAR', 'Listar o consultar asignaciones de turno laboral', TRUE),
+    ('ASIGNACION_TURNO_EDITAR', 'Editar o finalizar asignaciones de turno laboral', TRUE),
+    ('ASIGNACION_TURNO_ELIMINAR', 'Desactivar asignaciones de turno laboral', TRUE),
+    ('AGENDA_TURNO_LISTAR', 'Consultar agenda propia de turnos laborales', TRUE),
+    ('DEPARTAMENTO_CREAR', 'Crear departamentos', TRUE),
+    ('DEPARTAMENTO_LISTAR', 'Listar departamentos', TRUE),
+    ('DEPARTAMENTO_EDITAR', 'Editar departamentos', TRUE),
+    ('DEPARTAMENTO_ELIMINAR', 'Eliminar departamentos', TRUE),
+    ('SALDO_CREAR', 'Crear saldos', TRUE),
+    ('SALDO_LISTAR', 'Listar saldos', TRUE),
+    ('SALDO_EDITAR', 'Editar saldos', TRUE),
+    ('SALDO_ELIMINAR', 'Eliminar saldos', TRUE),
+    ('SOLICITUD_CREAR', 'Crear solicitud', TRUE),
+    ('SOLICITUD_LISTAR', 'Listar solicitud', TRUE),
+    ('SOLICITUD_EDITAR', 'Editar solicitud', TRUE),
+    ('SOLICITUD_ELIMINAR', 'Eliminar solicitud', TRUE),
+    ('SOLICITUD_DELETE', 'Eliminar solicitud', TRUE)
+ON CONFLICT (code) DO UPDATE
+SET description = EXCLUDED.description,
+    estado = TRUE;
