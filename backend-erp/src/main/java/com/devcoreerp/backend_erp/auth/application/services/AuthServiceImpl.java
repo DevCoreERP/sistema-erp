@@ -11,6 +11,7 @@ import com.devcoreerp.backend_erp.auth.infrastructure.dtos.UsuarioResponseDTO;
 import com.devcoreerp.backend_erp.auth.infrastructure.dtos.UsuarioUpdateDTO;
 import com.devcoreerp.backend_erp.auth.infrastructure.persistance.RoleRepository;
 import com.devcoreerp.backend_erp.auth.infrastructure.persistance.UsuarioRepository;
+import com.devcoreerp.backend_erp.multitenancy.TenantContext;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -67,6 +68,10 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
         try {
             logger.info("[AUTH] Intento de login con email: {}", loginRequest.email());
 
+            if (TenantContext.getCurrentTenant() == null) {
+                throw new BadCredentialsException("Tenant no resuelto");
+            }
+
             AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
             Authentication authRequest = new UsernamePasswordAuthenticationToken(
                     loginRequest.email(),
@@ -99,6 +104,26 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
     @Override
     public String getUserFromToken(String token) {
         return tokenService.getUserFromToken(token);
+    }
+
+    @Override
+    public Long getTenantIdFromToken(String token) {
+        return tokenService.getTenantIdFromToken(token);
+    }
+
+    @Override
+    public String getTenantSubdomainFromToken(String token) {
+        return tokenService.getTenantSubdomainFromToken(token);
+    }
+
+    @Override
+    public Set<String> getRolesFromToken(String token) {
+        return tokenService.getRolesFromToken(token);
+    }
+
+    @Override
+    public Set<String> getPermissionsFromToken(String token) {
+        return tokenService.getPermissionsFromToken(token);
     }
 
     @Override

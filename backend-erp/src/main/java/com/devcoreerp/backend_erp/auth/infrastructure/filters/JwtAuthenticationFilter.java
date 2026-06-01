@@ -1,8 +1,12 @@
 package com.devcoreerp.backend_erp.auth.infrastructure.filters;
 
 import com.devcoreerp.backend_erp.auth.application.AuthCookieConstants.AuthConstants;
+import com.devcoreerp.backend_erp.auth.application.services.EffectivePermissionService;
 import com.devcoreerp.backend_erp.auth.domain.services.AuthService;
 import com.devcoreerp.backend_erp.auth.infrastructure.config.WebSecurityConfig;
+import com.devcoreerp.backend_erp.multitenancy.Tenant;
+import com.devcoreerp.backend_erp.multitenancy.TenantContext;
+import com.devcoreerp.backend_erp.multitenancy.TenantSchemaResolver;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -11,10 +15,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -26,10 +32,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final AuthService authService;
     private final UserDetailsService userDetailsService;
+    private final TenantSchemaResolver tenantSchemaResolver;
+    private final EffectivePermissionService effectivePermissionService;
 
-    public JwtAuthenticationFilter(AuthService authService, UserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(
+            AuthService authService,
+            UserDetailsService userDetailsService,
+            TenantSchemaResolver tenantSchemaResolver,
+            EffectivePermissionService effectivePermissionService) {
         this.authService = authService;
         this.userDetailsService = userDetailsService;
+        this.tenantSchemaResolver = tenantSchemaResolver;
+        this.effectivePermissionService = effectivePermissionService;
     }
 
     @Override
@@ -46,13 +60,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Optional<String> token = getJwtFromRequest(request);
 
             if (token.isPresent() && authService.validateToken(token.get())) {
+                Tenant tenant = resolveTenantFromToken(token.get());
+                TenantContext.setCurrentTenant(tenant);
                 String email = authService.getUserFromToken(token.get());
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                Collection<? extends GrantedAuthority> authorities =
+                        effectivePermissionService.resolveEffectiveAuthorities(userDetails);
 
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                     userDetails,
                     null,
-                    userDetails.getAuthorities()
+                    authorities
                 );
                 authenticationToken.setDetails(userDetails);
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
@@ -62,7 +80,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             logger.warn("JWT invalido o usuario no autorizado: {}", e.getMessage());
         }
 
-        filterChain.doFilter(request, response);
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            TenantContext.clear();
+        }
+    }
+
+    private Tenant resolveTenantFromToken(String token) {
+        Long tenantId = authService.getTenantIdFromToken(token);
+        String tenantSubdomain = authService.getTenantSubdomainFromToken(token);
+
+        Tenant tenant = tenantId != null
+                ? tenantSchemaResolver.resolveActiveTenantById(tenantId)
+                : tenantSchemaResolver.resolveActiveTenantBySubdomain(tenantSubdomain);
+
+        if (tenantSubdomain != null && !tenantSubdomain.equals(tenant.getSubdomain())) {
+            throw new IllegalArgumentException("Tenant del token no coincide con el tenant activo");
+        }
+
+        return tenant;
     }
 
     private Optional<String> getJwtFromRequest(HttpServletRequest request) {
