@@ -66,7 +66,11 @@ public class BaseRoleSeeder {
                         "SOLICITUD_LISTAR",
                         "SOLICITUD_EDITAR",
                         "SOLICITUD_ELIMINAR",
-                        "SOLICITUD_DELETE"));
+                        "SOLICITUD_DELETE",
+                        "SUSCRIPCION_VER",
+                        "SUSCRIPCION_GESTIONAR",
+                        "METODO_PAGO_GESTIONAR",
+                        "PAGO_LISTAR"));
 
         // 2. DIRECTOR: Gestión estratégica de RRHH y Departamentos.
         createOrUpdateRole(

@@ -46,10 +46,15 @@ public class TokenServiceImpl implements TokenService {
 
     private final JwtEncoder jwtEncoder;
     private final JwtDecoder jwtDecoder;
+    private final EffectivePermissionService effectivePermissionService;
 
-    public TokenServiceImpl(JwtEncoder jwtEncoder, JwtDecoder jwtDecoder) {
+    public TokenServiceImpl(
+            JwtEncoder jwtEncoder,
+            JwtDecoder jwtDecoder,
+            EffectivePermissionService effectivePermissionService) {
         this.jwtEncoder = jwtEncoder;
         this.jwtDecoder = jwtDecoder;
+        this.effectivePermissionService = effectivePermissionService;
     }
 
     @Override
@@ -69,7 +74,7 @@ public class TokenServiceImpl implements TokenService {
             .map(role -> role.getName().toUpperCase())
             .collect(Collectors.toCollection(LinkedHashSet::new));
 
-        Set<String> permissions = currentUser.getAuthorities().stream()
+        Set<String> permissions = effectivePermissionService.resolveEffectiveAuthorities(currentUser).stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.toCollection(LinkedHashSet::new));
 

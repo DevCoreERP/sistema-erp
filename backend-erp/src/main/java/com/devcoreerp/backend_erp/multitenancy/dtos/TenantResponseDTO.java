@@ -1,6 +1,7 @@
 package com.devcoreerp.backend_erp.multitenancy.dtos;
 
 import com.devcoreerp.backend_erp.multitenancy.TenantStatus;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record TenantResponseDTO(
@@ -10,6 +11,8 @@ public record TenantResponseDTO(
         String schemaName,
         TenantStatus status,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        LocalDate fechaInicioPrueba,
+        LocalDate fechaFinPrueba
 ) {
 }

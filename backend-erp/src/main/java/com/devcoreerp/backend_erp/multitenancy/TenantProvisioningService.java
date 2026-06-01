@@ -10,6 +10,7 @@ import com.devcoreerp.backend_erp.multitenancy.dtos.TenantProvisioningRequestDTO
 import com.devcoreerp.backend_erp.multitenancy.dtos.TenantResponseDTO;
 import com.devcoreerp.backend_erp.multitenancy.exceptions.InvalidTenantException;
 import com.devcoreerp.backend_erp.multitenancy.exceptions.TenantProvisioningException;
+import com.devcoreerp.backend_erp.subcripcion.application.services.SuscripcionService;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -34,6 +35,7 @@ public class TenantProvisioningService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final TransactionTemplate transactionTemplate;
+    private final SuscripcionService suscripcionService;
 
     public TenantProvisioningService(
             TenantRepository tenantRepository,
@@ -43,7 +45,8 @@ public class TenantProvisioningService {
             UsuarioRepository usuarioRepository,
             RoleRepository roleRepository,
             PasswordEncoder passwordEncoder,
-            TransactionTemplate transactionTemplate) {
+            TransactionTemplate transactionTemplate,
+            SuscripcionService suscripcionService) {
         this.tenantRepository = tenantRepository;
         this.dataSource = dataSource;
         this.basePermissionSeeder = basePermissionSeeder;
@@ -52,11 +55,14 @@ public class TenantProvisioningService {
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.transactionTemplate = transactionTemplate;
+        this.suscripcionService = suscripcionService;
     }
 
     public TenantResponseDTO provisionTenant(TenantProvisioningRequestDTO request) {
         String subdomain = TenantValidator.normalizeSubdomain(request.subdomain());
         String schemaName = TenantValidator.schemaNameForSubdomain(subdomain);
+        LocalDate fechaInicioPrueba = LocalDate.now();
+        LocalDate fechaFinPrueba = fechaInicioPrueba.plusDays(7);
         validateTenantDoesNotExist(subdomain, schemaName);
 
         Tenant tenant = Tenant.builder()
@@ -64,6 +70,8 @@ public class TenantProvisioningService {
                 .subdomain(subdomain)
                 .schemaName(schemaName)
                 .status(TenantStatus.INACTIVE)
+                .fechaInicioPrueba(fechaInicioPrueba)
+                .fechaFinPrueba(fechaFinPrueba)
                 .build();
 
         try {
@@ -78,6 +86,7 @@ public class TenantProvisioningService {
             createSchema(schemaName);
             migrateTenantSchema(schemaName);
             initializeTenantData(tenant, request);
+            suscripcionService.crearSuscripcionPrueba(tenant);
             tenant.setStatus(TenantStatus.ACTIVE);
             return toResponseDTO(tenantRepository.save(tenant));
         } catch (Exception exception) {
@@ -175,6 +184,8 @@ public class TenantProvisioningService {
                 tenant.getSchemaName(),
                 tenant.getStatus(),
                 tenant.getCreatedAt(),
-                tenant.getUpdatedAt());
+                tenant.getUpdatedAt(),
+                tenant.getFechaInicioPrueba(),
+                tenant.getFechaFinPrueba());
     }
 }

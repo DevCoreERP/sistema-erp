@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -49,6 +50,12 @@ public class Tenant {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "fecha_inicio_prueba")
+    private LocalDate fechaInicioPrueba;
+
+    @Column(name = "fecha_fin_prueba")
+    private LocalDate fechaFinPrueba;
 
     @PrePersist
     void prePersist() {

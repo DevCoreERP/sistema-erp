@@ -1,6 +1,7 @@
 package com.devcoreerp.backend_erp.auth.infrastructure.config;
 
 import com.devcoreerp.backend_erp.auth.application.AuthCookieConstants.AuthConstants;
+import com.devcoreerp.backend_erp.auth.application.services.EffectivePermissionService;
 import com.devcoreerp.backend_erp.auth.domain.services.AuthService;
 import com.devcoreerp.backend_erp.auth.infrastructure.filters.JwtAuthenticationFilter;
 import com.devcoreerp.backend_erp.multitenancy.TenantLoginFilter;
@@ -37,18 +38,21 @@ public class WebSecurityConfig {
     private final PasswordEncoder passwordEncoder;
     private final TenantResolver tenantResolver;
     private final TenantSchemaResolver tenantSchemaResolver;
+    private final EffectivePermissionService effectivePermissionService;
 
     public WebSecurityConfig(
             AuthService authService,
             UserDetailsService userDetailsService,
             PasswordEncoder passwordEncoder,
             TenantResolver tenantResolver,
-            TenantSchemaResolver tenantSchemaResolver) {
+            TenantSchemaResolver tenantSchemaResolver,
+            EffectivePermissionService effectivePermissionService) {
         this.authService = authService;
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.tenantResolver = tenantResolver;
         this.tenantSchemaResolver = tenantSchemaResolver;
+        this.effectivePermissionService = effectivePermissionService;
     }
 
     public static final String LOGIN_URL_MATCHER = ApiConfig.API_BASE_PATH + "/auth/login";
@@ -113,7 +117,7 @@ public class WebSecurityConfig {
     }
 
     private JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(authService, userDetailsService, tenantSchemaResolver);
+        return new JwtAuthenticationFilter(authService, userDetailsService, tenantSchemaResolver, effectivePermissionService);
     }
 
     private TenantLoginFilter tenantLoginFilter() {
