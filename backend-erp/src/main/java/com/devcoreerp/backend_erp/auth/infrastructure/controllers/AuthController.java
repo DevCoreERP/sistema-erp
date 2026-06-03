@@ -79,7 +79,7 @@ public class AuthController {
 
     @Operation(summary = "USUARIO_CREAR", description = "Se debe asignar un rol")
     @PostMapping("/usuarios")
-    @PreAuthorize("hasAuthority('USUARIO_CREAR')")
+    // @PreAuthorize("hasAuthority('USUARIO_CREAR')")
     public ResponseEntity<UsuarioResponseDTO> createUsuario(@RequestBody @Valid CreateUsuarioDTO createUsuarioDTO) {
         logger.info("[AUTH] Crear usuario: {}", createUsuarioDTO.username());
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.createUsuarioAndReturn(createUsuarioDTO));

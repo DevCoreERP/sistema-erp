@@ -72,6 +72,7 @@ public class WebSecurityConfig {
             .authorizeHttpRequests(requests -> requests
                 .requestMatchers(HttpMethod.POST, LOGIN_URL_MATCHER).permitAll()
                 .requestMatchers(HttpMethod.POST, TENANTS_URL_MATCHER).permitAll()
+                .requestMatchers(HttpMethod.POST, ApiConfig.API_BASE_PATH+"/auth/usuarios").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                 .requestMatchers(BASE_URL_MATCHER).authenticated()
                 .anyRequest().denyAll()

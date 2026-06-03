@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 import java.time.LocalDate;
@@ -94,8 +95,11 @@ public class Usuario implements UserDetails {
     @Builder.Default
     private Boolean enabled = true;
 
+    @Column(nullable = true)
+    private Long departamento;
+
     public Usuario(String username, String password, String email, String firstName, String surnames,
-            String phoneNumber) {
+            String phoneNumber, Long departamento) {
         this.username = username;
         this.password = password;
         this.email = email;
@@ -104,6 +108,7 @@ public class Usuario implements UserDetails {
         this.phoneNumber = phoneNumber;
         this.fechaIngreso = LocalDate.now();
         this.estado = true;
+        this.departamento = departamento;
     }
 
     @Override
