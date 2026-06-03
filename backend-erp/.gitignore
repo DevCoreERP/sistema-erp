@@ -33,5 +33,10 @@ build/
 .vscode/
 .vscode
 
+### Environment variables ###
+.env
+.env.*
+!.env.example
+
 ### GitHub ###
 .github
