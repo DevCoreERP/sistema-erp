@@ -287,15 +287,15 @@ export const routes: Routes = [
   },
 
   // REPORTES
-  {
-    path: 'reportes',
-    canActivate: [authGuard],
-    data: { layout: 'dashboard' },
-    loadComponent: () =>
-      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
-        (m) => m.DashboardHome
-      ),
-  },
+{
+  path: 'reportes',
+  canActivate: [authGuard],
+  data: { layout: 'dashboard' },
+  loadComponent: () =>
+    import('./features/dashboard/reportes/pages/reportes-home/reportes-home').then(
+      (m) => m.ReportesHomeComponent
+    ),
+},
 
   // PERFIL
   {

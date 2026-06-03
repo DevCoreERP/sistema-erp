@@ -1,0 +1,522 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-main">
+    <header class="dashboard-topbar">
+      <div>
+        <h1>Motor de Reportes</h1>
+        <p>Plantillas, tableros gerenciales y búsqueda dinámica de información del personal.</p>
+      </div>
+
+      <div class="topbar-user">
+        <span class="topbar-avatar">R</span>
+        <div>
+          <strong>Reportes</strong>
+          <small>Gestión de reportes</small>
+        </div>
+      </div>
+    </header>
+
+    <main class="dashboard-content">
+      <div class="rep-container">
+
+        <!-- BANNER DE NOTIFICACIÓN -->
+        <div class="rep-toast" *ngIf="notificacion">
+          <span class="rep-toast-icon">🔔</span>
+          <span class="rep-toast-msg">{{ notificacion }}</span>
+          <button class="rep-toast-close" (click)="limpiarNotificacion()">✕</button>
+        </div>
+
+        <!-- PANEL PRINCIPAL DE REPORTES -->
+<section class="rep-hero">
+  <div class="rep-hero-icon">📊</div>
+
+  <div class="rep-hero-info">
+    <h2>Centro de reportes del sistema</h2>
+    <p>
+      Consulta información clave de empleados, asistencia, permisos, vacaciones,
+      contratos y departamentos desde un solo panel.
+    </p>
+  </div>
+</section>
+
+        <!-- CARDS RESUMEN -->
+        <section class="rep-cards-grid">
+          <div class="rep-card" *ngFor="let ind of indicadores">
+            <div class="rep-card-icon" [style.background]="ind.color + '18'">
+              <span>{{ ind.icono }}</span>
+            </div>
+
+            <div class="rep-card-body">
+              <span class="rep-card-value" [style.color]="ind.color">{{ ind.valor }}</span>
+              <span class="rep-card-label">{{ ind.etiqueta }}</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- PLANTILLAS PREDEFINIDAS -->
+        <section class="rep-section">
+          <div class="rep-section-header">
+            <div>
+              <h2 class="rep-section-title">Plantillas Predefinidas</h2>
+              <p class="rep-section-sub">
+                Seleccione una plantilla para comenzar a generar un reporte estructurado.
+              </p>
+            </div>
+          </div>
+
+          <div class="rep-plantillas-grid">
+            <div class="rep-plantilla-card" *ngFor="let p of plantillas">
+              <div class="rep-plantilla-top">
+                <span class="rep-plantilla-icon">{{ p.icono }}</span>
+                <span
+                  class="rep-estado-badge"
+                  [ngClass]="'estado-' + p.estado.toLowerCase().replace(' ', '-')"
+                >
+                  {{ p.estado }}
+                </span>
+              </div>
+
+              <div class="rep-plantilla-body">
+                <h3 class="rep-plantilla-nombre">{{ p.nombre }}</h3>
+                <span class="rep-plantilla-modulo">{{ p.modulo }}</span>
+                <p class="rep-plantilla-desc">{{ p.descripcion }}</p>
+              </div>
+
+              <div class="rep-plantilla-actions">
+                <button class="rep-btn rep-btn-ghost" (click)="seleccionarPlantilla(p)">
+                  Ver
+                </button>
+
+                <button
+                  class="rep-btn rep-btn-primary"
+                  (click)="exportarReporte({
+                    codigo: 'TPL-' + p.id,
+                    nombre: p.nombre,
+                    modulo: p.modulo,
+                    departamento: 'General',
+                    estado: p.estado,
+                    fechaGeneracion: '',
+                    responsable: 'Usuario RRHH',
+                    descripcion: p.descripcion,
+                    filtrosAplicados: 'Plantilla predefinida pendiente de generación con filtros QBE.'
+                  })"
+                >
+                  Exportar
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TABLERO ANALÍTICO GERENCIAL -->
+        <section class="rep-section">
+          <div class="rep-section-header">
+            <div>
+              <h2 class="rep-section-title">Tablero Analítico Gerencial</h2>
+              <p class="rep-section-sub">
+                Distribución y tendencias clave del período actual.
+              </p>
+            </div>
+
+            <span class="rep-badge-gerencial">Vista Gerencial</span>
+          </div>
+
+          <div class="rep-analiticas-grid">
+
+            <!-- DISTRIBUCIÓN POR ESTADO -->
+            <div class="rep-analitica-panel">
+              <h4 class="rep-analitica-title">Estado de Solicitudes</h4>
+
+              <div class="rep-bars-list">
+                <div class="rep-bar-item" *ngFor="let a of analiticas">
+                  <div class="rep-bar-label-row">
+                    <span class="rep-bar-cat">{{ a.categoria }}</span>
+                    <span class="rep-bar-val">{{ a.valor }}</span>
+                  </div>
+
+                  <div class="rep-bar-track">
+                    <div
+                      class="rep-bar-fill"
+                      [style.width.%]="a.porcentaje"
+                      [style.background]="a.color"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SOLICITUDES POR MÓDULO -->
+            <div class="rep-analitica-panel">
+              <h4 class="rep-analitica-title">Solicitudes por Módulo</h4>
+
+              <div class="rep-bars-list">
+                <div class="rep-bar-item" *ngFor="let a of analiticasModulo">
+                  <div class="rep-bar-label-row">
+                    <span class="rep-bar-cat">{{ a.categoria }}</span>
+                    <span class="rep-bar-val">{{ a.valor }}</span>
+                  </div>
+
+                  <div class="rep-bar-track">
+                    <div
+                      class="rep-bar-fill"
+                      [style.width.%]="a.porcentaje"
+                      [style.background]="a.color"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CONTRATOS POR TIPO -->
+            <div class="rep-analitica-panel">
+              <h4 class="rep-analitica-title">Contratos por Tipo</h4>
+
+              <div class="rep-bars-list">
+                <div class="rep-bar-item" *ngFor="let a of analiticasContrato">
+                  <div class="rep-bar-label-row">
+                    <span class="rep-bar-cat">{{ a.categoria }}</span>
+                    <span class="rep-bar-val">{{ a.valor }}</span>
+                  </div>
+
+                  <div class="rep-bar-track">
+                    <div
+                      class="rep-bar-fill"
+                      [style.width.%]="a.porcentaje"
+                      [style.background]="a.color"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- USUARIOS POR DEPARTAMENTO -->
+            <div class="rep-analitica-panel">
+              <h4 class="rep-analitica-title">Usuarios por Departamento</h4>
+
+              <div class="rep-bars-list">
+                <div class="rep-bar-item" *ngFor="let a of analiticasDepartamento">
+                  <div class="rep-bar-label-row">
+                    <span class="rep-bar-cat">{{ a.categoria }}</span>
+                    <span class="rep-bar-val">{{ a.valor }}</span>
+                  </div>
+
+                  <div class="rep-bar-track">
+                    <div
+                      class="rep-bar-fill"
+                      [style.width.%]="a.porcentaje"
+                      [style.background]="a.color"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TENDENCIA MENSUAL -->
+            <div class="rep-analitica-panel rep-analitica-wide">
+              <h4 class="rep-analitica-title">Tendencia Mensual de Reportes</h4>
+
+              <div class="rep-tendencia-row">
+                <div class="rep-tendencia-item" *ngFor="let t of tendenciaMensual">
+                  <div class="rep-tendencia-bar-wrap">
+                    <div
+                      class="rep-tendencia-bar"
+                      [style.height.%]="t.porcentaje"
+                      [style.background]="t.color"
+                    ></div>
+                  </div>
+
+                  <span class="rep-tendencia-label">{{ t.categoria }}</span>
+                  <span class="rep-tendencia-val">{{ t.valor }}</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- BÚSQUEDA QBE -->
+        <section class="rep-section">
+          <div class="rep-section-header">
+            <div>
+              <h2 class="rep-section-title">Filtros avanzados de reportes</h2>
+              <p class="rep-section-sub">
+              Ajusta los criterios para encontrar reportes según módulo, estado, departamento o período.
+              </p>
+            </div>
+
+          </div>
+
+          <div class="rep-qbe-form">
+            <div class="rep-qbe-grid">
+
+              <div class="rep-form-group">
+                <label class="rep-label">Fecha desde</label>
+                <input
+                  class="rep-input"
+                  type="date"
+                  name="fechaDesde"
+                  [(ngModel)]="filtros.fechaDesde"
+                />
+              </div>
+
+              <div class="rep-form-group">
+                <label class="rep-label">Fecha hasta</label>
+                <input
+                  class="rep-input"
+                  type="date"
+                  name="fechaHasta"
+                  [(ngModel)]="filtros.fechaHasta"
+                />
+              </div>
+
+              <div class="rep-form-group">
+                <label class="rep-label">Módulo</label>
+                <select class="rep-input" name="modulo" [(ngModel)]="filtros.modulo">
+                  <option value="">Todos los módulos</option>
+                  <option value="Usuarios">Usuarios</option>
+                  <option value="Asistencia">Asistencia</option>
+                  <option value="Permisos">Permisos</option>
+                  <option value="Vacaciones">Vacaciones</option>
+                  <option value="Contratos">Contratos</option>
+                  <option value="Departamentos">Departamentos</option>
+                  <option value="Nóminas">Nóminas</option>
+                </select>
+              </div>
+
+              <div class="rep-form-group">
+                <label class="rep-label">Estado</label>
+                <select class="rep-input" name="estado" [(ngModel)]="filtros.estado">
+                  <option value="">Todos los estados</option>
+                  <option value="Completado">Completado</option>
+                  <option value="Pendiente">Pendiente</option>
+                  <option value="En proceso">En proceso</option>
+                </select>
+              </div>
+
+              <div class="rep-form-group">
+                <label class="rep-label">Departamento</label>
+                <select class="rep-input" name="departamento" [(ngModel)]="filtros.departamento">
+                  <option value="">Todos</option>
+                  <option value="Tecnología">Tecnología</option>
+                  <option value="Operaciones">Operaciones</option>
+                  <option value="Recursos Humanos">Recursos Humanos</option>
+                  <option value="Administración">Administración</option>
+                </select>
+              </div>
+
+              <div class="rep-form-group">
+                <label class="rep-label">Tipo de reporte</label>
+                <input
+                  class="rep-input"
+                  type="text"
+                  name="tipoReporte"
+                  [(ngModel)]="filtros.tipoReporte"
+                  placeholder="Ej: Asistencia, Contratos..."
+                />
+              </div>
+
+              <div class="rep-form-group rep-form-group-wide">
+                <label class="rep-label">Texto de búsqueda</label>
+                <input
+                  class="rep-input"
+                  type="text"
+                  name="textoBusqueda"
+                  [(ngModel)]="filtros.textoBusqueda"
+                  placeholder="Buscar por código, nombre, módulo o responsable..."
+                />
+              </div>
+
+            </div>
+
+            <div class="rep-qbe-actions">
+              <button class="rep-btn rep-btn-primary" (click)="aplicarFiltros()">
+                🔍 Aplicar filtros
+              </button>
+
+              <button class="rep-btn rep-btn-ghost" (click)="limpiarFiltros()">
+                ✕ Limpiar filtros
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- TABLA DE REPORTES -->
+        <section class="rep-section">
+          <div class="rep-section-header">
+            <div>
+              <h2 class="rep-section-title">Reportes Generados</h2>
+              <p class="rep-section-sub">
+                {{ reportesFiltrados.length }} resultado(s) encontrado(s)
+              </p>
+            </div>
+          </div>
+
+          <div class="rep-table-wrap" *ngIf="reportesFiltrados.length > 0; else sinResultados">
+            <table class="rep-table">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Reporte</th>
+                  <th>Módulo</th>
+                  <th>Departamento</th>
+                  <th>Estado</th>
+                  <th>Fecha generación</th>
+                  <th>Responsable</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr *ngFor="let r of reportesFiltrados">
+                  <td>
+                    <span class="rep-codigo">{{ r.codigo }}</span>
+                  </td>
+
+                  <td class="rep-col-nombre">{{ r.nombre }}</td>
+
+                  <td>
+                    <span class="rep-modulo-badge">{{ r.modulo }}</span>
+                  </td>
+
+                  <td>{{ r.departamento }}</td>
+
+                  <td>
+                    <span
+                      class="rep-estado-badge"
+                      [ngClass]="{
+                        'estado-completado': r.estado === 'Completado',
+                        'estado-pendiente': r.estado === 'Pendiente',
+                        'estado-en-proceso': r.estado === 'En proceso'
+                      }"
+                    >
+                      {{ r.estado }}
+                    </span>
+                  </td>
+
+                  <td>{{ r.fechaGeneracion }}</td>
+                  <td>{{ r.responsable }}</td>
+
+                  <td>
+                    <div class="rep-actions-row">
+                      <button class="rep-btn-sm rep-btn-sm-ghost" (click)="verReporte(r)">
+                        Ver
+                      </button>
+
+                      <button class="rep-btn-sm rep-btn-sm-primary" (click)="exportarReporte(r)">
+                        Exportar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <ng-template #sinResultados>
+            <div class="rep-empty">
+              <div class="rep-empty-icon">📭</div>
+              <p class="rep-empty-title">Sin resultados</p>
+              <p class="rep-empty-msg">
+                No hay reportes generados con los filtros seleccionados.
+              </p>
+              <button class="rep-btn rep-btn-ghost" (click)="limpiarFiltros()">
+                Limpiar filtros
+              </button>
+            </div>
+          </ng-template>
+        </section>
+
+        <!-- MODAL DE DETALLE -->
+        <div class="rep-modal-backdrop" *ngIf="modalAbierto" (click)="cerrarModal()"></div>
+
+        <div class="rep-modal" *ngIf="modalAbierto && reporteSeleccionado">
+          <div class="rep-modal-header">
+            <div>
+              
+              <h3 class="rep-modal-title">{{ reporteSeleccionado.nombre }}</h3>
+              <span class="rep-codigo">{{ reporteSeleccionado.codigo }}</span>
+            </div>
+
+            <button class="rep-modal-close" (click)="cerrarModal()">✕</button>
+          </div>
+
+          <div class="rep-modal-body">
+            <div class="rep-modal-grid">
+
+              <div class="rep-modal-field">
+                <span class="rep-modal-label">Código</span>
+                <span class="rep-modal-value">{{ reporteSeleccionado.codigo }}</span>
+              </div>
+
+              <div class="rep-modal-field">
+                <span class="rep-modal-label">Módulo</span>
+                <span class="rep-modal-value">
+                  <span class="rep-modulo-badge">{{ reporteSeleccionado.modulo }}</span>
+                </span>
+              </div>
+
+              <div class="rep-modal-field">
+                <span class="rep-modal-label">Departamento</span>
+                <span class="rep-modal-value">{{ reporteSeleccionado.departamento }}</span>
+              </div>
+
+              <div class="rep-modal-field">
+                <span class="rep-modal-label">Estado</span>
+                <span class="rep-modal-value">
+                  <span
+                    class="rep-estado-badge"
+                    [ngClass]="{
+                      'estado-completado': reporteSeleccionado.estado === 'Completado',
+                      'estado-pendiente': reporteSeleccionado.estado === 'Pendiente',
+                      'estado-en-proceso': reporteSeleccionado.estado === 'En proceso'
+                    }"
+                  >
+                    {{ reporteSeleccionado.estado }}
+                  </span>
+                </span>
+              </div>
+
+              <div class="rep-modal-field">
+                <span class="rep-modal-label">Fecha de generación</span>
+                <span class="rep-modal-value">{{ reporteSeleccionado.fechaGeneracion }}</span>
+              </div>
+
+              <div class="rep-modal-field">
+                <span class="rep-modal-label">Responsable</span>
+                <span class="rep-modal-value">{{ reporteSeleccionado.responsable }}</span>
+              </div>
+
+              <div class="rep-modal-field rep-modal-field-full">
+                <span class="rep-modal-label">Descripción</span>
+                <span class="rep-modal-value">{{ reporteSeleccionado.descripcion }}</span>
+              </div>
+
+              <div class="rep-modal-field rep-modal-field-full">
+                <span class="rep-modal-label">Filtros aplicados</span>
+                <span class="rep-modal-value rep-filtros-aplicados">
+                  {{ reporteSeleccionado.filtrosAplicados }}
+                </span>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="rep-modal-footer">
+            <button class="rep-btn rep-btn-ghost" (click)="cerrarModal()">
+              Cerrar
+            </button>
+
+            <button
+              class="rep-btn rep-btn-primary"
+              (click)="exportarReporte(reporteSeleccionado); cerrarModal()"
+            >
+              Exportar reporte
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
