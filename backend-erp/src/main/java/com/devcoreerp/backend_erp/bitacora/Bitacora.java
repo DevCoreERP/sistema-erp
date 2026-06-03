@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "bitacora")
+@Table(name = "bitacora", schema = "public")
 public class Bitacora {
 
     @Id
@@ -22,6 +22,12 @@ public class Bitacora {
 
     @Column(name = "ip", nullable = false, updatable = false)
     private String ip;
+
+    @Column(name ="usuario", nullable = true, updatable = false)
+    private String usuario;
+
+    @Column(name = "tenant", nullable = true, updatable = false)
+    private String tenant;
 
     @Column(name = "endpoint", nullable = false, updatable = false)
     private String endpoint;

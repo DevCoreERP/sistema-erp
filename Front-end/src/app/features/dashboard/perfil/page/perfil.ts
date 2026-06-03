@@ -24,7 +24,7 @@ export class PerfilPage implements OnInit {
   usuario = signal<AuthUser | null>(null);
 
   ngOnInit() {
-    this.authService.getUsuario(2).subscribe({
+    this.authService.getUsuario(1).subscribe({
       next: (user) => {
         this.usuario.set(user);
       },
