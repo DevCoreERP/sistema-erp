@@ -6,9 +6,9 @@ import '../errors/failures.dart';
 /// Cliente HTTP personalizado para manejar las peticiones a la API.
 /// Se encarga de inyectar el token de autorización si está disponible.
 class ApiClient {
-  // Configurar para la red local (pruebas en dispositivo físico)
-  // Reemplazando 10.0.2.2 por la IP de la laptop en la red Wi-Fi
-  static const String baseUrl = 'http://192.168.0.23:8080/erp-rrhh/v1';
+  // Configurar para Producción (Backend Desplegado en AWS/VPS)
+  // URL base para presentar la Beta 1 con conexión a internet real
+  static const String baseUrl = 'http://18.224.29.65:8081/erp-rrhh/v1';
   final SharedPreferences sharedPreferences;
 
   ApiClient({required this.sharedPreferences});
