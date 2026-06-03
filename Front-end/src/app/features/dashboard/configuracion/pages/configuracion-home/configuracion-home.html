@@ -1,0 +1,299 @@
+<div class="dashboard-shell">
+  <app-sidebar></app-sidebar>
+
+  <main class="config-page">
+    <app-topbar></app-topbar>
+
+    <section class="config-content">
+      <!-- ENCABEZADO -->
+      <section class="config-hero">
+        <div class="hero-main">
+          <div class="hero-icon">CU</div>
+
+          <div>
+            <h1>Gestión de usuarios con privilegios</h1>
+            <p>
+              Administra usuarios, roles y permisos del sistema. Las opciones se pueden
+              visualizar, pero las acciones críticas se habilitan según el plan SaaS activo.
+            </p>
+          </div>
+        </div>
+
+        <div class="plan-status" [ngClass]="getPlanActualClass()">
+          <span>Plan actual</span>
+          <strong>{{ getPlanActual() }}</strong>
+        </div>
+      </section>
+
+      <!-- RESUMEN -->
+      <div class="summary-grid">
+        <article class="summary-card">
+          <span>Usuarios</span>
+          <strong>{{ usuarios.length }}</strong>
+          <small>Registrados</small>
+        </article>
+
+        <article class="summary-card">
+          <span>Roles</span>
+          <strong>3</strong>
+          <small>Base del sistema</small>
+        </article>
+
+        <article class="summary-card">
+          <span>Privilegios</span>
+          <strong>Profesional</strong>
+          <small>Plan requerido</small>
+        </article>
+
+        <article class="summary-card">
+          <span>Avanzado</span>
+          <strong>Premium</strong>
+          <small>IA e integraciones</small>
+        </article>
+      </div>
+
+      <!-- USUARIOS -->
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Usuarios del sistema</h2>
+            <p>
+              Vista de consulta. Crear, editar o desactivar usuarios privilegiados depende
+              del plan contratado.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="primary-btn"
+            [class.btn-locked]="accionBloqueada('usuarios-privilegios')"
+            (click)="ejecutarAccion('usuarios-privilegios', 'Nuevo usuario privilegiado')"
+          >
+            <span *ngIf="accionBloqueada('usuarios-privilegios')">🔒</span>
+            Nuevo usuario
+          </button>
+        </div>
+
+        <div class="loading-box" *ngIf="cargandoUsuarios">
+          Cargando usuarios...
+        </div>
+
+        <div class="table-wrapper" *ngIf="!cargandoUsuarios">
+          <table>
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Correo</th>
+                <th>Roles</th>
+                <th>Estado</th>
+                <th class="text-right">Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let usuario of usuarios">
+                <td>
+                  <div class="user-cell">
+                    <div class="avatar">
+                      {{ (usuario.firstName || usuario.username || 'U').charAt(0).toUpperCase() }}
+                    </div>
+
+                    <div>
+                      <strong>
+                        {{ usuario.firstName || usuario.username }}
+                        {{ usuario.surnames || '' }}
+                      </strong>
+                      <span>{{ usuario.username || 'sin usuario' }}</span>
+                    </div>
+                  </div>
+                </td>
+
+                <td>{{ usuario.email || 'Sin correo' }}</td>
+
+                <td>
+                  <div class="roles-list">
+                    <span class="role-badge" *ngFor="let rol of usuario.roleNames || []">
+                      {{ rol }}
+                    </span>
+
+                    <span class="role-badge muted" *ngIf="!usuario.roleNames?.length">
+                      Sin rol
+                    </span>
+                  </div>
+                </td>
+
+                <td>
+                  <span class="status-badge" [class.status-off]="usuario.estado === false">
+                    {{ usuario.estado === false ? 'Inactivo' : 'Activo' }}
+                  </span>
+                </td>
+
+                <td class="text-right">
+                  <button
+                    type="button"
+                    class="table-action"
+                    [class.action-locked]="accionBloqueada('usuarios-privilegios')"
+                    (click)="ejecutarAccion('usuarios-privilegios', 'Editar usuario')"
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    type="button"
+                    class="table-action danger"
+                    [class.action-locked]="accionBloqueada('usuarios-privilegios')"
+                    (click)="ejecutarAccion('usuarios-privilegios', 'Desactivar usuario')"
+                  >
+                    Desactivar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ACCIONES Y PLANES -->
+      <div class="config-grid">
+        <section class="panel">
+          <div class="panel-header compact">
+            <div>
+              <h2>Acciones controladas</h2>
+              <p>Funciones visibles, pero bloqueadas si el plan no corresponde.</p>
+            </div>
+          </div>
+
+          <div class="access-list">
+            <div class="access-item">
+              <div>
+                <strong>Crear usuario con privilegios</strong>
+                <span>Registro de usuarios con acceso administrativo.</span>
+              </div>
+
+              <button
+                type="button"
+                [class.btn-locked]="accionBloqueada('usuarios-privilegios')"
+                (click)="ejecutarAccion('usuarios-privilegios', 'Crear usuario con privilegios')"
+              >
+                {{ accionBloqueada('usuarios-privilegios') ? 'Bloqueado' : 'Gestionar' }}
+              </button>
+            </div>
+
+            <div class="access-item">
+              <div>
+                <strong>Asignar roles y permisos</strong>
+                <span>Control de acceso por perfil de usuario.</span>
+              </div>
+
+              <button
+                type="button"
+                [class.btn-locked]="accionBloqueada('roles-permisos')"
+                (click)="ejecutarAccion('roles-permisos', 'Asignar roles y permisos')"
+              >
+                {{ accionBloqueada('roles-permisos') ? 'Bloqueado' : 'Gestionar' }}
+              </button>
+            </div>
+
+            <div class="access-item">
+              <div>
+                <strong>Editar privilegios</strong>
+                <span>Modificación de accesos sensibles.</span>
+              </div>
+
+              <button
+                type="button"
+                [class.btn-locked]="accionBloqueada('usuarios-privilegios')"
+                (click)="ejecutarAccion('usuarios-privilegios', 'Editar privilegios de usuario')"
+              >
+                {{ accionBloqueada('usuarios-privilegios') ? 'Bloqueado' : 'Gestionar' }}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header compact">
+            <div>
+              <h2>Funciones Premium</h2>
+              <p>Herramientas avanzadas reservadas para el plan Premium.</p>
+            </div>
+          </div>
+
+          <div class="access-list">
+            <div class="access-item">
+              <div>
+                <strong>Auditoría inteligente con IA</strong>
+                <span>Análisis de accesos, cambios y riesgos.</span>
+              </div>
+
+              <button
+                type="button"
+                [class.btn-locked]="accionBloqueada('analytics-ia')"
+                (click)="ejecutarAccion('analytics-ia', 'Auditoría inteligente con IA')"
+              >
+                {{ accionBloqueada('analytics-ia') ? 'Bloqueado' : 'Abrir' }}
+              </button>
+            </div>
+
+            <div class="access-item">
+              <div>
+                <strong>Integraciones avanzadas</strong>
+                <span>Conexión con sistemas externos.</span>
+              </div>
+
+              <button
+                type="button"
+                [class.btn-locked]="accionBloqueada('integraciones-avanzadas')"
+                (click)="ejecutarAccion('integraciones-avanzadas', 'Integraciones avanzadas')"
+              >
+                {{ accionBloqueada('integraciones-avanzadas') ? 'Bloqueado' : 'Abrir' }}
+              </button>
+            </div>
+
+            <div class="access-item">
+              <div>
+                <strong>API ilimitada</strong>
+                <span>Acceso extendido para automatizaciones.</span>
+              </div>
+
+              <button
+                type="button"
+                [class.btn-locked]="accionBloqueada('api-ilimitada')"
+                (click)="ejecutarAccion('api-ilimitada', 'API ilimitada')"
+              >
+                {{ accionBloqueada('api-ilimitada') ? 'Bloqueado' : 'Abrir' }}
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL DE BLOQUEO -->
+  <div class="lock-overlay" *ngIf="bloqueoVisible" (click)="cerrarBloqueo()">
+    <div class="lock-modal" (click)="$event.stopPropagation()">
+      <div class="lock-icon">🔒</div>
+
+      <h3>{{ bloqueoTitulo }}</h3>
+
+      <p>{{ bloqueoMensaje }}</p>
+
+      <div class="lock-info">
+        <div>
+          <span>Plan actual</span>
+          <strong>{{ bloqueoPlanActual }}</strong>
+        </div>
+
+        <div>
+          <span>Plan requerido</span>
+          <strong>{{ bloqueoPlanRequerido }}</strong>
+        </div>
+      </div>
+
+      <button type="button" class="modal-btn" (click)="cerrarBloqueo()">
+        Entendido
+      </button>
+    </div>
+  </div>
+</div>

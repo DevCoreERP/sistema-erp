@@ -205,9 +205,9 @@ export const routes: Routes = [
       ),
   },
 
-  // NÓMINA
+  // NÓMINAS
   {
-    path: 'nomina',
+    path: 'nominas',
     canActivate: [authGuard],
     data: { layout: 'dashboard' },
     loadComponent: () =>
@@ -216,9 +216,13 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'nominas',
-    redirectTo: 'nomina',
-    pathMatch: 'full',
+    path: 'nomina',
+    canActivate: [authGuard],
+    data: { layout: 'dashboard' },
+    loadComponent: () =>
+      import('./features/dashboard/nominas/pages/nominas-home/nominas-home').then(
+        (m) => m.NominasHome
+      ),
   },
 
   // PERMISOS LABORALES
@@ -287,15 +291,15 @@ export const routes: Routes = [
   },
 
   // REPORTES
-{
-  path: 'reportes',
-  canActivate: [authGuard],
-  data: { layout: 'dashboard' },
-  loadComponent: () =>
-    import('./features/dashboard/reportes/pages/reportes-home/reportes-home').then(
-      (m) => m.ReportesHomeComponent
-    ),
-},
+  {
+    path: 'reportes',
+    canActivate: [authGuard],
+    data: { layout: 'dashboard' },
+    loadComponent: () =>
+      import('./features/dashboard/reportes/pages/reportes-home/reportes-home').then(
+        (m) => m.ReportesHomeComponent
+      ),
+  },
 
   // PERFIL
   {
@@ -314,8 +318,8 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: { layout: 'dashboard' },
     loadComponent: () =>
-      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
-        (m) => m.DashboardHome
+      import('./features/dashboard/configuracion/pages/configuracion-home/configuracion-home').then(
+        (m) => m.ConfiguracionHome
       ),
   },
 

@@ -21,13 +21,14 @@
               <h1 class="hero-title">Gestión de Turnos Laborales</h1>
               <p class="hero-subtitle">
                 Administra, crea y controla los turnos de trabajo de tu organización.
+                La visualización está permitida; las acciones dependen del plan activo.
               </p>
             </div>
           </div>
 
           <div class="hero-badge">
             <span class="hero-badge-dot"></span>
-            Sistema Activo
+            {{ getPlanActual() }}
           </div>
         </div>
 
@@ -109,11 +110,19 @@
             />
           </div>
 
-          <button class="btn-primary" type="button" (click)="abrirModal('crear')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <button
+            class="btn-primary"
+            type="button"
+            [class.btn-locked]="accionBloqueada('turnos')"
+            (click)="abrirModal('crear')"
+          >
+            <span *ngIf="accionBloqueada('turnos')">🔒</span>
+
+            <svg *ngIf="!accionBloqueada('turnos')" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"/>
               <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
+
             Nuevo Turno
           </button>
         </div>
@@ -184,19 +193,23 @@
                       <button
                         class="btn-action btn-edit"
                         type="button"
+                        [class.action-locked]="accionBloqueada('turnos')"
                         (click)="abrirModal('editar', turno)"
                         title="Editar turno"
                       >
+                        <span *ngIf="accionBloqueada('turnos')">🔒</span>
                         Editar
                       </button>
 
                       <button
                         class="btn-action"
                         type="button"
+                        [class.action-locked]="accionBloqueada('turnos')"
                         [ngClass]="turno.estado === 'Activo' ? 'btn-deactivate' : 'btn-activate'"
                         (click)="cambiarEstado(turno.id)"
                         [title]="turno.estado === 'Activo' ? 'Desactivar turno' : 'Activar turno'"
                       >
+                        <span *ngIf="accionBloqueada('turnos')">🔒</span>
                         {{ turno.estado === 'Activo' ? 'Desactivar' : 'Activar' }}
                       </button>
                     </div>
@@ -384,6 +397,33 @@
                 {{ modoModal === 'crear' ? 'Crear Turno' : 'Guardar Cambios' }}
               </button>
             </div>
+          </div>
+        </div>
+
+        <!-- MODAL DE BLOQUEO POR PLAN -->
+        <div class="plan-lock-overlay" *ngIf="bloqueoVisible" (click)="cerrarBloqueo()">
+          <div class="plan-lock-modal" (click)="$event.stopPropagation()">
+            <div class="plan-lock-icon">🔒</div>
+
+            <h3>{{ bloqueoTitulo }}</h3>
+
+            <p>{{ bloqueoMensaje }}</p>
+
+            <div class="plan-lock-info">
+              <div>
+                <span>Plan actual</span>
+                <strong>{{ bloqueoPlanActual }}</strong>
+              </div>
+
+              <div>
+                <span>Plan requerido</span>
+                <strong>{{ bloqueoPlanRequerido }}</strong>
+              </div>
+            </div>
+
+            <button type="button" class="plan-lock-btn" (click)="cerrarBloqueo()">
+              Entendido
+            </button>
           </div>
         </div>
 

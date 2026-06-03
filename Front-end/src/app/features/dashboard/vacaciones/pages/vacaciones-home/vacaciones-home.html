@@ -11,9 +11,14 @@
             <p class="eyebrow">Módulo de Recursos Humanos</p>
             <h1>Gestión de Vacaciones</h1>
             <p class="page-description">
-              Registro, revisión y control de solicitudes de vacaciones del personal,
-              considerando usuario, fechas, gestión y estado de solicitud.
+              Registro, revisión y control de solicitudes de vacaciones del personal.
+              Las acciones dependen del plan SaaS activo.
             </p>
+          </div>
+
+          <div class="plan-badge">
+            <span>Plan actual</span>
+            <strong>{{ getPlanActual() }}</strong>
           </div>
         </header>
 
@@ -48,7 +53,10 @@
             <div class="panel-header">
               <div>
                 <h2>Nueva solicitud</h2>
-                <p>Registra una solicitud inicial en estado Pendiente.</p>
+                <p>
+                  Registra una solicitud inicial en estado Pendiente.
+                  Disponible desde el plan Esencial.
+                </p>
               </div>
             </div>
 
@@ -147,7 +155,12 @@
               </p>
 
               <div class="form-actions">
-                <button type="submit" class="btn-primary">
+                <button
+                  type="submit"
+                  class="btn-primary"
+                  [class.btn-locked]="accionBloqueada('vacaciones')"
+                >
+                  <span *ngIf="accionBloqueada('vacaciones')">🔒</span>
                   Registrar solicitud
                 </button>
               </div>
@@ -254,27 +267,33 @@
                       <button
                         type="button"
                         class="btn-table approve"
+                        [class.btn-locked]="accionBloqueada('vacaciones')"
                         [disabled]="!puedeAprobar(solicitud)"
                         (click)="aprobarSolicitud(solicitud)"
                       >
+                        <span *ngIf="accionBloqueada('vacaciones')">🔒</span>
                         Aprobar
                       </button>
 
                       <button
                         type="button"
                         class="btn-table reject"
+                        [class.btn-locked]="accionBloqueada('vacaciones')"
                         [disabled]="!puedeRechazarOAnular(solicitud)"
                         (click)="abrirRevision(solicitud, 'RECHAZADA')"
                       >
+                        <span *ngIf="accionBloqueada('vacaciones')">🔒</span>
                         Rechazar
                       </button>
 
                       <button
                         type="button"
                         class="btn-table cancel"
+                        [class.btn-locked]="accionBloqueada('vacaciones')"
                         [disabled]="!puedeRechazarOAnular(solicitud)"
                         (click)="abrirRevision(solicitud, 'ANULADA')"
                       >
+                        <span *ngIf="accionBloqueada('vacaciones')">🔒</span>
                         Anular
                       </button>
                     </div>
@@ -294,6 +313,7 @@
         </section>
       </section>
 
+      <!-- MODAL DETALLE -->
       <div class="modal-backdrop" *ngIf="solicitudSeleccionada as solicitud">
         <article class="modal-card">
           <header class="modal-header">
@@ -368,33 +388,40 @@
             <button
               type="button"
               class="btn-primary"
+              [class.btn-locked]="accionBloqueada('vacaciones')"
               [disabled]="!puedeAprobar(solicitud)"
               (click)="aprobarSolicitud(solicitud)"
             >
+              <span *ngIf="accionBloqueada('vacaciones')">🔒</span>
               Aprobar
             </button>
 
             <button
               type="button"
               class="btn-danger"
+              [class.btn-locked]="accionBloqueada('vacaciones')"
               [disabled]="!puedeRechazarOAnular(solicitud)"
               (click)="abrirRevision(solicitud, 'RECHAZADA')"
             >
+              <span *ngIf="accionBloqueada('vacaciones')">🔒</span>
               Rechazar
             </button>
 
             <button
               type="button"
               class="btn-warning"
+              [class.btn-locked]="accionBloqueada('vacaciones')"
               [disabled]="!puedeRechazarOAnular(solicitud)"
               (click)="abrirRevision(solicitud, 'ANULADA')"
             >
+              <span *ngIf="accionBloqueada('vacaciones')">🔒</span>
               Anular
             </button>
           </footer>
         </article>
       </div>
 
+      <!-- MODAL REVISIÓN -->
       <div class="modal-backdrop" *ngIf="solicitudRevision as solicitud">
         <article class="modal-card small-modal">
           <header class="modal-header">
@@ -438,12 +465,45 @@
             <button
               type="button"
               class="btn-danger"
+              [class.btn-locked]="accionBloqueada('vacaciones')"
               (click)="confirmarRevision()"
             >
+              <span *ngIf="accionBloqueada('vacaciones')">🔒</span>
               Confirmar
             </button>
           </footer>
         </article>
+      </div>
+
+      <!-- MODAL BLOQUEO POR PLAN -->
+      <div
+        class="plan-lock-overlay"
+        *ngIf="bloqueoVisible"
+        (click)="cerrarBloqueo()"
+      >
+        <div class="plan-lock-modal" (click)="$event.stopPropagation()">
+          <div class="plan-lock-icon">🔒</div>
+
+          <h3>{{ bloqueoTitulo }}</h3>
+
+          <p>{{ bloqueoMensaje }}</p>
+
+          <div class="plan-lock-info">
+            <div>
+              <span>Plan actual</span>
+              <strong>{{ bloqueoPlanActual }}</strong>
+            </div>
+
+            <div>
+              <span>Plan requerido</span>
+              <strong>{{ bloqueoPlanRequerido }}</strong>
+            </div>
+          </div>
+
+          <button type="button" class="plan-lock-btn" (click)="cerrarBloqueo()">
+            Entendido
+          </button>
+        </div>
       </div>
     </main>
   </div>
