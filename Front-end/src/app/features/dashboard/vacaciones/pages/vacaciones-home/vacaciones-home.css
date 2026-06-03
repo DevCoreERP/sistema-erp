@@ -590,3 +590,225 @@ td small {
     width: 100%;
   }
 }
+/* =========================================================
+   PLAN ACTUAL / BLOQUEO SAAS
+   ========================================================= */
+
+.plan-badge {
+  align-self: flex-start;
+  min-width: 170px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid #dbe4f0;
+  box-shadow: 0 10px 24px rgba(31, 44, 71, 0.08);
+  text-align: right;
+}
+
+.plan-badge span {
+  display: block;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.plan-badge strong {
+  display: block;
+  margin-top: 5px;
+  color: #3056d3;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+/* BOTONES BLOQUEADOS */
+.btn-locked,
+.btn-primary.btn-locked,
+.btn-danger.btn-locked,
+.btn-warning.btn-locked,
+.btn-table.btn-locked {
+  background: #e2e8f0 !important;
+  color: #64748b !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+.btn-locked:hover,
+.btn-primary.btn-locked:hover,
+.btn-danger.btn-locked:hover,
+.btn-warning.btn-locked:hover,
+.btn-table.btn-locked:hover {
+  background: #e2e8f0 !important;
+  color: #64748b !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.btn-locked span {
+  margin-right: 4px;
+}
+
+/* Mantiene visible el bloqueo, pero si está deshabilitado por estado procesado se ve apagado */
+.btn-primary:disabled,
+.btn-danger:disabled,
+.btn-warning:disabled,
+.btn-table:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.45;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* =========================================================
+   MODAL BLOQUEO POR PLAN
+   ========================================================= */
+
+.plan-lock-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.52);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: planLockOverlayIn 0.2s ease forwards;
+}
+
+.plan-lock-modal {
+  width: min(420px, 100%);
+  padding: 28px;
+  border-radius: 24px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.28);
+  text-align: center;
+  animation: planLockModalIn 0.24s ease forwards;
+}
+
+.plan-lock-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 16px;
+  border-radius: 20px;
+  background: #eef2ff;
+  color: #3056d3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+}
+
+.plan-lock-modal h3 {
+  margin: 0;
+  color: #111827;
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.plan-lock-modal p {
+  max-width: 340px;
+  margin: 10px auto 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.55;
+  font-weight: 700;
+}
+
+.plan-lock-info {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.plan-lock-info div {
+  padding: 12px;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.plan-lock-info span {
+  display: block;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.plan-lock-info strong {
+  display: block;
+  margin-top: 5px;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.plan-lock-btn {
+  margin-top: 22px;
+  min-height: 42px;
+  padding: 0 24px;
+  border: none;
+  border-radius: 14px;
+  background: #3056d3;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(48, 86, 211, 0.25);
+  transition: 0.2s ease;
+}
+
+.plan-lock-btn:hover {
+  background: #2448b8;
+  transform: translateY(-1px);
+}
+
+@keyframes planLockOverlayIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes planLockModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 720px) {
+  .page-header {
+    flex-direction: column;
+  }
+
+  .plan-badge {
+    width: 100%;
+    text-align: left;
+  }
+
+  .plan-lock-info {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-lock-btn {
+    width: 100%;
+  }
+}

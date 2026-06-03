@@ -97,7 +97,7 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
             throw e;
         } catch (Exception e) {
             logger.error("[AUTH] Error en login", e);
-            throw new BadCredentialsException("Credenciales invalidas");
+            throw new BadCredentialsException("Credenciales invalidas: " + e.getMessage());
         }
     }
 

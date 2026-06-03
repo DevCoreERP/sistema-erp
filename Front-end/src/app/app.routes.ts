@@ -42,6 +42,7 @@ export const routes: Routes = [
   {
     path: 'panel',
     canActivate: [authGuard],
+    data: { layout: 'dashboard' },
     loadComponent: () =>
       import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
         (m) => m.DashboardHome
@@ -52,6 +53,7 @@ export const routes: Routes = [
   {
     path: 'empleados',
     canActivate: [authGuard],
+    data: { layout: 'dashboard' },
     loadComponent: () =>
       import('./features/dashboard/empleados/pages/empleados-home/empleados-home').then(
         (m) => m.EmpleadosHome
@@ -60,6 +62,7 @@ export const routes: Routes = [
   {
     path: 'empleados/nuevo',
     canActivate: [authGuard],
+    data: { layout: 'dashboard' },
     loadComponent: () =>
       import('./features/dashboard/empleados/pages/empleado-form/empleado-form').then(
         (m) => m.EmpleadoForm
@@ -68,6 +71,7 @@ export const routes: Routes = [
   {
     path: 'empleados/ver/:id',
     canActivate: [authGuard],
+    data: { layout: 'dashboard' },
     loadComponent: () =>
       import('./features/dashboard/empleados/pages/empleado-detalle/empleado-detalle').then(
         (m) => m.EmpleadoDetalle
@@ -76,84 +80,10 @@ export const routes: Routes = [
   {
     path: 'empleados/editar/:id',
     canActivate: [authGuard],
+    data: { layout: 'dashboard' },
     loadComponent: () =>
       import('./features/dashboard/empleados/pages/empleado-form/empleado-form').then(
         (m) => m.EmpleadoForm
-      ),
-  },
-
-  // ASISTENCIA
-  {
-    path: 'asistencia',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/dashboard/asistencia/pages/asistencia-home/asistencia-home').then(
-        (m) => m.AsistenciaHome
-      ),
-  },
-
-  // NÓMINA
-  {
-    path: 'nomina',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/dashboard/nominas/pages/nominas-home/nominas-home').then(
-        (m) => m.NominasHome
-      ),
-  },
-  {
-    path: 'nominas',
-    redirectTo: 'nomina',
-    pathMatch: 'full',
-  },
-
-  // PERMISOS LABORALES
-  {
-    path: 'permisos',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/dashboard/permisos/pages/permisos-home/permisos-home').then(
-        (m) => m.PermisosHome
-      ),
-  },
-
-  // VACACIONES
-  {
-    path: 'vacaciones',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/dashboard/vacaciones/pages/vacaciones-home/vacaciones-home').then(
-        (m) => m.VacacionesHome
-      ),
-  },
-
-  // REPORTES
-  {
-    path: 'reportes',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
-        (m) => m.DashboardHome
-      ),
-  },
-
-  // PERFIL
-  {
-    path: 'perfil',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/dashboard/perfil/page/perfil').then(
-        (m) => m.PerfilPage
-      ),
-  },
-
-  // CONFIGURACIÓN
-  {
-    path: 'configuracion',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/dashboard/pages/dashboard-home/dashboard-home').then(
-        (m) => m.DashboardHome
       ),
   },
 
@@ -161,6 +91,7 @@ export const routes: Routes = [
   {
     path: 'areas',
     canActivate: [authGuard],
+    data: { layout: 'dashboard' },
     loadComponent: () =>
       import('./features/dashboard/organizacion/areas/pages/areas-home/areas-home').then(
         (m) => m.AreasHome
@@ -169,6 +100,7 @@ export const routes: Routes = [
   {
     path: 'areas/nueva',
     canActivate: [authGuard],
+    data: { layout: 'dashboard' },
     loadComponent: () =>
       import('./features/dashboard/organizacion/areas/pages/area-form/area-form').then(
         (m) => m.AreaForm
@@ -177,6 +109,7 @@ export const routes: Routes = [
   {
     path: 'areas/editar/:id',
     canActivate: [authGuard],
+    data: { layout: 'dashboard' },
     loadComponent: () =>
       import('./features/dashboard/organizacion/areas/pages/area-form/area-form').then(
         (m) => m.AreaForm
@@ -187,6 +120,7 @@ export const routes: Routes = [
   {
     path: 'departamentos',
     canActivate: [authGuard],
+    data: { layout: 'dashboard' },
     loadComponent: () =>
       import('./features/dashboard/organizacion/departamentos/pages/departamentos-home/departamentos-home').then(
         (m) => m.DepartamentosHome
@@ -195,6 +129,7 @@ export const routes: Routes = [
   {
     path: 'departamentos/nuevo',
     canActivate: [authGuard],
+    data: { layout: 'dashboard' },
     loadComponent: () =>
       import('./features/dashboard/organizacion/departamentos/pages/departamento-form/departamento-form').then(
         (m) => m.DepartamentoForm
@@ -203,6 +138,7 @@ export const routes: Routes = [
   {
     path: 'departamentos/editar/:id',
     canActivate: [authGuard],
+    data: { layout: 'dashboard' },
     loadComponent: () =>
       import('./features/dashboard/organizacion/departamentos/pages/departamento-form/departamento-form').then(
         (m) => m.DepartamentoForm
@@ -213,6 +149,7 @@ export const routes: Routes = [
   {
     path: 'cargos',
     canActivate: [authGuard],
+    data: { layout: 'dashboard' },
     loadComponent: () =>
       import('./features/dashboard/organizacion/cargos/pages/cargos-home/cargos-home').then(
         (m) => m.CargosHome
@@ -221,6 +158,7 @@ export const routes: Routes = [
   {
     path: 'cargos/nuevo',
     canActivate: [authGuard],
+    data: { layout: 'dashboard' },
     loadComponent: () =>
       import('./features/dashboard/organizacion/cargos/pages/cargo-form/cargo-form').then(
         (m) => m.CargoForm
@@ -229,9 +167,21 @@ export const routes: Routes = [
   {
     path: 'cargos/editar/:id',
     canActivate: [authGuard],
+    data: { layout: 'dashboard' },
     loadComponent: () =>
       import('./features/dashboard/organizacion/cargos/pages/cargo-form/cargo-form').then(
         (m) => m.CargoForm
+      ),
+  },
+
+  // ASISTENCIA
+  {
+    path: 'asistencia',
+    canActivate: [authGuard],
+    data: { layout: 'dashboard' },
+    loadComponent: () =>
+      import('./features/dashboard/asistencia/pages/asistencia-home/asistencia-home').then(
+        (m) => m.AsistenciaHome
       ),
   },
 
@@ -239,6 +189,7 @@ export const routes: Routes = [
   {
     path: 'gestion-turnos',
     canActivate: [authGuard],
+    data: { layout: 'dashboard' },
     loadComponent: () =>
       import('./features/dashboard/turnos/pages/gestion-turnos/gestion-turnos').then(
         (m) => m.GestionTurnosComponent
@@ -247,9 +198,145 @@ export const routes: Routes = [
   {
     path: 'asignacion-turnos',
     canActivate: [authGuard],
+    data: { layout: 'dashboard' },
     loadComponent: () =>
       import('./features/dashboard/turnos/pages/asignacion-turnos/asignacion-turnos').then(
         (m) => m.AsignacionTurnos
       ),
+  },
+
+  // NÓMINAS
+  {
+    path: 'nominas',
+    canActivate: [authGuard],
+    data: { layout: 'dashboard' },
+    loadComponent: () =>
+      import('./features/dashboard/nominas/pages/nominas-home/nominas-home').then(
+        (m) => m.NominasHome
+      ),
+  },
+  {
+    path: 'nomina',
+    canActivate: [authGuard],
+    data: { layout: 'dashboard' },
+    loadComponent: () =>
+      import('./features/dashboard/nominas/pages/nominas-home/nominas-home').then(
+        (m) => m.NominasHome
+      ),
+  },
+
+  // PERMISOS LABORALES
+  {
+    path: 'permisos',
+    canActivate: [authGuard],
+    data: { layout: 'dashboard' },
+    loadComponent: () =>
+      import('./features/dashboard/permisos/pages/permisos-home/permisos-home').then(
+        (m) => m.PermisosHome
+      ),
+  },
+
+  // VACACIONES
+  {
+    path: 'vacaciones',
+    canActivate: [authGuard],
+    data: { layout: 'dashboard' },
+    loadComponent: () =>
+      import('./features/dashboard/vacaciones/pages/vacaciones-home/vacaciones-home').then(
+        (m) => m.VacacionesHome
+      ),
+  },
+
+  // SAAS - MI SUSCRIPCIÓN
+  {
+    path: 'saas',
+    canActivate: [authGuard],
+    data: { layout: 'dashboard' },
+    loadComponent: () =>
+      import('./features/dashboard/saas/pages/saas-home/saas-home').then(
+        (m) => m.SaasHome
+      ),
+  },
+  {
+    path: 'mi-suscripcion',
+    redirectTo: 'saas',
+    pathMatch: 'full',
+  },
+  {
+    path: 'suscripcion',
+    redirectTo: 'saas',
+    pathMatch: 'full',
+  },
+
+  // SAAS - SELECCIÓN DE PLANES
+  {
+    path: 'saas/planes',
+    canActivate: [authGuard],
+    data: { layout: 'dashboard' },
+    loadComponent: () =>
+      import('./features/dashboard/saas/pages/saas-plans/saas-plans').then(
+        (m) => m.SaasPlans
+      ),
+  },
+
+  // SAAS - FACTURACIÓN
+  {
+    path: 'saas/facturacion',
+    canActivate: [authGuard],
+    data: { layout: 'dashboard' },
+    loadComponent: () =>
+      import('./features/dashboard/saas/pages/saas-billing/saas-billing').then(
+        (m) => m.SaasBilling
+      ),
+  },
+
+  // REPORTES
+  {
+    path: 'reportes',
+    canActivate: [authGuard],
+    data: { layout: 'dashboard' },
+    loadComponent: () =>
+      import('./features/dashboard/reportes/pages/reportes-home/reportes-home').then(
+        (m) => m.ReportesHomeComponent
+      ),
+  },
+
+  // PERFIL
+  {
+    path: 'perfil',
+    canActivate: [authGuard],
+    data: { layout: 'dashboard' },
+    loadComponent: () =>
+      import('./features/dashboard/perfil/page/perfil').then(
+        (m) => m.PerfilPage
+      ),
+  },
+
+  // CONFIGURACIÓN
+  {
+    path: 'configuracion',
+    canActivate: [authGuard],
+    data: { layout: 'dashboard' },
+    loadComponent: () =>
+      import('./features/dashboard/configuracion/pages/configuracion-home/configuracion-home').then(
+        (m) => m.ConfiguracionHome
+      ),
+  },
+
+  // SISTEMA
+  {
+    path: 'sistema/bitacora',
+    canActivate: [authGuard],
+    data: { layout: 'dashboard' },
+    loadComponent: () =>
+      import('./features/dashboard/sistema/bitacora/bitacora').then(
+        (m) => m.Bitacora
+      ),
+  },
+
+  // RUTA NO ENCONTRADA
+  {
+    path: '**',
+    redirectTo: 'inicio',
   },
 ];

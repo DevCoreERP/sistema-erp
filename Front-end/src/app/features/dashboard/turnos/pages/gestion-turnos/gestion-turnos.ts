@@ -1,11 +1,20 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { Sidebar } from '../../../components/sidebar/sidebar';
 import { Topbar } from '../../../components/topbar/topbar';
+import {
+  SaasFeatureKey,
+  SaasPlanService,
+} from '../../../../../core/services/saas-plan.service';
 
 export interface Turno {
   id: number;
@@ -24,23 +33,31 @@ export interface Turno {
   styleUrls: ['./gestion-turnos.css'],
 })
 export class GestionTurnosComponent implements OnInit, OnDestroy {
-
   private destroy$ = new Subject<void>();
 
   listaTurnos: Turno[] = [];
-
   turnosFiltrados: Turno[] = [];
+
   modalVisible = false;
   modoModal: 'crear' | 'editar' = 'crear';
   turnoEditandoId: number | null = null;
   nextId = 4;
 
+  bloqueoVisible = false;
+  bloqueoTitulo = '';
+  bloqueoMensaje = '';
+  bloqueoPlanActual = '';
+  bloqueoPlanRequerido = '';
+
   searchForm: FormGroup;
   turnoForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private saasPlanService: SaasPlanService
+  ) {
     this.searchForm = this.fb.group({
-      busqueda: ['']
+      busqueda: [''],
     });
 
     this.turnoForm = this.fb.group({
@@ -48,20 +65,23 @@ export class GestionTurnosComponent implements OnInit, OnDestroy {
       horaInicio: ['', Validators.required],
       horaFin: ['', Validators.required],
       descripcion: [''],
-      estado: ['Activo', Validators.required]
+      estado: ['Activo', Validators.required],
     });
   }
 
   ngOnInit(): void {
     this.turnosFiltrados = [...this.listaTurnos];
 
-    this.searchForm.get('busqueda')!.valueChanges.pipe(
-      debounceTime(250),
-      distinctUntilChanged(),
-      takeUntil(this.destroy$)
-    ).subscribe((valor: string) => {
-      this.aplicarFiltro(valor);
-    });
+    this.searchForm
+      .get('busqueda')!
+      .valueChanges.pipe(
+        debounceTime(250),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((valor: string) => {
+        this.aplicarFiltro(valor);
+      });
   }
 
   ngOnDestroy(): void {
@@ -74,11 +94,19 @@ export class GestionTurnosComponent implements OnInit, OnDestroy {
   }
 
   get turnosActivos(): number {
-    return this.listaTurnos.filter(t => t.estado === 'Activo').length;
+    return this.listaTurnos.filter((t) => t.estado === 'Activo').length;
   }
 
   get turnosInactivos(): number {
-    return this.listaTurnos.filter(t => t.estado === 'Inactivo').length;
+    return this.listaTurnos.filter((t) => t.estado === 'Inactivo').length;
+  }
+
+  puedeUsar(feature: SaasFeatureKey): boolean {
+    return this.saasPlanService.canAccess(feature);
+  }
+
+  accionBloqueada(feature: SaasFeatureKey): boolean {
+    return !this.puedeUsar(feature);
   }
 
   aplicarFiltro(valor: string): void {
@@ -89,24 +117,36 @@ export class GestionTurnosComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.turnosFiltrados = this.listaTurnos.filter(t =>
-      t.nombre.toLowerCase().includes(termino) ||
-      t.estado.toLowerCase().includes(termino)
+    this.turnosFiltrados = this.listaTurnos.filter(
+      (turno) =>
+        turno.nombre.toLowerCase().includes(termino) ||
+        turno.estado.toLowerCase().includes(termino)
     );
   }
 
   abrirModal(modo: 'crear' | 'editar', turno?: Turno): void {
+    if (this.accionBloqueada('turnos')) {
+      const titulo =
+        modo === 'crear'
+          ? 'Crear nuevo turno'
+          : 'Editar turno laboral';
+
+      this.mostrarBloqueo('turnos', titulo);
+      return;
+    }
+
     this.modoModal = modo;
     this.modalVisible = true;
 
     if (modo === 'editar' && turno) {
       this.turnoEditandoId = turno.id;
+
       this.turnoForm.patchValue({
         nombre: turno.nombre,
         horaInicio: turno.horaInicio,
         horaFin: turno.horaFin,
         descripcion: turno.descripcion,
-        estado: turno.estado
+        estado: turno.estado,
       });
     } else {
       this.turnoEditandoId = null;
@@ -121,6 +161,11 @@ export class GestionTurnosComponent implements OnInit, OnDestroy {
   }
 
   guardarTurno(): void {
+    if (this.accionBloqueada('turnos')) {
+      this.mostrarBloqueo('turnos', 'Guardar turno laboral');
+      return;
+    }
+
     if (this.turnoForm.invalid) {
       this.turnoForm.markAllAsTouched();
       return;
@@ -135,22 +180,22 @@ export class GestionTurnosComponent implements OnInit, OnDestroy {
         horaInicio: valores.horaInicio,
         horaFin: valores.horaFin,
         descripcion: valores.descripcion ?? '',
-        estado: valores.estado
+        estado: valores.estado,
       };
 
       this.listaTurnos = [...this.listaTurnos, nuevoTurno];
     } else if (this.modoModal === 'editar' && this.turnoEditandoId !== null) {
-      this.listaTurnos = this.listaTurnos.map(t =>
-        t.id === this.turnoEditandoId
+      this.listaTurnos = this.listaTurnos.map((turno) =>
+        turno.id === this.turnoEditandoId
           ? {
-              ...t,
+              ...turno,
               nombre: valores.nombre,
               horaInicio: valores.horaInicio,
               horaFin: valores.horaFin,
               descripcion: valores.descripcion ?? '',
-              estado: valores.estado
+              estado: valores.estado,
             }
-          : t
+          : turno
       );
     }
 
@@ -160,10 +205,18 @@ export class GestionTurnosComponent implements OnInit, OnDestroy {
   }
 
   cambiarEstado(id: number): void {
-    this.listaTurnos = this.listaTurnos.map(t =>
-      t.id === id
-        ? { ...t, estado: t.estado === 'Activo' ? 'Inactivo' : 'Activo' }
-        : t
+    if (this.accionBloqueada('turnos')) {
+      this.mostrarBloqueo('turnos', 'Cambiar estado del turno');
+      return;
+    }
+
+    this.listaTurnos = this.listaTurnos.map((turno) =>
+      turno.id === id
+        ? {
+            ...turno,
+            estado: turno.estado === 'Activo' ? 'Inactivo' : 'Activo',
+          }
+        : turno
     );
 
     const terminoBusqueda = this.searchForm.get('busqueda')!.value ?? '';
@@ -179,5 +232,31 @@ export class GestionTurnosComponent implements OnInit, OnDestroy {
     if ((event.target as HTMLElement).classList.contains('modal-overlay')) {
       this.cerrarModal();
     }
+  }
+
+  cerrarBloqueo(): void {
+    this.bloqueoVisible = false;
+    this.bloqueoTitulo = '';
+    this.bloqueoMensaje = '';
+    this.bloqueoPlanActual = '';
+    this.bloqueoPlanRequerido = '';
+  }
+
+  getPlanActual(): string {
+    return this.saasPlanService.getPlanLabel(
+      this.saasPlanService.getActivePlan()
+    );
+  }
+
+  private mostrarBloqueo(feature: SaasFeatureKey, titulo: string): void {
+    const planActual = this.saasPlanService.getActivePlan();
+    const planRequerido = this.saasPlanService.getRequiredPlan(feature);
+
+    this.bloqueoTitulo = titulo;
+    this.bloqueoMensaje = this.saasPlanService.getLockMessage(feature);
+    this.bloqueoPlanActual = this.saasPlanService.getPlanLabel(planActual);
+    this.bloqueoPlanRequerido =
+      this.saasPlanService.getPlanLabel(planRequerido);
+    this.bloqueoVisible = true;
   }
 }

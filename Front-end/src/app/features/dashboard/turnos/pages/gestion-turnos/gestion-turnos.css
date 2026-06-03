@@ -822,3 +822,169 @@
   .table-header { padding: 16px 20px; }
   .data-table th, .data-table td { padding: 12px 14px; }
 }
+/* =========================================================
+   BLOQUEO POR PLAN SAAS
+   ========================================================= */
+
+.btn-locked,
+.btn-primary.btn-locked {
+  background: #e2e8f0 !important;
+  color: #64748b !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+.btn-locked:hover,
+.btn-primary.btn-locked:hover {
+  transform: none !important;
+  background: #e2e8f0 !important;
+  box-shadow: none !important;
+}
+
+.action-locked,
+.btn-action.action-locked,
+.btn-edit.action-locked,
+.btn-deactivate.action-locked,
+.btn-activate.action-locked {
+  background: #f1f5f9 !important;
+  color: #94a3b8 !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+.action-locked:hover,
+.btn-action.action-locked:hover,
+.btn-edit.action-locked:hover,
+.btn-deactivate.action-locked:hover,
+.btn-activate.action-locked:hover {
+  transform: none !important;
+  background: #f1f5f9 !important;
+  color: #94a3b8 !important;
+  box-shadow: none !important;
+}
+
+/* =========================================================
+   MODAL DE BLOQUEO POR PLAN
+   ========================================================= */
+
+.plan-lock-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.48);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlay-in 0.2s ease forwards;
+}
+
+.plan-lock-modal {
+  width: min(410px, 100%);
+  padding: 28px;
+  border-radius: 22px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.24);
+  text-align: center;
+  animation: modal-slide-in 0.24s ease forwards;
+}
+
+.plan-lock-icon {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 15px;
+  border-radius: 18px;
+  background: #eef2ff;
+  color: #4f46e5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+}
+
+.plan-lock-modal h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.plan-lock-modal p {
+  max-width: 330px;
+  margin: 10px auto 0;
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  font-weight: 500;
+}
+
+.plan-lock-info {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.plan-lock-info div {
+  padding: 12px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+}
+
+.plan-lock-info span {
+  display: block;
+  color: #94a3b8;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.plan-lock-info strong {
+  display: block;
+  margin-top: 5px;
+  color: #334155;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.plan-lock-btn {
+  margin-top: 22px;
+  min-height: 40px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.24);
+}
+
+.plan-lock-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.3);
+}
+
+@media (max-width: 600px) {
+  .plan-lock-modal {
+    padding: 24px 18px;
+    border-radius: 20px;
+  }
+
+  .plan-lock-info {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-lock-btn {
+    width: 100%;
+  }
+}

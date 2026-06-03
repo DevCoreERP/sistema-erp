@@ -70,11 +70,13 @@ public class WebSecurityConfig {
             .formLogin(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(requests -> requests
-                .requestMatchers(HttpMethod.POST, LOGIN_URL_MATCHER).permitAll()
-                .requestMatchers(HttpMethod.POST, TENANTS_URL_MATCHER).permitAll()
-                .requestMatchers(HttpMethod.POST, ApiConfig.API_BASE_PATH+"/auth/usuarios").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-                .requestMatchers(BASE_URL_MATCHER).authenticated()
+                .requestMatchers(new AntPathRequestMatcher("/**", HttpMethod.OPTIONS.name())).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/error")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher(LOGIN_URL_MATCHER, HttpMethod.POST.name())).permitAll()
+                .requestMatchers(new AntPathRequestMatcher(TENANTS_URL_MATCHER, HttpMethod.POST.name())).permitAll()
+                .requestMatchers(new AntPathRequestMatcher(ApiConfig.API_BASE_PATH+"/auth/usuarios", HttpMethod.POST.name())).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**"), new AntPathRequestMatcher("/v3/api-docs/**"), new AntPathRequestMatcher("/swagger-ui.html")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher(BASE_URL_MATCHER)).authenticated()
                 .anyRequest().denyAll()
             )
             .logout(logout -> logout
@@ -92,9 +94,11 @@ public class WebSecurityConfig {
             .authenticationManager(authenticationManager())
             .exceptionHandling(handler -> handler
                 .authenticationEntryPoint((request, response, authException) -> {
+                    System.out.println("[SECURITY] authenticationEntryPoint triggered for URI: " + request.getRequestURI());
+                    System.out.println("[SECURITY] Exception: " + authException.getMessage());
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
                     response.setContentType("application/json");
-                    response.getWriter().write("{\"error\": \"Unauthorized\"}");
+                    response.getWriter().write("{\"error\": \"Unauthorized: " + authException.getMessage() + "\"}");
                 })
                 .accessDeniedHandler((request, response, accessDeniedException) -> {
                     response.setStatus(HttpStatus.FORBIDDEN.value());

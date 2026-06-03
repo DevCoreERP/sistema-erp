@@ -1,101 +1,301 @@
+/* ═══════════════════════════════════════════════════════
+   SIDEBAR PRISMA RR.HH — Moderno / Glass / Colapsable
+═══════════════════════════════════════════════════════ */
+
 .sidebar {
-  width: 260px;
+  width: 286px;
   min-height: 100vh;
-  background: #ffffff;
-  border-right: 1px solid #e5e7eb;
-  padding: 24px 16px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  padding: 18px 14px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.52), rgba(248, 250, 252, 0.28)),
+    radial-gradient(circle at top left, rgba(99, 102, 241, 0.16), transparent 38%),
+    radial-gradient(circle at bottom left, rgba(34, 211, 238, 0.08), transparent 42%);
+  backdrop-filter: blur(24px) saturate(145%);
+  -webkit-backdrop-filter: blur(24px) saturate(145%);
+  border-right: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 8px 30px rgba(15, 23, 42, 0.06),
+    inset -1px 0 0 rgba(255, 255, 255, 0.24);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  overflow: hidden;
+  transition: width 0.28s ease, padding 0.28s ease, background 0.28s ease;
+  z-index: 50;
 }
 
-.logo-box {
+/* Checkbox oculto para manejar colapso desde CSS */
+.sidebar-toggle-check {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════
+   MARCA / LOGO
+═══════════════════════════════════════════════════════ */
+
+.brand-box {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 32px;
+  min-height: 58px;
+  padding: 8px 8px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+  position: relative;
 }
 
-.logo-circle {
+.brand-logo {
   width: 48px;
   height: 48px;
-  border-radius: 50%;
-  background: #2563eb;
-  color: white;
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.82), rgba(49, 46, 129, 0.74) 48%, rgba(79, 70, 229, 0.78));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
+  box-shadow:
+    0 10px 24px rgba(79, 70, 229, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
 }
 
-.logo-box h2 {
+.brand-logo::before {
+  content: '';
+  position: absolute;
+  inset: -30%;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.28), transparent 55%);
+  transform: translate(12px, -10px);
+}
+
+.prisma-triangle {
+  width: 0;
+  height: 0;
+  border-left: 13px solid transparent;
+  border-right: 13px solid transparent;
+  border-bottom: 24px solid rgba(255, 255, 255, 0.92);
+  filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.75));
+  transform: translateY(-2px);
+  position: relative;
+  z-index: 1;
+}
+
+.prisma-triangle::after {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 8px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 14px solid rgba(99, 102, 241, 0.8);
+}
+
+.brand-text {
+  min-width: 0;
+  overflow: hidden;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.brand-text h2 {
   margin: 0;
   font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #0f172a;
+  line-height: 1;
 }
 
-.logo-box p {
-  margin: 0;
+.brand-text p {
+  margin: 5px 0 0;
   font-size: 12px;
-  color: #6b7280;
+  color: #64748b;
+  letter-spacing: 0.28em;
+  text-transform: lowercase;
+  font-weight: 700;
 }
+
+/* Botón colapsar */
+.sidebar-toggle {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.22);
+  color: #475569;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-left: auto;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.sidebar-toggle:hover {
+  background: rgba(238, 242, 255, 0.68);
+  color: #4f46e5;
+  border-color: rgba(199, 210, 254, 0.6);
+  transform: translateY(-1px);
+}
+
+/* ═══════════════════════════════════════════════════════
+   MENÚ
+═══════════════════════════════════════════════════════ */
 
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 2px 2px 20px;
 }
 
-.menu a {
+.menu-section-label {
+  margin: 16px 8px 6px;
+  font-size: 10.5px;
+  font-weight: 900;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.menu-link,
+.menu-parent {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  border-radius: 14px;
+  color: #334155;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid transparent;
   text-decoration: none;
-  color: #374151;
-  padding: 10px 12px;
-  border-radius: 10px;
   font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+  position: relative;
 }
 
-.menu a:hover {
-  background: #eff6ff;
-  color: #2563eb;
+.menu-link:hover,
+.menu-parent:hover {
+  background: rgba(255, 255, 255, 0.42);
+  color: #4f46e5;
+  border-color: rgba(199, 210, 254, 0.55);
+  box-shadow: 0 8px 18px rgba(99, 102, 241, 0.08);
+  transform: translateX(2px);
 }
 
-.menu a.active {
-  background: #bae6fd;
-  color: #0c4a6e;
-  font-weight: 600;
+.menu-link.active {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.88), rgba(99, 102, 241, 0.82));
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 10px 24px rgba(79, 70, 229, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
+
+.menu-link.active::before {
+  content: '';
+  position: absolute;
+  left: -7px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 26px;
+  border-radius: 99px;
+  background: #22d3ee;
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.85);
+}
+
+.menu-icon {
+  width: 22px;
+  min-width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+}
+
+.menu-icon svg {
+  display: block;
+}
+
+.menu-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.menu-link-saas {
+  background: rgba(240, 253, 250, 0.28);
+  border-color: rgba(153, 246, 228, 0.38);
+}
+
+.menu-link-saas:hover {
+  background: rgba(204, 251, 241, 0.48);
+  color: #0f766e;
+  border-color: rgba(94, 234, 212, 0.55);
+}
+
+.menu-link-saas.active {
+  background: linear-gradient(135deg, rgba(15, 118, 110, 0.88), rgba(20, 184, 166, 0.82));
+  color: #ffffff;
+}
+
+/* ═══════════════════════════════════════════════════════
+   GRUPOS CON SUBMENÚ
+═══════════════════════════════════════════════════════ */
 
 .menu-group {
   display: flex;
   flex-direction: column;
+  gap: 4px;
 }
 
 .menu-parent {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  background: none;
-  border: none;
-  color: #374151;
-  padding: 10px 12px;
-  border-radius: 10px;
-  font-size: 14px;
-  cursor: pointer;
-  text-align: left;
-  transition: background 0.15s, color 0.15s;
-}
-
-.menu-parent:hover {
-  background: #eff6ff;
-  color: #2563eb;
+  justify-content: flex-start;
 }
 
 .menu-parent.expanded {
-  background: #eff6ff;
-  color: #2563eb;
-  font-weight: 600;
+  background: rgba(255, 255, 255, 0.38);
+  color: #4f46e5;
+  border-color: rgba(199, 210, 254, 0.55);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  font-weight: 800;
 }
 
 .chevron {
-  font-size: 12px;
-  transition: transform 0.2s ease;
+  margin-left: auto;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+  transition: transform 0.22s ease, opacity 0.2s ease;
 }
 
 .menu-parent.expanded .chevron {
@@ -105,19 +305,203 @@
 .menu-children {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.25s ease;
-  padding-left: 12px;
+  padding-left: 46px;
+  transition: max-height 0.25s ease, opacity 0.2s ease;
+  opacity: 0;
 }
 
 .menu-children.open {
-  max-height: 200px;
+  max-height: 180px;
+  opacity: 1;
 }
 
-.menu-children a {
+.submenu-link {
+  text-decoration: none;
+  color: #64748b;
   font-size: 13px;
-  padding: 8px 12px;
-  border-radius: 8px;
+  font-weight: 650;
+  padding: 8px 10px;
+  border-radius: 10px;
+  transition: all 0.16s ease;
+  position: relative;
+}
+
+.submenu-link::before {
+  content: '';
+  position: absolute;
+  left: -16px;
+  top: 50%;
+  width: 8px;
+  height: 1.5px;
+  background: #cbd5e1;
+}
+
+.submenu-link:hover {
+  background: rgba(255, 255, 255, 0.34);
+  color: #4f46e5;
+}
+
+.submenu-link.active {
+  background: rgba(238, 242, 255, 0.62);
+  color: #4338ca;
+  font-weight: 800;
+}
+
+/* ═══════════════════════════════════════════════════════
+   ESTADO COLAPSADO
+   Funciona con el checkbox del HTML
+═══════════════════════════════════════════════════════ */
+
+.sidebar:has(.sidebar-toggle-check:checked) {
+  width: 86px;
+  padding: 18px 10px;
+}
+
+.sidebar:has(.sidebar-toggle-check:checked) .brand-box {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.sidebar:has(.sidebar-toggle-check:checked) .brand-text,
+.sidebar:has(.sidebar-toggle-check:checked) .menu-text,
+.sidebar:has(.sidebar-toggle-check:checked) .menu-section-label,
+.sidebar:has(.sidebar-toggle-check:checked) .chevron {
+  opacity: 0;
+  width: 0;
+  pointer-events: none;
+  transform: translateX(-8px);
+}
+
+.sidebar:has(.sidebar-toggle-check:checked) .sidebar-toggle {
+  position: absolute;
+  right: 7px;
+  top: 8px;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.sidebar:has(.sidebar-toggle-check:checked) .sidebar-toggle svg {
+  transform: rotate(180deg);
+}
+
+.sidebar:has(.sidebar-toggle-check:checked) .menu {
+  align-items: center;
+}
+
+.sidebar:has(.sidebar-toggle-check:checked) .menu-link,
+.sidebar:has(.sidebar-toggle-check:checked) .menu-parent {
+  width: 52px;
+  height: 52px;
+  min-height: 52px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 18px;
+}
+
+.sidebar:has(.sidebar-toggle-check:checked) .menu-icon {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+}
+
+.sidebar:has(.sidebar-toggle-check:checked) .menu-children {
+  display: none;
+}
+
+.sidebar:has(.sidebar-toggle-check:checked) .menu-link.active::before {
+  left: -11px;
+  height: 28px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════════════════ */
+
+.menu::-webkit-scrollbar {
+  width: 4px;
+}
+
+.menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.menu::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+  border-radius: 99px;
+}
+
+.menu::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.55);
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 86px;
+    padding: 18px 10px;
+  }
+
+  .brand-box {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .brand-text,
+  .menu-text,
+  .menu-section-label,
+  .chevron {
+    display: none;
+  }
+
+  .sidebar-toggle {
+    display: none;
+  }
+
+  .menu {
+    align-items: center;
+  }
+
+  .menu-link,
+  .menu-parent {
+    width: 52px;
+    height: 52px;
+    min-height: 52px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 18px;
+  }
+
+  .menu-children {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .sidebar {
+    width: 74px;
+    padding: 14px 8px;
+  }
+
+  .brand-logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+  }
+
+  .menu-link,
+  .menu-parent {
+    width: 48px;
+    height: 48px;
+    min-height: 48px;
+  }
 }

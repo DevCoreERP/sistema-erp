@@ -1,1 +1,464 @@
-<p>nominas-home works!</p>
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-main">
+    <app-topbar></app-topbar>
+
+    <main class="dashboard-content">
+      <section class="nominas-page">
+        <header class="page-header nominas-hero-dark">
+          <div class="hero-title-group">
+            <div class="hero-icon">
+              💼
+            </div>
+
+            <div>
+              <h1>Gestión de Nóminas</h1>
+              <p class="page-description">
+                Registro, cálculo, aprobación y pago de nóminas del personal.
+                La visualización está permitida; las acciones dependen del plan SaaS activo.
+              </p>
+            </div>
+          </div>
+
+          <div class="plan-badge dark">
+            <span>Plan actual</span>
+            <strong>{{ planVisual }}</strong>
+          </div>
+        </header>
+
+        <section class="summary-grid">
+          <article class="summary-card">
+            <span>Total nóminas</span>
+            <strong>{{ totalNominas }}</strong>
+            <small>Registros generados</small>
+          </article>
+
+          <article class="summary-card">
+            <span>Pendientes</span>
+            <strong>{{ totalPendientes }}</strong>
+            <small>En espera de aprobación</small>
+          </article>
+
+          <article class="summary-card">
+            <span>Aprobadas</span>
+            <strong>{{ totalAprobadas }}</strong>
+            <small>Listas para pago</small>
+          </article>
+
+          <article class="summary-card">
+            <span>Total líquido</span>
+            <strong>{{ totalLiquido | number:'1.2-2' }} Bs</strong>
+            <small>Monto acumulado</small>
+          </article>
+        </section>
+
+        <section class="content-grid">
+          <article class="panel form-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Nuevo cálculo</p>
+                <h2>Formulario de nómina</h2>
+              </div>
+
+              <span class="status-pill" [class.blocked]="!puedeCalcular">
+                {{ puedeCalcular ? 'Disponible' : 'Requiere plan profesional' }}
+              </span>
+            </div>
+
+            <form class="nomina-form" (ngSubmit)="registrarNomina()">
+              <div class="form-row">
+                <label>
+                  Empleado
+                  <input
+                    type="text"
+                    name="empleado"
+                    [(ngModel)]="form.empleado"
+                    placeholder="Ej: Juan Pérez"
+                    autocomplete="off"
+                  />
+                </label>
+
+                <label>
+                  CI
+                  <input
+                    type="text"
+                    name="ci"
+                    [(ngModel)]="form.ci"
+                    placeholder="Ej: 7845123 SC"
+                    autocomplete="off"
+                  />
+                </label>
+              </div>
+
+              <div class="form-row">
+                <label>
+                  Cargo
+                  <input
+                    type="text"
+                    name="cargo"
+                    [(ngModel)]="form.cargo"
+                    placeholder="Ej: Analista"
+                    autocomplete="off"
+                  />
+                </label>
+
+                <label>
+                  Departamento
+                  <input
+                    type="text"
+                    name="departamento"
+                    [(ngModel)]="form.departamento"
+                    placeholder="Ej: RRHH"
+                    autocomplete="off"
+                  />
+                </label>
+              </div>
+
+              <div class="form-row">
+                <label>
+                  Periodo
+                  <input
+                    type="text"
+                    name="periodo"
+                    [(ngModel)]="form.periodo"
+                    placeholder="Ej: Junio 2026"
+                    autocomplete="off"
+                  />
+                </label>
+
+                <label>
+                  Cuenta bancaria
+                  <input
+                    type="text"
+                    name="cuentaBancaria"
+                    [(ngModel)]="form.cuentaBancaria"
+                    placeholder="Ej: 100-245-8891"
+                    autocomplete="off"
+                  />
+                </label>
+              </div>
+
+              <div class="form-row three-columns">
+                <label>
+                  Salario base Bs
+                  <input
+                    type="number"
+                    name="salarioBase"
+                    [(ngModel)]="form.salarioBase"
+                    min="0"
+                    placeholder="0.00"
+                  />
+                </label>
+
+                <label>
+                  Bono Bs
+                  <input
+                    type="number"
+                    name="bono"
+                    [(ngModel)]="form.bono"
+                    min="0"
+                    placeholder="0.00"
+                  />
+                </label>
+
+                <label>
+                  Otros descuentos Bs
+                  <input
+                    type="number"
+                    name="descuentos"
+                    [(ngModel)]="form.descuentos"
+                    min="0"
+                    placeholder="0.00"
+                  />
+                </label>
+              </div>
+
+              <label>
+                Observación
+                <textarea
+                  name="observacion"
+                  [(ngModel)]="form.observacion"
+                  rows="4"
+                  placeholder="Observación interna de la nómina..."
+                ></textarea>
+              </label>
+
+              <p class="form-message" *ngIf="validationMessage">
+                {{ validationMessage }}
+              </p>
+
+              <div class="form-actions">
+                <button
+                  type="button"
+                  class="btn-secondary"
+                  (click)="limpiarFormulario()"
+                >
+                  Limpiar
+                </button>
+
+                <button
+                  type="submit"
+                  class="btn-primary"
+                  [class.btn-locked]="!puedeCalcular"
+                >
+                  <span *ngIf="!puedeCalcular">🔒</span>
+                  Calcular nómina
+                </button>
+              </div>
+            </form>
+          </article>
+
+          <article class="panel table-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Registros</p>
+                <h2>Nóminas registradas</h2>
+              </div>
+
+              <button
+                type="button"
+                class="btn-secondary"
+                [class.btn-locked]="!puedeExportarBanco"
+                (click)="exportarBanco()"
+              >
+                <span *ngIf="!puedeExportarBanco">🔒</span>
+                Exportar banco
+              </button>
+            </div>
+
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Código</th>
+                    <th>Empleado</th>
+                    <th>Periodo</th>
+                    <th>Líquido</th>
+                    <th>Estado</th>
+                    <th class="acciones-column">Acciones</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr *ngFor="let registro of registros">
+                    <td>
+                      <strong>{{ registro.id }}</strong>
+                      <small>{{ registro.fechaCalculo }}</small>
+                    </td>
+
+                    <td>
+                      <strong>{{ registro.empleado }}</strong>
+                      <small>{{ registro.cargo }}</small>
+                    </td>
+
+                    <td>{{ registro.periodo }}</td>
+
+                    <td>
+                      <strong>{{ registro.liquidoPagable | number:'1.2-2' }} Bs</strong>
+                      <small>
+                        Total ingresos: {{ registro.totalIngresos | number:'1.2-2' }} Bs
+                      </small>
+                    </td>
+
+                    <td>
+                      <span class="estado" [ngClass]="getEstadoClass(registro.estado)">
+                        {{ registro.estado }}
+                      </span>
+                    </td>
+
+                    <td>
+                      <div class="action-buttons">
+                        <button
+                          type="button"
+                          class="btn-table"
+                          (click)="verDetalle(registro)"
+                        >
+                          Ver
+                        </button>
+
+                        <button
+                          type="button"
+                          class="btn-table approve"
+                          [class.btn-locked]="!puedeAprobar"
+                          [disabled]="registro.estado === 'Pagada'"
+                          (click)="aprobarNomina(registro)"
+                        >
+                          <span *ngIf="!puedeAprobar">🔒</span>
+                          Aprobar
+                        </button>
+
+                        <button
+                          type="button"
+                          class="btn-table pay"
+                          [class.btn-locked]="!puedePagar"
+                          [disabled]="registro.estado !== 'Aprobada'"
+                          (click)="pagarNomina(registro)"
+                        >
+                          <span *ngIf="!puedePagar">🔒</span>
+                          Pagar
+                        </button>
+
+                        <button
+                          type="button"
+                          class="btn-table"
+                          [class.btn-locked]="!puedeEmitirBoleta"
+                          (click)="emitirBoleta(registro)"
+                        >
+                          <span *ngIf="!puedeEmitirBoleta">🔒</span>
+                          Boleta
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr *ngIf="registros.length === 0">
+                    <td colspan="6">
+                      <div class="empty-state">
+                        No existen nóminas registradas.
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+      </section>
+
+      <div class="toast" *ngIf="toastMessage">
+        {{ toastMessage }}
+      </div>
+
+      <div class="modal-backdrop" *ngIf="modalDetalleVisible && nominaSeleccionada">
+        <article class="modal-card">
+          <header class="modal-header">
+            <div>
+              <p class="eyebrow">Detalle de nómina</p>
+              <h2>{{ nominaSeleccionada.id }}</h2>
+            </div>
+
+            <button type="button" class="modal-close" (click)="cerrarDetalle()">
+              ×
+            </button>
+          </header>
+
+          <section class="detail-grid">
+            <div>
+              <span>Empleado</span>
+              <strong>{{ nominaSeleccionada.empleado }}</strong>
+            </div>
+
+            <div>
+              <span>CI</span>
+              <strong>{{ nominaSeleccionada.ci }}</strong>
+            </div>
+
+            <div>
+              <span>Cargo</span>
+              <strong>{{ nominaSeleccionada.cargo }}</strong>
+            </div>
+
+            <div>
+              <span>Departamento</span>
+              <strong>{{ nominaSeleccionada.departamento }}</strong>
+            </div>
+
+            <div>
+              <span>Periodo</span>
+              <strong>{{ nominaSeleccionada.periodo }}</strong>
+            </div>
+
+            <div>
+              <span>Estado</span>
+              <strong>{{ nominaSeleccionada.estado }}</strong>
+            </div>
+          </section>
+
+          <section class="detail-grid">
+            <div>
+              <span>Salario base</span>
+              <strong>{{ nominaSeleccionada.salarioBase | number:'1.2-2' }} Bs</strong>
+            </div>
+
+            <div>
+              <span>Bono</span>
+              <strong>{{ nominaSeleccionada.bono | number:'1.2-2' }} Bs</strong>
+            </div>
+
+            <div>
+              <span>Aporte laboral</span>
+              <strong>{{ nominaSeleccionada.aporteLaboral | number:'1.2-2' }} Bs</strong>
+            </div>
+
+            <div>
+              <span>Otros descuentos</span>
+              <strong>{{ nominaSeleccionada.descuentos | number:'1.2-2' }} Bs</strong>
+            </div>
+
+            <div class="total-detail">
+              <span>Líquido pagable</span>
+              <strong>{{ nominaSeleccionada.liquidoPagable | number:'1.2-2' }} Bs</strong>
+            </div>
+          </section>
+
+          <section class="detail-block">
+            <span>Observación</span>
+            <p>{{ nominaSeleccionada.observacion }}</p>
+          </section>
+
+          <footer class="modal-actions">
+            <button type="button" class="btn-secondary" (click)="cerrarDetalle()">
+              Cerrar
+            </button>
+
+            <button
+              type="button"
+              class="btn-primary"
+              [class.btn-locked]="!puedeEmitirBoleta"
+              (click)="emitirBoleta(nominaSeleccionada)"
+            >
+              <span *ngIf="!puedeEmitirBoleta">🔒</span>
+              Emitir boleta
+            </button>
+          </footer>
+        </article>
+      </div>
+
+      <div
+        class="plan-lock-overlay"
+        *ngIf="bloqueoPlan.visible"
+        (click)="cerrarBloqueoPlan()"
+      >
+        <div class="plan-lock-modal" (click)="$event.stopPropagation()">
+          <div class="plan-lock-icon">🔒</div>
+
+          <h3>{{ bloqueoPlan.titulo }}</h3>
+
+          <p>{{ bloqueoPlan.mensaje }}</p>
+
+          <div class="plan-lock-info">
+            <div>
+              <span>Acción solicitada</span>
+              <strong>{{ bloqueoPlan.accion }}</strong>
+            </div>
+
+            <div>
+              <span>Plan actual</span>
+              <strong>{{ bloqueoPlan.planActual }}</strong>
+            </div>
+
+            <div>
+              <span>Plan requerido</span>
+              <strong>{{ bloqueoPlan.planRequerido }}</strong>
+            </div>
+          </div>
+
+          <button type="button" class="plan-lock-btn" (click)="cerrarBloqueoPlan()">
+            Entendido
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
