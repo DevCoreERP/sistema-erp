@@ -1,0 +1,2 @@
+ALTER TABLE IF EXISTS tenant_cainco.usuarios ADD COLUMN IF NOT EXISTS departamento BIGINT NULL;
+ALTER TABLE IF EXISTS tenant_lively.usuarios ADD COLUMN IF NOT EXISTS departamento BIGINT NULL;

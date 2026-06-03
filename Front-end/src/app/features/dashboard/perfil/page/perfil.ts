@@ -1,8 +1,8 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Topbar } from "../../components/topbar/topbar";
-import { Sidebar } from "../../components/sidebar/sidebar";
+import { Topbar } from '../../components/topbar/topbar';
+import { Sidebar } from '../../components/sidebar/sidebar';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { AuthUser } from '../../../../shared/interface/auth.interface';
@@ -10,15 +10,14 @@ import { AuthUser } from '../../../../shared/interface/auth.interface';
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [Topbar, Sidebar,FormsModule, CommonModule, RouterLink],
+  imports: [Topbar, Sidebar, FormsModule, CommonModule, RouterLink],
   templateUrl: './perfil.html',
-  styleUrl: './perfil.css'
+  styleUrl: './perfil.css',
 })
 export class PerfilPage implements OnInit {
-
   private authService = inject(AuthService);
 
-  guardarEmpleado  = signal(false);
+  guardarEmpleado = signal(false);
 
   imagenPreview: string | ArrayBuffer | null = null;
 
