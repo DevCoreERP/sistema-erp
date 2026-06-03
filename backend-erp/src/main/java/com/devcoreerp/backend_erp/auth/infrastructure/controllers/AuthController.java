@@ -17,10 +17,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -48,18 +51,31 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(
-            @RequestBody @Valid LoginRequestDTO loginRequestDTO,
-            HttpServletResponse response) {
+            @RequestBody @Valid LoginRequestDTO loginRequestDTO) {
         logger.info("[AUTH] Login request para email: {}", loginRequestDTO.email());
 
         try {
             String token = authService.login(loginRequestDTO);
-            response.addCookie(createAuthCookie(token));
-            return ResponseEntity.ok(new LoginTokenResponseDTO("Login successful", token, "Bearer"));
+
+            // Build cookie via ResponseCookie so it goes through ResponseEntity headers
+            // instead of directly manipulating HttpServletResponse (which can commit
+            // the response prematurely and cause ERR_INCOMPLETE_CHUNKED_ENCODING).
+            ResponseCookie cookie = ResponseCookie.from(AuthConstants.TOKEN_COOKIE_NAME, token)
+                    .httpOnly(AuthConstants.HTTP_ONLY)
+                    .secure(AuthConstants.COOKIE_SECURE)
+                    .maxAge(AuthConstants.COOKIE_MAX_AGE)
+                    .path("/")
+                    .sameSite("Lax")
+                    .build();
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .body(new LoginTokenResponseDTO("Login successful", token, "Bearer"));
         } catch (Exception e) {
-            logger.warn("[AUTH] Login rechazado para email: {}", loginRequestDTO.email());
+            logger.warn("[AUTH] Login rechazado para email: {} - {}", loginRequestDTO.email(), e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("{\"error\": \"Credenciales invalidas\"}");
+                    .body(Map.of("error", "Credenciales invalidas: " + e.getMessage()));
         }
     }
 
@@ -149,15 +165,5 @@ public class AuthController {
     public ResponseEntity<UsuarioResponseDTO> me(@AuthenticationPrincipal Usuario usuario) {
         logger.info("[USUARIO] Obtener mis datos: {}", usuario.getUsername());
         return ResponseEntity.ok(authService.me(usuario.getId()));
-    }
-
-    private Cookie createAuthCookie(String token) {
-        Cookie cookie = new Cookie(AuthConstants.TOKEN_COOKIE_NAME, token);
-        cookie.setHttpOnly(AuthConstants.HTTP_ONLY);
-        cookie.setSecure(AuthConstants.COOKIE_SECURE);
-        cookie.setMaxAge(AuthConstants.COOKIE_MAX_AGE);
-        cookie.setPath("/");
-        cookie.setAttribute("SameSite", AuthConstants.SAME_SITE);
-        return cookie;
     }
 }

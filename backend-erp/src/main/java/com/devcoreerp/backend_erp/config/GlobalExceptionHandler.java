@@ -37,4 +37,17 @@ public class GlobalExceptionHandler {
                 .status(ex.getStatus())
                 .body(response);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleAllUncaughtException(Exception ex) {
+        ex.printStackTrace(); // Log full stack trace
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", 500);
+        response.put("error", "Internal Server Error: " + ex.getMessage());
+        response.put("type", ex.getClass().getName());
+
+        return ResponseEntity
+                .status(500)
+                .body(response);
+    }
 }

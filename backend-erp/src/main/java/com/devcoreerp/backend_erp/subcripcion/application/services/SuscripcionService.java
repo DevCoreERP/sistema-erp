@@ -135,8 +135,12 @@ public class SuscripcionService {
 
         expirarSuscripcionesVencidas(tenantId, today);
 
-        if (findCurrentSubscription(tenantId, today).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "El tenant ya tiene una suscripcion o prueba vigente");
+        Optional<Suscripcion> currentSub = findCurrentSubscription(tenantId, today);
+        if (currentSub.isPresent()) {
+            Suscripcion oldSub = currentSub.get();
+            oldSub.setEstado(SuscripcionEstado.VENCIDA);
+            oldSub.setFechaFin(today);
+            suscripcionRepository.save(oldSub);
         }
 
         TenantMetodoPago tenantMetodoPago = tenantMetodoPagoRepository

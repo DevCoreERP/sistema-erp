@@ -98,8 +98,17 @@
         ══════════════════════════════════════════ -->
         <div class="sp-layout">
 
-          <!-- GRID DE PLANES -->
-          <div class="sp-planes-grid">
+          <!-- Cargando planes -->
+          <div *ngIf="cargandoPlanes" class="sh-empty-state" style="min-height: 300px; display: flex; align-items: center; justify-content: center;">
+            <div class="processing-spinner">
+              <div class="spinner-ring"></div>
+              <div class="spinner-ring spinner-ring--2"></div>
+              <div class="spinner-ring spinner-ring--3"></div>
+            </div>
+          </div>
+
+          <!-- Malla de Planes -->
+          <div *ngIf="!cargandoPlanes" class="sp-planes-grid">
 
             <div
               *ngFor="let plan of planes"
@@ -216,15 +225,24 @@
                 </div>
 
                 <ul class="sp-lista">
-                  <li *ngFor="let m of plan.modulos" class="sp-lista-item">
+                  <li *ngFor="let mod of (modulosExpandidos ? plan.modulos : plan.modulos.slice(0, 4))" class="sp-lista-item">
                     <span class="sp-lista-check">
                       <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                         <polyline points="20 6 9 17 4 12"/>
                       </svg>
                     </span>
-                    {{ m }}
+                    {{ mod }}
                   </li>
                 </ul>
+                
+                <div 
+                  class="sp-more-modules" 
+                  *ngIf="plan.modulos.length > 4"
+                  (click)="toggleModulos($event)"
+                  style="cursor: pointer; color: var(--sp-primary); font-weight: 500; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.25rem; margin-top: 0.5rem;">
+                  <span *ngIf="!modulosExpandidos">+{{ plan.modulos.length - 4 }} más</span>
+                  <span *ngIf="modulosExpandidos">Ver menos</span>
+                </div>
               </div>
 
               <div class="sp-plan-div"></div>
@@ -343,12 +361,16 @@
                   </div>
 
                   <div class="sp-resumen-chips">
-                    <span *ngFor="let m of getModulosPrincipales(planSeleccionado)" class="sp-chip">
+                    <span *ngFor="let m of (modulosExpandidos ? planSeleccionado.modulos : getModulosPrincipales(planSeleccionado))" class="sp-chip">
                       {{ m }}
                     </span>
 
-                    <span *ngIf="planSeleccionado.modulos.length > 4" class="sp-chip sp-chip-mas">
-                      +{{ planSeleccionado.modulos.length - 4 }} más
+                    <span *ngIf="planSeleccionado.modulos.length > 4" 
+                          class="sp-chip sp-chip-mas" 
+                          (click)="toggleModulos($event)" 
+                          style="cursor: pointer;">
+                      <ng-container *ngIf="!modulosExpandidos">+{{ planSeleccionado.modulos.length - 4 }} más</ng-container>
+                      <ng-container *ngIf="modulosExpandidos">Ver menos</ng-container>
                     </span>
                   </div>
                 </div>

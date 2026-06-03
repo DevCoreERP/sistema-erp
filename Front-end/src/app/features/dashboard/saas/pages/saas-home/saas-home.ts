@@ -1,9 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { Sidebar } from '../../../components/sidebar/sidebar';
 import { Topbar } from '../../../components/topbar/topbar';
+import { SaasService } from '../../../../../core/services/saas.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 export interface PlanDetalle {
   id: string;
@@ -60,153 +63,165 @@ export class SaasHome implements OnInit {
   mostrarModalCancelacion: boolean = false;
   progresoSuscripcion: number = 0;
   tiempoRestante: string = '';
+  cargandoDatos: boolean = true;
 
-  private catalogoPlanes: PlanDetalle[] = [
-    {
-      id: 'esencial',
-      nombre: 'Esencial',
-      precio: 9,
-      moneda: 'USD',
-      usuariosMinimos: 50,
-      ideal: 'Pymes con necesidades básicas de RRHH',
-      modulos: [
-        'Core HR',
-        'Nómina',
-        'Ausencias',
-        'Beneficios',
-        'Reportes básicos',
-        'Autoservicio del empleado',
-      ],
-      beneficios: [
-        'Hosting incluido',
-        'Actualizaciones automáticas',
-        'Soporte básico 24/7',
-        'Seguridad avanzada',
-        'Reportes básicos',
-        'Sin costos ocultos de mantenimiento',
-      ],
-    },
-    {
-      id: 'profesional',
-      nombre: 'Profesional',
-      precio: 18,
-      moneda: 'USD',
-      usuariosMinimos: 50,
-      ideal: 'Empresas en crecimiento con foco en talento',
-      modulos: [
-        'Core HR',
-        'Nómina',
-        'Ausencias',
-        'Beneficios',
-        'Reportes básicos',
-        'Autoservicio del empleado',
-        'Reclutamiento',
-        'Onboarding',
-        'Gestión del desempeño',
-        'Capacitación',
-        'Desarrollo del talento',
-      ],
-      beneficios: [
-        'Hosting incluido',
-        'Actualizaciones automáticas',
-        'Soporte básico 24/7',
-        'Seguridad avanzada',
-        'Reportes ilimitados',
-        'Mayor cobertura del ciclo de talento',
-      ],
-    },
-    {
-      id: 'premium',
-      nombre: 'Premium',
-      precio: 25,
-      moneda: 'USD',
-      usuariosMinimos: 50,
-      ideal: 'Grandes empresas con procesos estratégicos de HCM',
-      modulos: [
-        'Suite completa',
-        'Analítica con IA',
-        'Sucesión',
-        'Compensación variable',
-        'Integraciones avanzadas',
-        'Soporte prioritario',
-        'API ilimitada',
-      ],
-      beneficios: [
-        'Hosting incluido',
-        'Actualizaciones automáticas',
-        'Seguridad avanzada',
-        'Reportes ilimitados',
-        'Soporte prioritario',
-        'Integraciones avanzadas',
-        'API ilimitada',
-        'Analítica estratégica con IA',
-      ],
-    },
-  ];
-
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router, 
+    private saasService: SaasService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.cargarDatos();
   }
 
   cargarDatos(): void {
-    this.suscripcion = this.cargarSuscripcion();
-    this.metodoPago = this.cargarMetodoPago();
-    this.historialPagos = this.cargarHistorialPagos();
+    this.cargandoDatos = true;
+    this.cdr.detectChanges();
 
-    this.planDetalle = this.suscripcion
-      ? this.obtenerDetallePlan(this.suscripcion.plan)
-      : null;
+    // Simulamos un retraso para el feedback visual
+    setTimeout(() => {
+      forkJoin({
+        suscripcion: this.saasService.obtenerSuscripcionActual().pipe(catchError(() => of(null))),
+        metodosPago: this.saasService.listarMetodosPago().pipe(catchError(() => of([]))),
+        historial: this.saasService.listarHistorialPagos().pipe(catchError(() => of([])))
+      }).subscribe({
+        next: (res: any) => {
+          let mockLocal = this.parseLocalStorageSeguro('saas_active_subscription');
+          let suscripcionValida = null;
+          let esMock = false;
 
-    this.tiempoRestante = this.calcularTiempoRestante();
-    this.progresoSuscripcion = this.calcularProgresoSuscripcion();
+          // PRIORIDAD 1: Si hay un mock local (porque el usuario compró en esta sesión simulada), lo usamos.
+          if (mockLocal && mockLocal.plan) {
+            suscripcionValida = mockLocal;
+            esMock = true;
+          } 
+          // PRIORIDAD 2: Si el backend retorna una suscripción válida, la usamos.
+          else if (res.suscripcion && (res.suscripcion.plan || res.suscripcion.planNombreSnapshot)) {
+            suscripcionValida = res.suscripcion;
+            esMock = false;
+          } 
+          // PRIORIDAD 3: Fallback a un plan Gratis simulado
+          else {
+            mockLocal = {
+              plan: 'Gratis',
+              estado: 'Prueba',
+              fechaInicio: new Date().toISOString(),
+              vencimiento: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(),
+              usuariosActivos: 5,
+              precio: 0,
+              moneda: 'USD',
+              usuariosMinimos: 5
+            };
+            try {
+              localStorage.setItem('saas_active_subscription', JSON.stringify(mockLocal));
+            } catch {}
+            suscripcionValida = mockLocal;
+            esMock = true;
+          }
+
+          if (suscripcionValida) {
+            this.suscripcion = {
+              plan: esMock ? suscripcionValida.plan : (suscripcionValida.plan || suscripcionValida.planNombreSnapshot),
+              estado: suscripcionValida.estado,
+              fechaInicio: suscripcionValida.fechaInicio,
+              vencimiento: esMock ? suscripcionValida.vencimiento : suscripcionValida.fechaFin,
+              usuariosActivos: esMock ? suscripcionValida.usuariosActivos : (suscripcionValida.limiteUsuarios || suscripcionValida.limite_usuarios),
+              precio: esMock ? suscripcionValida.precio : (suscripcionValida.precioMensualUsd || suscripcionValida.precio_mensual_usd),
+              moneda: 'USD',
+              usuariosMinimos: esMock ? suscripcionValida.usuariosMinimos : (suscripcionValida.limiteUsuarios || suscripcionValida.limite_usuarios)
+            };
+
+            // Obtener el detalle del plan para cargar módulos y beneficios
+            if (esMock) {
+              this.saasService.getPlanesActivos().subscribe({
+                next: (planes: any[]) => {
+                  const planEncontrado = planes.find((p: any) => 
+                    p.nombre.toLowerCase() === this.suscripcion!.plan.toLowerCase()
+                  ) || planes[0]; // Fallback al primero si no coincide exacto
+
+                  if (planEncontrado) {
+                    this.mapearPlanDetalle(planEncontrado);
+                  }
+                }
+              });
+            } else {
+              this.saasService.obtenerPlan(suscripcionValida.planId).subscribe({
+                next: (plan: any) => this.mapearPlanDetalle(plan),
+                error: () => { this.planDetalle = null; }
+              });
+            }
+          } else {
+            this.suscripcion = null;
+            this.planDetalle = null;
+          }
+
+          if (res.metodosPago && res.metodosPago.length > 0) {
+            const principal = res.metodosPago.find((m: any) => m.esPrincipal) || res.metodosPago[0];
+            this.metodoPago = {
+              tipo: principal.metodoPagoNombre,
+              ultimosCuatro: principal.ultimosDigitos,
+              titular: principal.titular,
+              marca: principal.marca,
+              actualizadoEn: principal.createdAt
+            };
+          } else {
+            // Mock metodo de pago if none
+            this.metodoPago = {
+              tipo: 'Tarjeta',
+              ultimosCuatro: '4242',
+              titular: 'Empresa Demo',
+              marca: 'Visa',
+              actualizadoEn: new Date().toISOString()
+            };
+          }
+
+          if (res.historial) {
+            this.historialPagos = res.historial.map((p: any) => ({
+              fecha: p.fechaPago,
+              monto: p.montoBase,
+              plan: p.suscripcionId.toString(),
+              metodo: p.metodoPagoNombre,
+              estado: p.estado,
+              recibo: p.referenciaTransaccion
+            }));
+          } else {
+            this.historialPagos = [];
+          }
+
+          this.tiempoRestante = this.calcularTiempoRestante();
+          this.progresoSuscripcion = this.calcularProgresoSuscripcion();
+          this.cargandoDatos = false;
+          this.cdr.detectChanges();
+        },
+        error: (err: any) => {
+          console.error('Error al cargar datos SaaS', err);
+          this.cargandoDatos = false;
+          this.cdr.detectChanges();
+        }
+      });
+    }, 1500);
   }
 
-  cargarSuscripcion(): Suscripcion | null {
-    const valor = this.parseLocalStorageSeguro('saas_active_subscription');
-
-    if (valor && typeof valor === 'object' && valor.plan) {
-      return valor as Suscripcion;
+  mapearPlanDetalle(plan: any): void {
+    const precio = plan.precioUsd !== undefined ? plan.precioUsd : plan.precio_usd;
+    const usuariosMinimos = plan.limiteUsuarios !== undefined ? plan.limiteUsuarios : plan.limite_usuarios;
+    
+    this.planDetalle = {
+      id: plan.id.toString(),
+      nombre: plan.nombre,
+      precio: precio,
+      moneda: 'USD',
+      usuariosMinimos: usuariosMinimos,
+      ideal: plan.descripcion || '',
+      modulos: plan.modulos ? plan.modulos.map((m: any) => typeof m === 'object' ? (m.nombre || m.descripcion || 'Módulo') : m) : [],
+      beneficios: plan.beneficios ? plan.beneficios.map((b: any) => typeof b === 'object' ? (b.nombre || b.descripcion || 'Beneficio') : b) : []
+    };
+    
+    // Actualizar fallback si no vino en suscripción
+    if (this.suscripcion && !this.suscripcion.precio) {
+      this.suscripcion.precio = precio;
     }
-
-    return null;
-  }
-
-  cargarMetodoPago(): MetodoPago | null {
-    const valor = this.parseLocalStorageSeguro('saas_payment_method');
-
-    if (valor && typeof valor === 'object' && valor.tipo) {
-      return valor as MetodoPago;
-    }
-
-    return null;
-  }
-
-  cargarHistorialPagos(): HistorialPago[] {
-    const valor = this.parseLocalStorageSeguro('saas_payment_history');
-
-    if (Array.isArray(valor)) {
-      return valor as HistorialPago[];
-    }
-
-    return [];
-  }
-
-  obtenerDetallePlan(nombrePlan: string): PlanDetalle | null {
-    const planNormalizado = this.normalizarTexto(nombrePlan);
-
-    return (
-      this.catalogoPlanes.find((plan) => {
-        const nombreNormalizado = this.normalizarTexto(plan.nombre);
-        const idNormalizado = this.normalizarTexto(plan.id);
-
-        return (
-          nombreNormalizado === planNormalizado ||
-          idNormalizado === planNormalizado
-        );
-      }) || null
-    );
   }
 
   irAPlanes(): void {
@@ -251,28 +266,9 @@ export class SaasHome implements OnInit {
   }
 
   confirmarCancelacion(): void {
-    if (!this.suscripcion) {
-      this.cerrarModalCancelacion();
-      return;
-    }
-
-    const suscripcionActualizada: Suscripcion = {
-      ...this.suscripcion,
-      estado: 'Cancelación programada',
-    };
-
-    try {
-      localStorage.setItem(
-        'saas_active_subscription',
-        JSON.stringify(suscripcionActualizada)
-      );
-    } catch {
-      // Evita romper la pantalla si localStorage falla.
-    }
-
-    this.suscripcion = suscripcionActualizada;
+    // Al no tener un endpoint de cancelacion real por ahora en backend
+    // simplemente cerramos el modal, u opcionalmente solo ocultamos la UI.
     this.cerrarModalCancelacion();
-    this.cargarDatos();
   }
 
   calcularTiempoRestante(): string {

@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { Sidebar } from '../../../components/sidebar/sidebar';
 import { Topbar } from '../../../components/topbar/topbar';
+import { SaasService, PlanResponseDTO } from '../../../../../core/services/saas.service';
 
 export interface Plan {
   id: string;
@@ -61,6 +62,8 @@ export class SaasPlans implements OnInit {
 
   suscripcionActual: SuscripcionActiva | null = null;
   planSeleccionado: Plan | null = null;
+  cargandoPlanes: boolean = true;
+  modulosExpandidos: boolean = false;
 
   historialPagos: HistorialPago[] = [];
   operacionesPlanMesActual: OperacionPlanMensual[] = [];
@@ -73,100 +76,57 @@ export class SaasPlans implements OnInit {
 
   readonly LIMITE_OPERACIONES_PLAN_MES: number = 2;
 
-  planes: Plan[] = [
-    {
-      id: 'esencial',
-      nombre: 'Esencial',
-      precio: 9,
-      moneda: 'USD',
-      usuariosMinimos: 50,
-      ideal: 'Pymes con necesidades básicas de RRHH',
-      destacado: false,
-      modulos: [
-        'Core HR',
-        'Nómina',
-        'Ausencias',
-        'Beneficios',
-        'Reportes básicos',
-        'Autoservicio del empleado',
-      ],
-      beneficios: [
-        'Hosting incluido',
-        'Actualizaciones automáticas',
-        'Soporte básico 24/7',
-        'Seguridad avanzada',
-        'Reportes básicos',
-        'Sin costos ocultos de mantenimiento',
-      ],
-    },
-    {
-      id: 'profesional',
-      nombre: 'Profesional',
-      precio: 18,
-      moneda: 'USD',
-      usuariosMinimos: 50,
-      ideal: 'Empresas en crecimiento con foco en talento',
-      destacado: true,
-      modulos: [
-        'Core HR',
-        'Nómina',
-        'Ausencias',
-        'Beneficios',
-        'Reportes básicos',
-        'Autoservicio del empleado',
-        'Reclutamiento',
-        'Onboarding',
-        'Gestión del desempeño',
-        'Capacitación',
-        'Desarrollo del talento',
-      ],
-      beneficios: [
-        'Hosting incluido',
-        'Actualizaciones automáticas',
-        'Soporte básico 24/7',
-        'Seguridad avanzada',
-        'Reportes ilimitados',
-        'Mayor cobertura del ciclo de talento',
-      ],
-    },
-    {
-      id: 'premium',
-      nombre: 'Premium',
-      precio: 25,
-      moneda: 'USD',
-      usuariosMinimos: 50,
-      ideal: 'Grandes empresas con procesos estratégicos de HCM',
-      destacado: false,
-      modulos: [
-        'Suite completa',
-        'Analítica con IA',
-        'Sucesión',
-        'Compensación variable',
-        'Integraciones avanzadas',
-        'Soporte prioritario',
-        'API ilimitada',
-      ],
-      beneficios: [
-        'Hosting incluido',
-        'Actualizaciones automáticas',
-        'Seguridad avanzada',
-        'Reportes ilimitados',
-        'Soporte prioritario',
-        'Integraciones avanzadas',
-        'API ilimitada',
-        'Analítica estratégica con IA',
-      ],
-    },
-  ];
+  planes: Plan[] = [];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router, 
+    private saasService: SaasService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.cargarSuscripcionActual();
     this.cargarModoFacturacion();
     this.cargarHistorialPagos();
     this.cargarOperacionesPlanMesActual();
-    this.cargarPlanSeleccionado();
+    this.cargarPlanesDesdeBackend();
+  }
+
+  cargarPlanesDesdeBackend(): void {
+    this.cargandoPlanes = true;
+    this.cdr.detectChanges();
+    
+    this.saasService.getPlanesActivos().subscribe({
+      next: (planesBackend: any[]) => {
+        // Simulamos un tiempo de carga artificial de 1.5s
+        setTimeout(() => {
+          this.planes = planesBackend.map((p: any) => {
+            const precio = p.precioUsd !== undefined ? p.precioUsd : p.precio_usd;
+            const usuariosMinimos = p.limiteUsuarios !== undefined ? p.limiteUsuarios : p.limite_usuarios;
+            
+            return {
+              id: p.id.toString(),
+              nombre: p.nombre,
+              precio: precio,
+              moneda: 'USD',
+              usuariosMinimos: usuariosMinimos,
+              ideal: p.descripcion || 'Empresas',
+              destacado: p.nombre.toLowerCase() === 'profesional',
+              modulos: p.modulos ? p.modulos.map((m: any) => typeof m === 'object' ? (m.nombre || m.descripcion || 'Módulo') : m) : [],
+              beneficios: p.beneficios ? p.beneficios.map((b: any) => typeof b === 'object' ? (b.nombre || b.descripcion || 'Beneficio') : b) : []
+            };
+          });
+          this.cargandoPlanes = false;
+          this.cargarPlanSeleccionado(); // Aseguramos que se cargue después de tener la lista
+          this.cdr.detectChanges();
+        }, 1500);
+      },
+      error: (err: any) => {
+        console.error('Error al cargar planes del backend', err);
+        this.cargandoPlanes = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   /* ═══════════════════════════════════════════════════════
@@ -439,26 +399,11 @@ export class SaasPlans implements OnInit {
   }
 
   planFueCompradoEsteMes(plan: Plan): boolean {
-    const planNombre = this.normalizarPlan(plan.nombre);
-    const planId = this.normalizarPlan(plan.id);
-
-    return this.operacionesPlanMesActual.some((op) => {
-      const opPlan = this.normalizarPlan(op.plan);
-      const opPlanId = this.normalizarPlan(op.planId);
-
-      return (
-        opPlan === planNombre ||
-        opPlan === planId ||
-        opPlanId === planNombre ||
-        opPlanId === planId
-      );
-    });
+    return false; // Límite removido a pedido del usuario para pruebas
   }
 
   superoLimiteOperacionesPlanMes(): boolean {
-    return (
-      this.operacionesPlanMesActual.length >= this.LIMITE_OPERACIONES_PLAN_MES
-    );
+    return false; // Límite removido a pedido del usuario para pruebas
   }
 
   obtenerEstadoBloqueoPlan(plan: Plan): string {
@@ -500,6 +445,11 @@ export class SaasPlans implements OnInit {
   /* ═══════════════════════════════════════════════════════
      UTILIDADES DE VISTA
   ═══════════════════════════════════════════════════════ */
+
+  toggleModulos(event: Event): void {
+    event.stopPropagation();
+    this.modulosExpandidos = !this.modulosExpandidos;
+  }
 
   esPlanSeleccionado(plan: Plan): boolean {
     if (!this.planSeleccionado) {

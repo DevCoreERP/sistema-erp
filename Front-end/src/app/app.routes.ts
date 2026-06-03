@@ -319,6 +319,17 @@ export const routes: Routes = [
       ),
   },
 
+  // SISTEMA
+  {
+    path: 'sistema/bitacora',
+    canActivate: [authGuard],
+    data: { layout: 'dashboard' },
+    loadComponent: () =>
+      import('./features/dashboard/sistema/bitacora/bitacora').then(
+        (m) => m.Bitacora
+      ),
+  },
+
   // RUTA NO ENCONTRADA
   {
     path: '**',

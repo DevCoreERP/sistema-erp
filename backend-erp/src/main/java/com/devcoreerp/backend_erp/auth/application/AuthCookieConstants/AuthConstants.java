@@ -8,5 +8,5 @@ public class AuthConstants {
     public static final boolean HTTP_ONLY = true;
     public static final boolean COOKIE_SECURE = false;
     public static final int COOKIE_MAX_AGE = 60 * 12; // 12 min
-    public static final String SAME_SITE = "Strict";
+    public static final String SAME_SITE = "Lax";
 }

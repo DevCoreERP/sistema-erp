@@ -2,9 +2,11 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
+import { forkJoin, of } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
 import { Sidebar } from '../../../components/sidebar/sidebar';
 import { Topbar } from '../../../components/topbar/topbar';
+import { SaasService } from '../../../../../core/services/saas.service';
 
 export interface Plan {
   id: string;
@@ -125,7 +127,8 @@ export class SaasBilling implements OnInit {
 
   constructor(
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private saasService: SaasService
   ) {}
 
   ngOnInit(): void {
@@ -449,29 +452,20 @@ export class SaasBilling implements OnInit {
     this.mensajeBloqueoPago = '';
     this.procesando = true;
     this.confirmado = false;
-    this.tituloConfirmacion = 'Pago completado';
+    this.tituloConfirmacion = 'Procesando pago...';
     this.descripcionConfirmacion = '';
     this.cdr.detectChanges();
-
+    // Mock the payment process instead of calling the backend
     setTimeout(() => {
-      try {
-        this.guardarSuscripcionActiva();
-        this.guardarMetodoPagoStorage();
-        this.agregarPagoAlHistorial();
-        this.registrarOperacionPlanMensual();
-        this.guardarModoCompletado();
-
-        this.tituloConfirmacion = 'Pago completado';
-        this.descripcionConfirmacion =
-          'Tu pago fue confirmado correctamente.';
-      } catch (error) {
-        console.error('Error durante la confirmación del pago:', error);
-
-        this.tituloConfirmacion = 'Pago registrado';
-        this.descripcionConfirmacion =
-          'La operación fue procesada. Puedes revisar los cambios en Mi suscripción.';
-      }
-
+      this.guardarMetodoPagoStorage();
+      this.guardarSuscripcionActiva();
+      this.agregarPagoAlHistorial();
+      this.registrarOperacionPlanMensual();
+      this.guardarModoCompletado();
+      
+      this.tituloConfirmacion = 'Pago completado';
+      this.descripcionConfirmacion = 'Tu pago fue confirmado y tu suscripción se ha actualizado.';
+      
       this.procesando = false;
       this.confirmado = true;
       this.cdr.detectChanges();
@@ -479,7 +473,7 @@ export class SaasBilling implements OnInit {
       setTimeout(() => {
         this.router.navigate(['/saas']);
       }, 3000);
-    }, 1800);
+    }, 2000);
   }
 
   guardarMetodoPago(): void {
@@ -491,37 +485,23 @@ export class SaasBilling implements OnInit {
       return;
     }
 
-    try {
-      this.guardarMetodoPagoStorage();
+    this.procesando = true;
+    this.cdr.detectChanges();
 
+    // Mock update payment method
+    setTimeout(() => {
+      this.guardarMetodoPagoStorage();
+      
       this.procesando = false;
       this.confirmado = true;
       this.tituloConfirmacion = 'Cambio realizado';
-      this.descripcionConfirmacion =
-        'El método de pago fue actualizado correctamente.';
-
-      /*
-        IMPORTANTE:
-        No se llama a guardarModoCompletado() aquí porque cambia
-        modoFacturacion a "completed" y eso puede hacer que el HTML
-        muestre "Pago completado". Para este flujo mantenemos
-        modoFacturacion = "update-payment-method" hasta navegar.
-      */
-
+      this.descripcionConfirmacion = 'El método de pago fue actualizado correctamente.';
       this.cdr.detectChanges();
 
       setTimeout(() => {
         this.router.navigate(['/saas']);
       }, 1800);
-    } catch (error) {
-      console.error('Error al actualizar método de pago:', error);
-
-      this.procesando = false;
-      this.confirmado = false;
-      this.mensajeBloqueoPago =
-        'No se pudo actualizar el método de pago. Intenta nuevamente.';
-      this.cdr.detectChanges();
-    }
+    }, 2000);
   }
 
   guardarSuscripcionActiva(): void {

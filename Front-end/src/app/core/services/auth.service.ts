@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, of, map } from 'rxjs';
+import { Observable, tap, catchError, of, map, switchMap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import {
@@ -19,16 +19,29 @@ export class AuthService {
   currentUser = signal<AuthUser | null>(null);
   isAuthenticated = signal<boolean>(false);
 
-  login(credentials: LoginRequest): Observable<LoginResponse> {
+  login(credentials: LoginRequest, subdomain: string): Observable<any> {
+    const headers = new HttpHeaders({
+      'X-Tenant-Subdomain': subdomain,
+    });
+
     return this.http
-      .post<LoginResponse>(`${this.apiUrl}/auth/login`, credentials, {
-        withCredentials: true,
-      })
+      .post<{ message: string; token: string; tokenType: string }>(
+        `${this.apiUrl}/auth/login`,
+        credentials,
+        {
+          headers,
+          withCredentials: true,
+        }
+      )
       .pipe(
-       tap((res) => {
+        tap((res) => {
+          // Store the token from the response body as a fallback
+          // in case the HttpOnly cookie doesn't work cross-origin
+          if (res.token) {
+            localStorage.setItem('auth_token', res.token);
+          }
+          localStorage.setItem('tenant_subdomain', subdomain);
           this.isAuthenticated.set(true);
-          this.currentUser.set(res.usuario);
-          console.log(res);
         })
       );
   }
@@ -40,6 +53,8 @@ export class AuthService {
       })
       .pipe(
         tap(() => {
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('tenant_subdomain');
           this.currentUser.set(null);
           this.isAuthenticated.set(false);
           this.router.navigate(['/iniciar-sesion']);
@@ -55,21 +70,24 @@ export class AuthService {
 
   checkAuth(): Observable<boolean> {
     return this.http
-      .get(`${this.apiUrl}/auth/usuarios/1`, {
+      .get(`${this.apiUrl}/auth/me`, {
         withCredentials: true,
         observe: 'response',
       })
       .pipe(
-        tap((res) => {
-          if (res.ok) {
+        tap((res: any) => {
+          if (res.ok && res.body) {
             this.isAuthenticated.set(true);
+            this.currentUser.set(res.body);
           }
         }),
         map((res) => res.ok),
         catchError(() => {
           this.isAuthenticated.set(false);
+          this.currentUser.set(null);
           return of(false);
         })
       );
   }
 }
+
