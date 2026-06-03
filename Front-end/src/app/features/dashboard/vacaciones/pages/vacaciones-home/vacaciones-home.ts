@@ -1,9 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { Sidebar } from '../../../components/sidebar/sidebar';
 import { Topbar } from '../../../components/topbar/topbar';
+
+import {
+  SaasFeatureKey,
+  SaasPlanService,
+} from '../../../../../core/services/saas-plan.service';
 
 type EstadoSolicitud = 'PENDIENTE' | 'APROBADA' | 'RECHAZADA' | 'ANULADA';
 
@@ -31,14 +36,16 @@ interface SolicitudVacacion {
   standalone: true,
   imports: [CommonModule, FormsModule, Sidebar, Topbar],
   templateUrl: './vacaciones-home.html',
-  styleUrl: './vacaciones-home.css'
+  styleUrl: './vacaciones-home.css',
 })
 export class VacacionesHome {
+  private saasPlanService = inject(SaasPlanService);
+
   estadosSolicitud: EstadoSolicitud[] = [
     'PENDIENTE',
     'APROBADA',
     'RECHAZADA',
-    'ANULADA'
+    'ANULADA',
   ];
 
   usuarios: UsuarioVacacion[] = [];
@@ -52,14 +59,14 @@ export class VacacionesHome {
     fechaFin: '',
     fechaSolicitud: this.obtenerFechaActual(),
     estado: 'PENDIENTE' as EstadoSolicitud,
-    motivo: ''
+    motivo: '',
   };
 
   filtros = {
     usuario: '',
     estado: 'TODOS',
     gestion: 'TODAS',
-    fecha: ''
+    fecha: '',
   };
 
   solicitudSeleccionada: SolicitudVacacion | null = null;
@@ -70,27 +77,84 @@ export class VacacionesHome {
 
   mensajeFormulario = '';
 
+  // MODAL DE BLOQUEO SAAS
+  bloqueoVisible = false;
+  bloqueoTitulo = '';
+  bloqueoMensaje = '';
+  bloqueoPlanActual = '';
+  bloqueoPlanRequerido = '';
+
+  // =========================================================
+  // PLAN SAAS
+  // =========================================================
+
+  puedeUsar(feature: SaasFeatureKey): boolean {
+    return this.saasPlanService.canAccess(feature);
+  }
+
+  accionBloqueada(feature: SaasFeatureKey): boolean {
+    return !this.puedeUsar(feature);
+  }
+
+  getPlanActual(): string {
+    return this.saasPlanService.getPlanLabel(
+      this.saasPlanService.getActivePlan()
+    );
+  }
+
+  mostrarBloqueo(feature: SaasFeatureKey, titulo: string): void {
+    const planActual = this.saasPlanService.getActivePlan();
+    const planRequerido = this.saasPlanService.getRequiredPlan(feature);
+
+    this.bloqueoTitulo = titulo;
+    this.bloqueoMensaje = this.saasPlanService.getLockMessage(feature);
+    this.bloqueoPlanActual = this.saasPlanService.getPlanLabel(planActual);
+    this.bloqueoPlanRequerido =
+      this.saasPlanService.getPlanLabel(planRequerido);
+    this.bloqueoVisible = true;
+  }
+
+  cerrarBloqueo(): void {
+    this.bloqueoVisible = false;
+    this.bloqueoTitulo = '';
+    this.bloqueoMensaje = '';
+    this.bloqueoPlanActual = '';
+    this.bloqueoPlanRequerido = '';
+  }
+
+  bloquearSiNoTieneVacaciones(titulo: string): boolean {
+    if (this.accionBloqueada('vacaciones')) {
+      this.mostrarBloqueo('vacaciones', titulo);
+      return true;
+    }
+
+    return false;
+  }
+
+  // =========================================================
+  // RESUMEN
+  // =========================================================
+
   get totalSolicitudes(): number {
     return this.solicitudesVacacion.length;
   }
 
   get totalPendientes(): number {
     return this.solicitudesVacacion.filter(
-      solicitud => solicitud.estado === 'PENDIENTE'
+      (solicitud) => solicitud.estado === 'PENDIENTE'
     ).length;
   }
 
   get totalAprobadas(): number {
     return this.solicitudesVacacion.filter(
-      solicitud => solicitud.estado === 'APROBADA'
+      (solicitud) => solicitud.estado === 'APROBADA'
     ).length;
   }
 
   get totalRechazadasAnuladas(): number {
     return this.solicitudesVacacion.filter(
-      solicitud =>
-        solicitud.estado === 'RECHAZADA' ||
-        solicitud.estado === 'ANULADA'
+      (solicitud) =>
+        solicitud.estado === 'RECHAZADA' || solicitud.estado === 'ANULADA'
     ).length;
   }
 
@@ -103,14 +167,14 @@ export class VacacionesHome {
 
   get gestionesDisponibles(): number[] {
     const gestiones = this.solicitudesVacacion.map(
-      solicitud => solicitud.gestion
+      (solicitud) => solicitud.gestion
     );
 
     return Array.from(new Set(gestiones)).sort((a, b) => b - a);
   }
 
   get solicitudesFiltradas(): SolicitudVacacion[] {
-    return this.solicitudesVacacion.filter(solicitud => {
+    return this.solicitudesVacacion.filter((solicitud) => {
       const nombreUsuario = this.obtenerNombreUsuario(
         solicitud.usuarioId
       ).toLowerCase();
@@ -137,8 +201,16 @@ export class VacacionesHome {
     });
   }
 
+  // =========================================================
+  // REGISTRAR SOLICITUD
+  // =========================================================
+
   registrarSolicitud(): void {
     this.mensajeFormulario = '';
+
+    if (this.bloquearSiNoTieneVacaciones('Registrar solicitud de vacaciones')) {
+      return;
+    }
 
     const nombreUsuario = this.nuevaSolicitud.usuarioNombre.trim();
     const correoUsuario = this.nuevaSolicitud.usuarioCorreo.trim();
@@ -178,12 +250,12 @@ export class VacacionesHome {
       estado: 'PENDIENTE',
       motivo: this.nuevaSolicitud.motivo.trim() || 'Sin motivo registrado.',
       observacionRevision: '',
-      gestion
+      gestion,
     };
 
     this.solicitudesVacacion = [
       nuevaSolicitudVacacion,
-      ...this.solicitudesVacacion
+      ...this.solicitudesVacacion,
     ];
 
     this.nuevaSolicitud = {
@@ -193,12 +265,16 @@ export class VacacionesHome {
       fechaFin: '',
       fechaSolicitud: this.obtenerFechaActual(),
       estado: 'PENDIENTE',
-      motivo: ''
+      motivo: '',
     };
 
     this.mensajeFormulario =
       'Solicitud registrada correctamente en estado Pendiente.';
   }
+
+  // =========================================================
+  // DETALLE
+  // =========================================================
 
   verDetalle(solicitud: SolicitudVacacion): void {
     this.solicitudSeleccionada = solicitud;
@@ -208,7 +284,15 @@ export class VacacionesHome {
     this.solicitudSeleccionada = null;
   }
 
+  // =========================================================
+  // APROBAR / RECHAZAR / ANULAR
+  // =========================================================
+
   aprobarSolicitud(solicitud: SolicitudVacacion): void {
+    if (this.bloquearSiNoTieneVacaciones('Aprobar solicitud de vacaciones')) {
+      return;
+    }
+
     if (solicitud.estado !== 'PENDIENTE') {
       return;
     }
@@ -224,6 +308,15 @@ export class VacacionesHome {
     solicitud: SolicitudVacacion,
     accion: 'RECHAZADA' | 'ANULADA'
   ): void {
+    const titulo =
+      accion === 'RECHAZADA'
+        ? 'Rechazar solicitud de vacaciones'
+        : 'Anular solicitud de vacaciones';
+
+    if (this.bloquearSiNoTieneVacaciones(titulo)) {
+      return;
+    }
+
     if (!this.puedeRechazarOAnular(solicitud)) {
       return;
     }
@@ -235,6 +328,14 @@ export class VacacionesHome {
   }
 
   confirmarRevision(): void {
+    if (
+      this.bloquearSiNoTieneVacaciones(
+        'Confirmar revisión de solicitud de vacaciones'
+      )
+    ) {
+      return;
+    }
+
     if (!this.solicitudRevision || !this.accionRevision) {
       return;
     }
@@ -255,17 +356,25 @@ export class VacacionesHome {
     this.observacionRevision = '';
   }
 
+  // =========================================================
+  // FILTROS
+  // =========================================================
+
   limpiarFiltros(): void {
     this.filtros = {
       usuario: '',
       estado: 'TODOS',
       gestion: 'TODAS',
-      fecha: ''
+      fecha: '',
     };
   }
 
+  // =========================================================
+  // USUARIOS
+  // =========================================================
+
   obtenerUsuario(usuarioId: number): UsuarioVacacion | undefined {
-    return this.usuarios.find(usuario => usuario.idUsuario === usuarioId);
+    return this.usuarios.find((usuario) => usuario.idUsuario === usuarioId);
   }
 
   obtenerNombreUsuario(usuarioId: number): string {
@@ -275,6 +384,10 @@ export class VacacionesHome {
   obtenerCorreoUsuario(usuarioId: number): string {
     return this.obtenerUsuario(usuarioId)?.correo || 'Sin correo registrado';
   }
+
+  // =========================================================
+  // UTILIDADES
+  // =========================================================
 
   calcularDiasSolicitados(fechaInicio: string, fechaFin: string): number {
     if (!fechaInicio || !fechaFin) {
@@ -310,7 +423,7 @@ export class VacacionesHome {
 
   private obtenerOCrearUsuario(nombre: string, correo: string): number {
     const usuarioExistente = this.usuarios.find(
-      usuario => usuario.nombre.toLowerCase() === nombre.toLowerCase()
+      (usuario) => usuario.nombre.toLowerCase() === nombre.toLowerCase()
     );
 
     if (usuarioExistente) {
@@ -324,7 +437,7 @@ export class VacacionesHome {
     const nuevoUsuario: UsuarioVacacion = {
       idUsuario: this.generarIdUsuario(),
       nombre,
-      correo: correo || 'Sin correo registrado'
+      correo: correo || 'Sin correo registrado',
     };
 
     this.usuarios = [...this.usuarios, nuevoUsuario];
